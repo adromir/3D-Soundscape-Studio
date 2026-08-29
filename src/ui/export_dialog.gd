@@ -57,6 +57,12 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 		mat.set_shader_parameter("orb1_color", orbs["orb1"])
 		mat.set_shader_parameter("orb2_color", orbs["orb2"])
 		mat.set_shader_parameter("orb3_color", orbs["orb3"])
+		if mode == ThemeManager.ThemeMode.ZEN:
+			mat.set_shader_parameter("use_texture", true)
+			if ResourceLoader.exists("res://assets/textures/zen/bg_zen_atmosphere.png"):
+				mat.set_shader_parameter("bg_texture", load("res://assets/textures/zen/bg_zen_atmosphere.png"))
+		else:
+			mat.set_shader_parameter("use_texture", false)
 
 	if header_panel:
 		var h_sb: StyleBoxFlat = StyleBoxFlat.new()

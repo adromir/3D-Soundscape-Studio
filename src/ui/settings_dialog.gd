@@ -60,6 +60,7 @@ func _ready() -> void:
 	_populate_devices()
 	_populate_layouts()
 	load_settings()
+	_setup_realtime_sync()
 	apply_theme(ThemeManager.current_theme)
 
 func apply_theme(mode: ThemeManager.ThemeMode) -> void:
@@ -72,6 +73,12 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 		mat.set_shader_parameter("orb1_color", orbs["orb1"])
 		mat.set_shader_parameter("orb2_color", orbs["orb2"])
 		mat.set_shader_parameter("orb3_color", orbs["orb3"])
+		if mode == ThemeManager.ThemeMode.ZEN:
+			mat.set_shader_parameter("use_texture", true)
+			if ResourceLoader.exists("res://assets/textures/zen/bg_zen_atmosphere.png"):
+				mat.set_shader_parameter("bg_texture", load("res://assets/textures/zen/bg_zen_atmosphere.png"))
+		else:
+			mat.set_shader_parameter("use_texture", false)
 
 	if header_panel:
 		var h_sb: StyleBoxFlat = StyleBoxFlat.new()
@@ -179,7 +186,31 @@ func load_settings() -> Dictionary:
 	if chk_radar_animation: chk_radar_animation.button_pressed = bool(data.get("radar_animation", true))
 	return data
 
+func _setup_realtime_sync() -> void:
+	if device_option:
+		device_option.item_selected.connect(func(idx: int):
+			var dev: String = device_option.get_item_text(idx)
+			AudioServer.set_output_device(dev)
+			_save_current_settings(false)
+		)
+	if layout_option:
+		layout_option.item_selected.connect(func(_idx: int):
+			_save_current_settings(false)
+		)
+	if chk_radar_animation:
+		chk_radar_animation.toggled.connect(func(_val: bool):
+			_save_current_settings(false)
+		)
+	for edit in [lib_path_edit, samples_path_edit, export_path_edit, sofa_path_edit, ffmpeg_path_edit]:
+		if edit:
+			edit.text_changed.connect(func(_t: String):
+				_save_current_settings(false)
+			)
+
 func _on_save_pressed() -> void:
+	_save_current_settings(true)
+
+func _save_current_settings(should_hide: bool = false) -> void:
 	var existing_data: Dictionary = {}
 	if FileAccess.file_exists(SETTINGS_FILE):
 		var fr: FileAccess = FileAccess.open(SETTINGS_FILE, FileAccess.READ)
@@ -205,10 +236,10 @@ func _on_save_pressed() -> void:
 	if file:
 		file.store_string(JSON.stringify(existing_data, "\t"))
 		file.close()
-		print("✔ Settings successfully saved to: ", ProjectSettings.globalize_path(SETTINGS_FILE))
 
 	settings_saved.emit()
-	hide()
+	if should_hide:
+		hide()
 
 func _test_ffmpeg_path() -> void:
 	var path: String = ffmpeg_path_edit.text.strip_edges() if ffmpeg_path_edit else ""

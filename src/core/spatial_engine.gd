@@ -7,12 +7,15 @@ extends Node3D
 signal track_triggered(track_id: String)
 signal track_position_updated(track_id: String, azimuth: float, elevation: float, distance: float)
 signal listener_position_updated(pos: Vector3, t: float)
+signal playback_state_changed(is_playing: bool)
 
 var _project: SoundscapeData.SoundscapeProject = null
 var _audio_players: Dictionary = {} # track_id -> AudioStreamPlayer3D or AudioStreamPlayer
 var _schedulers: Dictionary = {} # track_id -> SoundscapeScheduler.RuntimeTrackState
 var _streams: Dictionary = {} # track_id -> AudioStream
 var _is_playing: bool = false
+var is_playing: bool:
+	get: return _is_playing
 var speaker_layout: SpeakerLayouts.LayoutType = SpeakerLayouts.LayoutType.BINAURAL_SOFA
 
 var _audio_viewport: SubViewport = null
@@ -210,6 +213,7 @@ func play_all() -> void:
 			# Prime scheduler for natural randomized lead-in
 			if _schedulers.has(track.id):
 				_schedulers[track.id]._schedule_next(true)
+	playback_state_changed.emit(_is_playing)
 
 func stop_all() -> void:
 	_is_playing = false
@@ -219,6 +223,7 @@ func stop_all() -> void:
 			player.stop()
 		elif player is AudioStreamPlayer:
 			player.stop()
+	playback_state_changed.emit(_is_playing)
 
 func pause_all() -> void:
 	_is_playing = false
@@ -228,6 +233,7 @@ func pause_all() -> void:
 			player.stream_paused = true
 		elif player is AudioStreamPlayer:
 			player.stream_paused = true
+	playback_state_changed.emit(_is_playing)
 
 func resume_all() -> void:
 	_is_playing = true
@@ -237,6 +243,7 @@ func resume_all() -> void:
 			player.stream_paused = false
 		elif player is AudioStreamPlayer:
 			player.stream_paused = false
+	playback_state_changed.emit(_is_playing)
 
 func _play_track_stream(track_id: String, _loop: bool) -> void:
 	if not _audio_players.has(track_id):

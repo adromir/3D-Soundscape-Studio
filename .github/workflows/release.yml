@@ -1,0 +1,519 @@
+name: Multi-Platform Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Release version tag (e.g. v2.0.0)'
+        required: true
+        default: 'v2.0.0'
+        type: string
+      godot_version:
+        description: 'Godot version to use for export'
+        required: true
+        default: '4.3-stable'
+        type: string
+      is_prerelease:
+        description: 'Mark this release as a pre-release'
+        required: false
+        default: false
+        type: boolean
+      custom_notes:
+        description: 'Custom release notes (optional)'
+        required: false
+        default: ''
+        type: string
+
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  # =========================================================================
+  # 1. WINDOWS BUILD & PACKAGING (Setup MSI + Portable ZIP)
+  # =========================================================================
+  build-windows:
+    name: Build & Package Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Resolve Version Info
+        id: vars
+        shell: pwsh
+        run: |
+          $ver = if ("${{ github.event.inputs.version_tag }}" -ne "") { "${{ github.event.inputs.version_tag }}" } else { "${{ github.ref_name }}" }
+          if (-not $ver -or $ver -eq "") { $ver = "v2.0.0" }
+          $cleanVer = $ver.TrimStart('v')
+          $parts = $cleanVer.Split('.')
+          while ($parts.Count -lt 3) { $parts += "0" }
+          $msiVer = "$($parts[0]).$($parts[1]).$($parts[2])"
+          
+          $godotVer = if ("${{ github.event.inputs.godot_version }}" -ne "") { "${{ github.event.inputs.godot_version }}" } else { "4.3-stable" }
+          
+          Write-Output "VERSION_TAG=$ver" >> $env:GITHUB_ENV
+          Write-Output "VERSION_NAME=$ver" >> $env:GITHUB_ENV
+          Write-Output "MSI_VERSION=$msiVer" >> $env:GITHUB_ENV
+          Write-Output "GODOT_VERSION=$godotVer" >> $env:GITHUB_ENV
+          Write-Output "Version: $ver (MSI: $msiVer), Godot: $godotVer"
+
+      - name: Setup Godot Engine & Export Templates
+        shell: pwsh
+        run: |
+          $gVer = $env:GODOT_VERSION
+          $godotUrl = "https://github.com/godotengine/godot/releases/download/$gVer/Godot_v${gVer}_win64.exe.zip"
+          $tpzUrl = "https://github.com/godotengine/godot/releases/download/$gVer/Godot_v${gVer}_export_templates.tpz"
+          
+          Write-Host "Downloading Godot $gVer..."
+          Invoke-WebRequest -Uri $godotUrl -OutFile "godot_win.zip"
+          Expand-Archive -Path "godot_win.zip" -DestinationPath "godot_bin"
+          $godotExe = (Get-ChildItem -Path "godot_bin" -Filter "*.exe" -File)[0].FullName
+          Write-Output "GODOT_EXE=$godotExe" >> $env:GITHUB_ENV
+          
+          Write-Host "Downloading Export Templates..."
+          Invoke-WebRequest -Uri $tpzUrl -OutFile "templates.tpz"
+          Expand-Archive -Path "templates.tpz" -DestinationPath "templates_extracted"
+          
+          $tplDir = "$env:APPDATA\Godot\export_templates\$($gVer.Replace('-','.'))"
+          New-Item -ItemType Directory -Force -Path $tplDir | Out-Null
+          Copy-Item -Path "templates_extracted\templates\*" -Destination $tplDir -Recurse -Force
+          Write-Host "Templates installed to: $tplDir"
+
+      - name: Export Windows Executable
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "build\windows" | Out-Null
+          & "$env:GODOT_EXE" --headless --path . --export-release "Windows Desktop" "build\windows\3D-Soundscape-Studio.exe"
+          if (-not (Test-Path "build\windows\3D-Soundscape-Studio.exe")) {
+            throw "Windows export failed! Executable not found."
+          }
+          Write-Host "Successfully exported Windows binary."
+
+      - name: Create Portable ZIP Archive
+        shell: pwsh
+        run: |
+          $zipName = "3D-Soundscape-Studio-$env:VERSION_NAME-Windows-Portable.zip"
+          Compress-Archive -Path "build\windows\3D-Soundscape-Studio.exe", "icon.png" -DestinationPath $zipName
+          Write-Host "Created portable archive: $zipName"
+
+      - name: Build Windows Installer (.msi) via WiX
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Drawing
+          $bmp = [System.Drawing.Bitmap]::FromFile("$PWD\icon.png")
+          $thumb = New-Object System.Drawing.Bitmap($bmp, 256, 256)
+          $hIcon = $thumb.GetHicon()
+          $ico = [System.Drawing.Icon]::FromHandle($hIcon)
+          $fs = New-Object System.IO.FileStream("$PWD\icon.ico", [System.IO.FileMode]::Create)
+          $ico.Save($fs)
+          $fs.Close()
+          $bmp.Dispose()
+          $thumb.Dispose()
+
+          $msiVersion = $env:MSI_VERSION
+          $wxsContent = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="3D Soundscape Studio" Language="1033" Version="$msiVersion" Manufacturer="Adromir" UpgradeCode="7C23A4D6-952F-4A99-8D92-56D9BA773C30">
+    <Package InstallerVersion="300" Compressed="yes" InstallScope="perMachine" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of 3D Soundscape Studio is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Icon Id="AppIcon" SourceFile="icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/adromir/3D-Soundscape-Studio" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="3D Soundscape Studio" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="3D Soundscape Studio" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="A38E6FE2-5401-4467-A964-D72D6D3A0A21" Win64="yes">
+        <File Id="StudioExe" Source="build\windows\3D-Soundscape-Studio.exe" KeyPath="yes">
+          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="3D Soundscape Studio"
+                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />
+          <Shortcut Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Name="3D Soundscape Studio"
+                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />
+        </File>
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="B8138DE5-4F77-4C0A-B31F-725F70659C99">
+        <RemoveFolder Id="CleanUpShortCut" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\Adromir\3DSoundscapeStudio" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="ProductFeature" Title="3D Soundscape Studio" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+    
+    <UIRef Id="WixUI_Minimal" />
+  </Product>
+</Wix>
+"@
+          Set-Content -Path "installer.wxs" -Value $wxsContent -Encoding UTF8
+          
+          $wixBin = if (Test-Path "$env:WIX\bin\candle.exe") { "$env:WIX\bin" } else { "C:\Program Files (x86)\WiX Toolset v3.11\bin" }
+          $msiName = "3D-Soundscape-Studio-$env:VERSION_NAME-Windows-Setup.msi"
+          
+          if (Test-Path "$wixBin\candle.exe") {
+            Write-Host "Compiling MSI using WiX v3 ($wixBin)..."
+            & "$wixBin\candle.exe" -arch x64 -out "installer.wixobj" "installer.wxs"
+            & "$wixBin\light.exe" -ext WixUIExtension -out $msiName "installer.wixobj"
+          } elseif (Get-Command "wix" -ErrorAction SilentlyContinue) {
+            Write-Host "Compiling MSI using WiX v4/v5..."
+            wix build -arch x64 -o $msiName "installer.wxs"
+          } else {
+            throw "WiX Toolset not found in runner!"
+          }
+          
+          if (-not (Test-Path $msiName)) {
+            throw "MSI build failed!"
+          }
+          Write-Host "Successfully generated MSI installer: $msiName"
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: |
+            3D-Soundscape-Studio-*-Windows-Setup.msi
+            3D-Soundscape-Studio-*-Windows-Portable.zip
+
+  # =========================================================================
+  # 2. LINUX BUILD & PACKAGING (AppImage, Flatpak, Debian .deb, Tarball)
+  # =========================================================================
+  build-linux:
+    name: Build & Package Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Build Dependencies (Flatpak & Tools)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder desktop-file-utils appstream
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08
+
+      - name: Resolve Version Info
+        id: vars
+        run: |
+          VER="${{ github.event.inputs.version_tag }}"
+          if [ -z "$VER" ]; then VER="${{ github.ref_name }}"; fi
+          if [ -z "$VER" ] || [ "$VER" = "main" ]; then VER="v2.0.0"; fi
+          CLEAN_VER="${VER#v}"
+          
+          GODOT_VER="${{ github.event.inputs.godot_version }}"
+          if [ -z "$GODOT_VER" ]; then GODOT_VER="4.3-stable"; fi
+          
+          echo "VERSION_TAG=$VER" >> $GITHUB_ENV
+          echo "VERSION_NAME=$VER" >> $GITHUB_ENV
+          echo "CLEAN_VERSION=$CLEAN_VER" >> $GITHUB_ENV
+          echo "GODOT_VERSION=$GODOT_VER" >> $GITHUB_ENV
+          echo "Building Linux for Version: $VER, Godot: $GODOT_VER"
+
+      - name: Setup Godot Engine & Export Templates
+        run: |
+          GVER="$GODOT_VERSION"
+          GODOT_URL="https://github.com/godotengine/godot/releases/download/${GVER}/Godot_v${GVER}_linux.x86_64.zip"
+          TPZ_URL="https://github.com/godotengine/godot/releases/download/${GVER}/Godot_v${GVER}_export_templates.tpz"
+          
+          echo "Downloading Godot Linux Binary..."
+          wget -q -O godot_linux.zip "$GODOT_URL"
+          unzip -q godot_linux.zip -d godot_bin
+          GODOT_EXE=$(find godot_bin -type f -name "Godot_*" | head -n 1)
+          chmod +x "$GODOT_EXE"
+          echo "GODOT_EXE=$GODOT_EXE" >> $GITHUB_ENV
+          
+          echo "Downloading Export Templates..."
+          wget -q -O templates.tpz "$TPZ_URL"
+          unzip -q templates.tpz -d templates_extracted
+          
+          TPL_DIR="$HOME/.local/share/godot/export_templates/${GVER/-/.}"
+          mkdir -p "$TPL_DIR"
+          cp -r templates_extracted/templates/* "$TPL_DIR/"
+          echo "Installed templates to $TPL_DIR"
+
+      - name: Export Linux Binary
+        run: |
+          mkdir -p build/linux
+          "$GODOT_EXE" --headless --path . --export-release "Linux" "build/linux/3D-Soundscape-Studio.x86_64"
+          chmod +x "build/linux/3D-Soundscape-Studio.x86_64"
+          if [ ! -f "build/linux/3D-Soundscape-Studio.x86_64" ]; then
+            echo "Error: Linux export binary missing!" && exit 1
+          fi
+
+      - name: Create Portable TAR.GZ Archive
+        run: |
+          TAR_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-x86_64.tar.gz"
+          cp icon.png build/linux/
+          tar -czvf "$TAR_NAME" -C build/linux 3D-Soundscape-Studio.x86_64 icon.png
+          echo "Created portable archive: $TAR_NAME"
+
+      - name: Build Debian Package (.deb)
+        run: |
+          DEB_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-amd64.deb"
+          PKG_ROOT="deb_staging"
+          
+          mkdir -p "$PKG_ROOT/DEBIAN"
+          mkdir -p "$PKG_ROOT/usr/bin"
+          mkdir -p "$PKG_ROOT/usr/share/applications"
+          mkdir -p "$PKG_ROOT/usr/share/icons/hicolor/1024x1024/apps"
+          
+          cp "build/linux/3D-Soundscape-Studio.x86_64" "$PKG_ROOT/usr/bin/3d-soundscape-studio"
+          chmod 755 "$PKG_ROOT/usr/bin/3d-soundscape-studio"
+          cp icon.png "$PKG_ROOT/usr/share/icons/hicolor/1024x1024/apps/com.adromir.SoundscapeStudio.png"
+          cp packaging/linux/com.adromir.SoundscapeStudio.desktop "$PKG_ROOT/usr/share/applications/"
+          
+          cat << EOF > "$PKG_ROOT/DEBIAN/control"
+Package: 3d-soundscape-studio
+Version: ${CLEAN_VERSION}
+Section: sound
+Priority: optional
+Architecture: amd64
+Maintainer: Adromir <https://github.com/adromir>
+Description: 3D Spatial Ambient Soundscape Studio & Binaural Player
+ A professional DAW and 3D spatial soundscape generator featuring real-time
+ polar positioning, HRTF binaural audio rendering, and organic sound textures.
+EOF
+          
+          dpkg-deb --build --root-owner-group "$PKG_ROOT" "$DEB_NAME"
+          echo "Successfully created Debian package: $DEB_NAME"
+
+      - name: Build Universal AppImage
+        run: |
+          APPIMAGE_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-x86_64.AppImage"
+          APP_DIR="AppDir"
+          
+          mkdir -p "$APP_DIR/usr/bin"
+          mkdir -p "$APP_DIR/usr/share/icons/hicolor/1024x1024/apps"
+          
+          cp "build/linux/3D-Soundscape-Studio.x86_64" "$APP_DIR/usr/bin/3d-soundscape-studio"
+          chmod 755 "$APP_DIR/usr/bin/3d-soundscape-studio"
+          cp icon.png "$APP_DIR/usr/share/icons/hicolor/1024x1024/apps/com.adromir.SoundscapeStudio.png"
+          cp icon.png "$APP_DIR/com.adromir.SoundscapeStudio.png"
+          cp packaging/linux/com.adromir.SoundscapeStudio.desktop "$APP_DIR/"
+          
+          # Standard AppRun entry script
+          cat << 'EOF' > "$APP_DIR/AppRun"
+#!/bin/sh
+HERE="$(dirname "$(readlink -f "${0}")")"
+exec "${HERE}/usr/bin/3d-soundscape-studio" "$@"
+EOF
+          chmod +x "$APP_DIR/AppRun"
+          
+          # Download official appimagetool
+          wget -q -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          
+          ARCH=x86_64 ./appimagetool --appimage-extract-and-run "$APP_DIR" "$APPIMAGE_NAME"
+          echo "Successfully created AppImage: $APPIMAGE_NAME"
+
+      - name: Build Flatpak Bundle (.flatpak)
+        run: |
+          FLATPAK_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-x86_64.flatpak"
+          
+          cd packaging/linux
+          flatpak-builder --user --repo=flatpak_repo --force-clean build-dir com.adromir.SoundscapeStudio.yaml
+          flatpak build-bundle flatpak_repo "../../$FLATPAK_NAME" com.adromir.SoundscapeStudio
+          cd ../..
+          
+          echo "Successfully created Flatpak bundle: $FLATPAK_NAME"
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: |
+            3D-Soundscape-Studio-*-Linux-x86_64.AppImage
+            3D-Soundscape-Studio-*-Linux-x86_64.flatpak
+            3D-Soundscape-Studio-*-Linux-amd64.deb
+            3D-Soundscape-Studio-*-Linux-x86_64.tar.gz
+
+  # =========================================================================
+  # 3. MACOS BUILD & PACKAGING (Drag & Drop .dmg + Portable .zip)
+  # =========================================================================
+  build-macos:
+    name: Build & Package macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Resolve Version Info
+        id: vars
+        run: |
+          VER="${{ github.event.inputs.version_tag }}"
+          if [ -z "$VER" ]; then VER="${{ github.ref_name }}"; fi
+          if [ -z "$VER" ] || [ "$VER" = "main" ]; then VER="v2.0.0"; fi
+          
+          GODOT_VER="${{ github.event.inputs.godot_version }}"
+          if [ -z "$GODOT_VER" ]; then GODOT_VER="4.3-stable"; fi
+          
+          echo "VERSION_TAG=$VER" >> $GITHUB_ENV
+          echo "VERSION_NAME=$VER" >> $GITHUB_ENV
+          echo "GODOT_VERSION=$GODOT_VER" >> $GITHUB_ENV
+          echo "Building macOS for Version: $VER, Godot: $GODOT_VER"
+
+      - name: Setup Godot Engine & Export Templates
+        run: |
+          GVER="$GODOT_VERSION"
+          GODOT_URL="https://github.com/godotengine/godot/releases/download/${GVER}/Godot_v${GVER}_macos.universal.zip"
+          TPZ_URL="https://github.com/godotengine/godot/releases/download/${GVER}/Godot_v${GVER}_export_templates.tpz"
+          
+          echo "Downloading Godot macOS Universal..."
+          curl -sL -o godot_mac.zip "$GODOT_URL"
+          unzip -q godot_mac.zip -d godot_bin
+          GODOT_EXE="godot_bin/Godot.app/Contents/MacOS/Godot"
+          chmod +x "$GODOT_EXE"
+          echo "GODOT_EXE=$GODOT_EXE" >> $GITHUB_ENV
+          
+          echo "Downloading Export Templates..."
+          curl -sL -o templates.tpz "$TPZ_URL"
+          unzip -q templates.tpz -d templates_extracted
+          
+          TPL_DIR="$HOME/Library/Application Support/Godot/export_templates/${GVER/-/.}"
+          mkdir -p "$TPL_DIR"
+          cp -r templates_extracted/templates/* "$TPL_DIR/"
+          echo "Installed templates to $TPL_DIR"
+
+      - name: Export macOS Application Bundle
+        run: |
+          mkdir -p build/macos
+          "$GODOT_EXE" --headless --path . --export-release "macOS" "build/macos/3D-Soundscape-Studio.zip"
+          unzip -q "build/macos/3D-Soundscape-Studio.zip" -d "build/macos/"
+          
+          APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: macOS .app bundle not found after export!" && exit 1
+          fi
+          echo "Found application bundle: $APP_PATH"
+          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+
+      - name: Create Portable ZIP Archive
+        run: |
+          ZIP_NAME="3D-Soundscape-Studio-${VERSION_NAME}-macOS-Universal.zip"
+          ditto -c -k --keepParent "$APP_PATH" "$ZIP_NAME"
+          echo "Created portable archive: $ZIP_NAME"
+
+      - name: Create Drag-and-Drop Installer (.dmg)
+        run: |
+          DMG_NAME="3D-Soundscape-Studio-${VERSION_NAME}-macOS.dmg"
+          DMG_STAGING="dmg_staging"
+          mkdir -p "$DMG_STAGING"
+          
+          cp -R "$APP_PATH" "$DMG_STAGING/"
+          ln -s /Applications "$DMG_STAGING/Applications"
+          
+          hdiutil create -volname "3D Soundscape Studio" \
+                         -srcfolder "$DMG_STAGING" \
+                         -ov -format UDZO \
+                         "$DMG_NAME"
+          
+          echo "Successfully created DMG image: $DMG_NAME"
+
+      - name: Upload macOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-macos
+          path: |
+            3D-Soundscape-Studio-*-macOS.dmg
+            3D-Soundscape-Studio-*-macOS-Universal.zip
+
+  # =========================================================================
+  # 4. PUBLISH GITHUB RELEASE
+  # =========================================================================
+  publish-release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-linux, build-macos]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download All Platform Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_assets
+          merge-multiple: true
+
+      - name: Generate Checksums & Prepare Release
+        run: |
+          cd release_assets
+          sha256sum * > SHA256SUMS.txt
+          echo "=== Computed Checksums ==="
+          cat SHA256SUMS.txt
+          
+          VER="${{ github.event.inputs.version_tag }}"
+          if [ -z "$VER" ]; then VER="${{ github.ref_name }}"; fi
+          if [ -z "$VER" ] || [ "$VER" = "main" ]; then VER="v2.0.0"; fi
+          
+          TITLE="3D Soundscape Studio ${VER}"
+          PRERELEASE_FLAG=""
+          if [ "${{ github.event.inputs.is_prerelease }}" = "true" ]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+          
+          echo "RELEASE_TAG=$VER" >> $GITHUB_ENV
+          echo "RELEASE_TITLE=$TITLE" >> $GITHUB_ENV
+          echo "PRERELEASE_FLAG=$PRERELEASE_FLAG" >> $GITHUB_ENV
+
+      - name: Create or Update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd release_assets
+          
+          CUSTOM_NOTES="${{ github.event.inputs.custom_notes }}"
+          if [ -z "$CUSTOM_NOTES" ]; then
+            NOTES=$(cat << 'EOF'
+## 3D Soundscape Studio
+
+A 3D spatial ambient soundscape studio and binaural player with real-time polar positioning, multi-channel HRTF rendering, and organic sound textures.
+
+### 📦 Available Downloads
+
+#### 🪟 Windows (x64)
+- **Interactive Setup Installer**: `3D-Soundscape-Studio-*-Windows-Setup.msi`
+- **Portable Standalone**: `3D-Soundscape-Studio-*-Windows-Portable.zip`
+
+#### 🐧 Linux (x86_64)
+- **Universal AppImage**: `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
+- **Flatpak Bundle**: `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
+- **Debian / Ubuntu Package**: `3D-Soundscape-Studio-*-Linux-amd64.deb`
+- **Portable Standalone**: `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
+
+#### 🍎 macOS (Universal / Apple Silicon & Intel)
+- **Drag-and-Drop Disk Image**: `3D-Soundscape-Studio-*-macOS.dmg`
+- **Portable App Archive**: `3D-Soundscape-Studio-*-macOS-Universal.zip`
+
+---
+*All packages are signed with cryptographic SHA256 checksums in `SHA256SUMS.txt`.*
+EOF
+)
+          else
+            NOTES="$CUSTOM_NOTES"
+          fi
+
+          echo "Publishing Release for tag: $RELEASE_TAG..."
+          gh release create "$RELEASE_TAG" * \
+            --title "$RELEASE_TITLE" \
+            --notes "$NOTES" \
+            $PRERELEASE_FLAG \
+            --generate-notes=false || \
+          gh release upload "$RELEASE_TAG" * --clobber

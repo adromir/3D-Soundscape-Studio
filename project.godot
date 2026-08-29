@@ -13,7 +13,7 @@ config_version=5
 config/name="3D Soundscape Studio"
 run/main_scene="res://src/ui/main_view.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
-boot_splash/bg_color=Color(0.035, 0.045, 0.075, 1)
+boot_splash/bg_color=Color(0.045, 0.052, 0.065, 1)
 boot_splash/show_image=false
 boot_splash/stretch_mode=0
 boot_splash/use_filter=false
@@ -27,7 +27,7 @@ _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 window/size/viewport_width=1600
 window/size/viewport_height=900
-window/subwindows/embed_subwindows=false
+window/subwindows/embed_subwindows=true
 window/stretch/aspect="ignore"
 window/per_pixel_transparency/allowed=true
 window/size/min_width=1280

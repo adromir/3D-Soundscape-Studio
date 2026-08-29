@@ -5,6 +5,7 @@ extends RefCounted
 # Repository: https://github.com/adromir
 
 enum ThemeMode {
+	ZEN,
 	DARK,
 	LIGHT,
 	CYBERPUNK,
@@ -15,9 +16,10 @@ enum ThemeMode {
 	OCEAN
 }
 
-static var current_theme: ThemeMode = ThemeMode.DARK
+static var current_theme: ThemeMode = ThemeMode.ZEN
 
 const THEME_NAMES: Dictionary = {
+	ThemeMode.ZEN: "Organic Zen",
 	ThemeMode.DARK: "Aetheric Dark",
 	ThemeMode.LIGHT: "Studio Light",
 	ThemeMode.CYBERPUNK: "Neon Cyberpunk",
@@ -28,7 +30,29 @@ const THEME_NAMES: Dictionary = {
 	ThemeMode.OCEAN: "Abyss Ocean"
 }
 
-# 1. Authentic Liquid Glass Dark Palette
+# 1. Authentic Organic Zen Palette (Inspired by River Stones, Golden Waves, & Bamboo)
+const PALETTE_ZEN: Dictionary = {
+	"bg_base": Color(0.055, 0.062, 0.075, 1.0),
+	"panel_bg": Color(0.080, 0.095, 0.118, 0.82),
+	"panel_border": Color(0.92, 0.76, 0.42, 0.42),
+	"panel_border_glow": Color(1.0, 0.85, 0.50, 0.95),
+	"btn_normal": Color(0.12, 0.145, 0.175, 0.85),
+	"btn_hover": Color(0.96, 0.82, 0.48, 0.30),
+	"btn_pressed": Color(0.85, 0.62, 0.35, 0.55),
+	"btn_toggled": Color(0.18, 0.85, 0.60, 0.45),
+	"primary": Color(0.96, 0.82, 0.46, 1.0),
+	"secondary": Color(0.20, 0.88, 0.65, 1.0),
+	"tertiary": Color(0.86, 0.62, 0.36, 1.0),
+	"text_main": Color(0.96, 0.96, 0.92, 1.0),
+	"text_dim": Color(0.68, 0.74, 0.70, 1.0),
+	"canvas_bg": Color(0.048, 0.056, 0.070, 0.80),
+	"canvas_grid": Color(0.92, 0.76, 0.42, 0.38),
+	"canvas_radar_sweep": Color(0.20, 0.88, 0.65, 0.32),
+	"node_glow": Color(0.96, 0.82, 0.46, 0.60),
+	"node_selected": Color(0.20, 0.88, 0.65, 1.0)
+}
+
+# 2. Authentic Liquid Glass Dark Palette
 const PALETTE_DARK: Dictionary = {
 	"bg_base": Color(0.035, 0.048, 0.082, 1.0),
 	"panel_bg": Color(0.055, 0.082, 0.155, 0.60),
@@ -206,6 +230,7 @@ const PALETTE_OCEAN: Dictionary = {
 
 static func get_palette_for_mode(mode: ThemeMode) -> Dictionary:
 	match mode:
+		ThemeMode.ZEN: return PALETTE_ZEN
 		ThemeMode.DARK: return PALETTE_DARK
 		ThemeMode.LIGHT: return PALETTE_LIGHT
 		ThemeMode.CYBERPUNK: return PALETTE_CYBERPUNK
@@ -214,7 +239,7 @@ static func get_palette_for_mode(mode: ThemeMode) -> Dictionary:
 		ThemeMode.HISTORIC: return PALETTE_HISTORIC
 		ThemeMode.JUNGLE: return PALETTE_JUNGLE
 		ThemeMode.OCEAN: return PALETTE_OCEAN
-	return PALETTE_DARK
+	return PALETTE_ZEN
 
 static func get_palette() -> Dictionary:
 	return get_palette_for_mode(current_theme)
@@ -228,65 +253,123 @@ static func get_sound_icon(icon_name: String, force_dark_icon: bool = false) -> 
 	var path: String = "res://assets/icons/sound_icons/%s/%s.svg" % [subfolder, icon_name]
 	if ResourceLoader.exists(path):
 		return load(path)
-	var direct_path: String = "res://assets/icons/sound_icons/%s.svg" % icon_name
-	if ResourceLoader.exists(direct_path):
-		return load(direct_path)
 	var fallback_subfolder: String = "light" if force_dark_icon or current_theme == ThemeMode.LIGHT else "dark"
 	return load("res://assets/icons/sound_icons/%s/volume.svg" % fallback_subfolder)
 
 static func create_theme(mode: ThemeMode) -> Theme:
 	var pal: Dictionary = get_palette_for_mode(mode)
 	var theme: Theme = Theme.new()
+	var is_zen: bool = (mode == ThemeMode.ZEN)
 
-	# 1. PanelContainer Liquid Glass
-	var panel_sb: StyleBoxFlat = StyleBoxFlat.new()
-	panel_sb.bg_color = pal["panel_bg"]
-	panel_sb.set_border_width_all(1)
-	panel_sb.border_color = pal["panel_border"]
-	panel_sb.border_width_top = 1
-	panel_sb.set_corner_radius_all(8)
-	panel_sb.content_margin_left = 8
-	panel_sb.content_margin_right = 8
-	panel_sb.content_margin_top = 6
-	panel_sb.content_margin_bottom = 6
-	panel_sb.shadow_color = Color(0.0, 0.2, 0.4, 0.08)
-	panel_sb.shadow_size = 8
+	# 1. PanelContainer (Textured Basalt Slate Glass for Zen)
+	var panel_sb: StyleBox
+	if is_zen and ResourceLoader.exists("res://assets/textures/zen/panel_slate_glass.png"):
+		var p_tex: StyleBoxTexture = StyleBoxTexture.new()
+		p_tex.texture = load("res://assets/textures/zen/panel_slate_glass.png")
+		p_tex.texture_margin_left = 12
+		p_tex.texture_margin_right = 12
+		p_tex.texture_margin_top = 12
+		p_tex.texture_margin_bottom = 12
+		p_tex.content_margin_left = 10
+		p_tex.content_margin_right = 10
+		p_tex.content_margin_top = 8
+		p_tex.content_margin_bottom = 8
+		panel_sb = p_tex
+	else:
+		var p_flat: StyleBoxFlat = StyleBoxFlat.new()
+		p_flat.bg_color = pal["panel_bg"]
+		p_flat.set_border_width_all(1)
+		p_flat.border_color = pal["panel_border"]
+		p_flat.border_width_top = 1
+		p_flat.set_corner_radius_all(8)
+		p_flat.content_margin_left = 8
+		p_flat.content_margin_right = 8
+		p_flat.content_margin_top = 6
+		p_flat.content_margin_bottom = 6
+		p_flat.shadow_color = Color(0.0, 0.2, 0.4, 0.08)
+		p_flat.shadow_size = 8
+		panel_sb = p_flat
 	theme.set_stylebox("panel", "PanelContainer", panel_sb)
 
-	# 2. Button Normal
-	var btn_normal: StyleBoxFlat = StyleBoxFlat.new()
-	btn_normal.bg_color = pal["btn_normal"]
-	btn_normal.set_border_width_all(1)
-	btn_normal.border_color = pal["panel_border"]
-	btn_normal.set_corner_radius_all(5)
-	btn_normal.content_margin_left = 8
-	btn_normal.content_margin_right = 8
-	btn_normal.content_margin_top = 4
-	btn_normal.content_margin_bottom = 4
+	# 2. Button Normal (Textured Slate Pebble)
+	var btn_normal: StyleBox
+	if is_zen and ResourceLoader.exists("res://assets/textures/zen/btn_slate_normal.png"):
+		var b_tex: StyleBoxTexture = StyleBoxTexture.new()
+		b_tex.texture = load("res://assets/textures/zen/btn_slate_normal.png")
+		b_tex.texture_margin_left = 10
+		b_tex.texture_margin_right = 10
+		b_tex.texture_margin_top = 10
+		b_tex.texture_margin_bottom = 10
+		b_tex.content_margin_left = 10
+		b_tex.content_margin_right = 10
+		b_tex.content_margin_top = 5
+		b_tex.content_margin_bottom = 5
+		btn_normal = b_tex
+	else:
+		var b_flat: StyleBoxFlat = StyleBoxFlat.new()
+		b_flat.bg_color = pal["btn_normal"]
+		b_flat.set_border_width_all(1)
+		b_flat.border_color = pal["panel_border"]
+		b_flat.set_corner_radius_all(5)
+		b_flat.content_margin_left = 8
+		b_flat.content_margin_right = 8
+		b_flat.content_margin_top = 4
+		b_flat.content_margin_bottom = 4
+		btn_normal = b_flat
 	theme.set_stylebox("normal", "Button", btn_normal)
 
-	# 3. Button Hover
-	var btn_hover: StyleBoxFlat = StyleBoxFlat.new()
-	btn_hover.bg_color = pal["btn_hover"]
-	btn_hover.set_border_width_all(1)
-	btn_hover.border_color = pal["panel_border_glow"]
-	btn_hover.set_corner_radius_all(5)
-	btn_hover.content_margin_left = 8
-	btn_hover.content_margin_right = 8
-	btn_hover.content_margin_top = 4
-	btn_hover.content_margin_bottom = 4
+	# 3. Button Hover (Glowing Golden Amber Slate Rim)
+	var btn_hover: StyleBox
+	if is_zen and ResourceLoader.exists("res://assets/textures/zen/btn_slate_hover.png"):
+		var bh_tex: StyleBoxTexture = StyleBoxTexture.new()
+		bh_tex.texture = load("res://assets/textures/zen/btn_slate_hover.png")
+		bh_tex.texture_margin_left = 10
+		bh_tex.texture_margin_right = 10
+		bh_tex.texture_margin_top = 10
+		bh_tex.texture_margin_bottom = 10
+		bh_tex.content_margin_left = 10
+		bh_tex.content_margin_right = 10
+		bh_tex.content_margin_top = 5
+		bh_tex.content_margin_bottom = 5
+		btn_hover = bh_tex
+	else:
+		var bh_flat: StyleBoxFlat = StyleBoxFlat.new()
+		bh_flat.bg_color = pal["btn_hover"]
+		bh_flat.set_border_width_all(1)
+		bh_flat.border_color = pal["panel_border_glow"]
+		bh_flat.set_corner_radius_all(5)
+		bh_flat.content_margin_left = 8
+		bh_flat.content_margin_right = 8
+		bh_flat.content_margin_top = 4
+		bh_flat.content_margin_bottom = 4
+		btn_hover = bh_flat
 	theme.set_stylebox("hover", "Button", btn_hover)
 
-	# 4. Button Pressed / Toggled
-	var btn_pressed: StyleBoxFlat = StyleBoxFlat.new()
-	btn_pressed.bg_color = pal["btn_pressed"]
-	btn_pressed.set_border_width_all(2)
-	btn_pressed.border_color = pal["panel_border_glow"]
-	btn_pressed.set_corner_radius_all(5)
-	btn_pressed.content_margin_left = 8
-	btn_pressed.content_margin_right = 8
-	btn_pressed.content_margin_top = 4
-	btn_pressed.content_margin_bottom = 4
+	# 4. Button Pressed / Toggled (Warm Polished Bamboo Wood)
+	var btn_pressed: StyleBox
+	if is_zen and ResourceLoader.exists("res://assets/textures/zen/btn_bamboo_pressed.png"):
+		var bp_tex: StyleBoxTexture = StyleBoxTexture.new()
+		bp_tex.texture = load("res://assets/textures/zen/btn_bamboo_pressed.png")
+		bp_tex.texture_margin_left = 10
+		bp_tex.texture_margin_right = 10
+		bp_tex.texture_margin_top = 10
+		bp_tex.texture_margin_bottom = 10
+		bp_tex.content_margin_left = 10
+		bp_tex.content_margin_right = 10
+		bp_tex.content_margin_top = 5
+		bp_tex.content_margin_bottom = 5
+		btn_pressed = bp_tex
+	else:
+		var bp_flat: StyleBoxFlat = StyleBoxFlat.new()
+		bp_flat.bg_color = pal["btn_pressed"]
+		bp_flat.set_border_width_all(2)
+		bp_flat.border_color = pal["panel_border_glow"]
+		bp_flat.set_corner_radius_all(5)
+		bp_flat.content_margin_left = 8
+		bp_flat.content_margin_right = 8
+		bp_flat.content_margin_top = 4
+		bp_flat.content_margin_bottom = 4
+		btn_pressed = bp_flat
 	theme.set_stylebox("pressed", "Button", btn_pressed)
 
 	# 5. LineEdit / Text Inputs
@@ -406,9 +489,28 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	win_border.shadow_size = 16
 
 	theme.set_stylebox("embedded_border", "Window", win_border)
-	theme.set_stylebox("embedded_unfocused_border", "Window", panel_sb)
+	theme.set_stylebox("embedded_unfocused_border", "Window", win_border)
 	theme.set_color("title_color", "Window", pal["text_main"])
 	theme.set_color("title_outline_modulate", "Window", Color.TRANSPARENT)
+	theme.set_font_size("title_font_size", "Window", 13)
+
+	# Dialog backgrounds & panels
+	theme.set_stylebox("panel", "AcceptDialog", win_border)
+	theme.set_stylebox("panel", "ConfirmationDialog", win_border)
+	theme.set_stylebox("panel", "FileDialog", win_border)
+	theme.set_stylebox("panel", "PopupPanel", popup_panel)
+
+	# FileDialog Specific Styling
+	theme.set_stylebox("embedded_border", "FileDialog", win_border)
+	theme.set_stylebox("embedded_unfocused_border", "FileDialog", win_border)
+	theme.set_stylebox("embedded_border", "AcceptDialog", win_border)
+	theme.set_stylebox("embedded_unfocused_border", "AcceptDialog", win_border)
+	theme.set_stylebox("embedded_border", "ConfirmationDialog", win_border)
+	theme.set_stylebox("embedded_unfocused_border", "ConfirmationDialog", win_border)
+
+	theme.set_color("folder_icon_color", "FileDialog", pal["primary"])
+	theme.set_color("file_icon_color", "FileDialog", pal["secondary"])
+	theme.set_color("file_disabled_color", "FileDialog", pal["text_dim"])
 
 	# 10. ProgressBar Styling
 	var pb_bg: StyleBoxFlat = StyleBoxFlat.new()
@@ -506,33 +608,59 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	tree_panel.set_border_width_all(1)
 	tree_panel.border_color = pal["panel_border"]
 	tree_panel.set_corner_radius_all(6)
-	tree_panel.content_margin_left = 6
-	tree_panel.content_margin_right = 6
-	tree_panel.content_margin_top = 6
-	tree_panel.content_margin_bottom = 6
+	tree_panel.content_margin_left = 8
+	tree_panel.content_margin_right = 8
+	tree_panel.content_margin_top = 8
+	tree_panel.content_margin_bottom = 8
 
 	theme.set_stylebox("panel", "Tree", tree_panel)
 	theme.set_stylebox("focus", "Tree", btn_hover)
+	theme.set_stylebox("hovered", "Tree", btn_hover)
+	theme.set_stylebox("hovered_dimmed", "Tree", btn_hover)
+	theme.set_stylebox("hovered_selected", "Tree", popup_hover)
+	theme.set_stylebox("hovered_selected_focus", "Tree", popup_hover)
 	theme.set_stylebox("selected", "Tree", popup_hover)
 	theme.set_stylebox("selected_focus", "Tree", popup_hover)
+	theme.set_stylebox("cursor", "Tree", btn_hover)
+	theme.set_stylebox("cursor_unfocused", "Tree", tree_panel)
+	theme.set_stylebox("title_button_normal", "Tree", btn_normal)
+	theme.set_stylebox("title_button_hover", "Tree", btn_hover)
+	theme.set_stylebox("title_button_pressed", "Tree", btn_pressed)
 	theme.set_color("font_color", "Tree", pal["text_main"])
 	theme.set_color("font_selected_color", "Tree", Color.WHITE)
+	theme.set_color("font_hovered_color", "Tree", Color.WHITE)
+	theme.set_color("font_hovered_dimmed_color", "Tree", pal["text_main"])
+	theme.set_color("font_disabled_color", "Tree", pal["text_dim"])
 	theme.set_color("title_button_color", "Tree", pal["primary"])
+	theme.set_color("guide_color", "Tree", Color(pal["panel_border"].r, pal["panel_border"].g, pal["panel_border"].b, 0.3))
+	theme.set_color("relationship_line_color", "Tree", pal["panel_border"])
+	theme.set_color("drop_position_color", "Tree", pal["primary"])
+	theme.set_constant("draw_relationship_lines", "Tree", 1)
+	theme.set_constant("draw_guides", "Tree", 1)
+	theme.set_constant("item_margin", "Tree", 4)
+	theme.set_constant("h_separation", "Tree", 6)
+	theme.set_constant("v_separation", "Tree", 4)
 
 	theme.set_stylebox("panel", "ItemList", tree_panel)
 	theme.set_stylebox("focus", "ItemList", btn_hover)
+	theme.set_stylebox("hovered", "ItemList", btn_hover)
+	theme.set_stylebox("hovered_selected", "ItemList", popup_hover)
 	theme.set_stylebox("selected", "ItemList", popup_hover)
 	theme.set_stylebox("selected_focus", "ItemList", popup_hover)
+	theme.set_stylebox("cursor", "ItemList", btn_hover)
+	theme.set_stylebox("cursor_unfocused", "ItemList", tree_panel)
 	theme.set_color("font_color", "ItemList", pal["text_main"])
 	theme.set_color("font_selected_color", "ItemList", Color.WHITE)
+	theme.set_color("font_hovered_color", "ItemList", Color.WHITE)
+	theme.set_color("guide_color", "ItemList", Color(pal["panel_border"].r, pal["panel_border"].g, pal["panel_border"].b, 0.3))
+	theme.set_constant("h_separation", "ItemList", 6)
+	theme.set_constant("v_separation", "ItemList", 4)
 
-	# 15. FileDialog & Dialog Windows
-	theme.set_stylebox("embedded_border", "FileDialog", win_border)
-	theme.set_stylebox("embedded_unfocused_border", "FileDialog", panel_sb)
-	theme.set_stylebox("embedded_border", "AcceptDialog", win_border)
-	theme.set_stylebox("embedded_unfocused_border", "AcceptDialog", panel_sb)
-	theme.set_stylebox("embedded_border", "ConfirmationDialog", win_border)
-	theme.set_stylebox("embedded_unfocused_border", "ConfirmationDialog", panel_sb)
+	# Button Icons
+	theme.set_color("icon_normal_color", "Button", pal["text_main"])
+	theme.set_color("icon_hover_color", "Button", Color.WHITE)
+	theme.set_color("icon_pressed_color", "Button", pal["primary"])
+	theme.set_color("icon_disabled_color", "Button", pal["text_dim"])
 
 	# 16. Separators
 	var sep_sb: StyleBoxLine = StyleBoxLine.new()
@@ -540,6 +668,22 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	sep_sb.thickness = 1
 	theme.set_stylebox("separator", "HSeparator", sep_sb)
 	theme.set_stylebox("separator", "VSeparator", sep_sb)
+
+	# 17. Sliders (Volume, Distance, Speed)
+	var slider_track: StyleBoxFlat = StyleBoxFlat.new()
+	slider_track.bg_color = pal["btn_normal"]
+	slider_track.set_border_width_all(1)
+	slider_track.border_color = pal["panel_border"]
+	slider_track.set_corner_radius_all(3)
+	slider_track.content_margin_top = 4
+	slider_track.content_margin_bottom = 4
+	theme.set_stylebox("slider", "HSlider", slider_track)
+
+	var slider_fill: StyleBoxFlat = StyleBoxFlat.new()
+	slider_fill.bg_color = pal["primary"]
+	slider_fill.set_corner_radius_all(3)
+	theme.set_stylebox("grabber_area", "HSlider", slider_fill)
+	theme.set_stylebox("grabber_area_highlight", "HSlider", slider_fill)
 
 	return theme
 
@@ -563,6 +707,13 @@ static func get_bg_color() -> Color:
 
 static func get_orb_colors(mode: ThemeMode) -> Dictionary:
 	match mode:
+		ThemeMode.ZEN:
+			return {
+				"bg": Color(0.042, 0.048, 0.060, 1.0),
+				"orb1": Color(0.96, 0.82, 0.48, 0.32),
+				"orb2": Color(0.18, 0.80, 0.60, 0.26),
+				"orb3": Color(0.80, 0.58, 0.35, 0.20)
+			}
 		ThemeMode.DARK:
 			return {
 				"bg": Color(0.035, 0.048, 0.082, 1.0),

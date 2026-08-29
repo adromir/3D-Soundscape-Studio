@@ -6,6 +6,7 @@ extends Control
 
 signal track_selected(track_id: String)
 signal track_position_changed(track_id: String, azimuth: float, elevation: float, distance: float)
+signal sample_dropped(sample_name: String, sample_path: String, azimuth: float, distance: float)
 
 var project: SoundscapeData.SoundscapeProject = null
 var selected_track_id: String = ""
@@ -160,12 +161,6 @@ func _draw() -> void:
 	draw_string(ThemeDB.fallback_font, Vector2(center.x - 4, center.y + radius - 6), "B", HORIZONTAL_ALIGNMENT_CENTER, -1, 13, dim_color)
 	draw_string(ThemeDB.fallback_font, Vector2(center.x - radius + 8, center.y + 4), "L", HORIZONTAL_ALIGNMENT_CENTER, -1, 13, dim_color)
 	draw_string(ThemeDB.fallback_font, Vector2(center.x + radius - 16, center.y + 4), "R", HORIZONTAL_ALIGNMENT_CENTER, -1, 13, dim_color)
-
-	# Soundspace Radius Badge & Zoom controls in top corner
-	var scale_badge_rect: Rect2 = Rect2(Vector2(size.x - 130, 10), Vector2(120, 24))
-	draw_rect(scale_badge_rect, pal["panel_bg"], true)
-	draw_rect(scale_badge_rect, pal["panel_border"], false, 1.0)
-	draw_string(ThemeDB.fallback_font, scale_badge_rect.position + Vector2(8, 16), "🔍 Radius: %.0fm" % soundspace_max_distance, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, pal["text_main"])
 
 	# 4. Central Listener Avatar with Pulsing Liquid Core
 	var listener_col: Color = pal["primary"]
@@ -366,3 +361,32 @@ func _find_track(id: String) -> SoundscapeData.TrackConfig:
 		if t.id == id:
 			return t
 	return null
+
+func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+	if data is Dictionary and data.get("type") == "sample":
+		return true
+	if data is PackedStringArray or data is Array:
+		return true
+	return false
+
+func _drop_data(at_position: Vector2, data: Variant) -> void:
+	var center: Vector2 = size * 0.5
+	var available_r: float = minf(center.x, center.y) - 16.0
+	var radius: float = maxf(available_r, 80.0)
+
+	var delta: Vector2 = at_position - center
+	var dist_ratio: float = clampf(delta.length() / radius, 0.05, 1.0)
+	var drop_distance: float = dist_ratio * soundspace_max_distance
+	var angle_rad: float = delta.angle() + (PI * 0.5)
+	var drop_azimuth: float = wrapf(rad_to_deg(angle_rad), -180.0, 180.0)
+
+	if data is Dictionary and data.get("type") == "sample":
+		var sample_name: String = data.get("name", "Audio Track")
+		var sample_path: String = data.get("path", "")
+		if not sample_path.is_empty():
+			sample_dropped.emit(sample_name, sample_path, drop_azimuth, drop_distance)
+	elif data is PackedStringArray or data is Array:
+		for path_item in data:
+			var s_path: String = str(path_item)
+			var s_name: String = s_path.get_file().get_basename().replace("_", " ").capitalize()
+			sample_dropped.emit(s_name, s_path, drop_azimuth, drop_distance)

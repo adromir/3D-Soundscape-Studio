@@ -51,10 +51,8 @@ const ICON_LABELS: Dictionary = {
 @onready var audio_path_label: Label = $ScrollContainer/Content/AudioSourceGroup/AudioHBox/AudioPathLabel
 @onready var btn_load_audio: Button = $ScrollContainer/Content/AudioSourceGroup/AudioHBox/BtnLoadAudio
 
-# Appearance Group
 @onready var color_hbox: HBoxContainer = $ScrollContainer/Content/AppearanceGroup/ColorHBox
 @onready var icon_option_button: OptionButton = $ScrollContainer/Content/AppearanceGroup/IconOptionButton
-@onready var icon_hbox: HBoxContainer = $ScrollContainer/Content/AppearanceGroup/IconScroll/IconHBox
 
 # Routing
 @onready var routing_option: OptionButton = $ScrollContainer/Content/RoutingOption
@@ -121,7 +119,6 @@ const RATE_PRESETS: Array[Dictionary] = [
 ]
 
 var _color_buttons: Array[Button] = []
-var _icon_buttons: Array[Button] = []
 var _preset_buttons: Array[Button] = []
 var _audio_file_dialog: FileDialog = null
 var _is_custom_density_open: bool = false
@@ -139,6 +136,7 @@ func _setup_file_dialog() -> void:
 		_audio_file_dialog.name = "TrackAudioFileDialog"
 		_audio_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 		_audio_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+		_audio_file_dialog.use_native_dialog = false
 		_audio_file_dialog.filters = PackedStringArray([
 			"*.mp3, *.ogg, *.wav ; Supported Audio Files (*.mp3, *.ogg, *.wav)",
 			"*.mp3 ; MP3 Audio (*.mp3)",
@@ -153,7 +151,8 @@ func _setup_file_dialog() -> void:
 		btn_load_audio.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_load_audio.pressed.connect(func():
 			if _audio_file_dialog:
-				_audio_file_dialog.popup_centered_ratio(0.7)
+				ThemeManager.apply_theme(_audio_file_dialog, ThemeManager.current_theme)
+				_audio_file_dialog.popup_centered(Vector2i(800, 500))
 		)
 
 func _setup_rate_presets() -> void:
@@ -269,27 +268,6 @@ func _setup_appearance_palettes() -> void:
 				track_modified.emit(current_track.id)
 		)
 
-	if icon_hbox:
-		for icon_name in PRESET_ICONS:
-			var btn: Button = Button.new()
-			btn.name = "BtnIcon_" + icon_name
-			btn.custom_minimum_size = Vector2(36, 36)
-			btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-			btn.tooltip_text = ICON_LABELS.get(icon_name, icon_name.capitalize())
-			var icon_res: Resource = ThemeManager.get_sound_icon(icon_name)
-			if icon_res:
-				btn.icon = icon_res
-				btn.expand_icon = true
-			
-			btn.pressed.connect(func():
-				if current_track:
-					current_track.icon_name = icon_name
-					_update_icon_selection()
-					track_modified.emit(current_track.id)
-			)
-			icon_hbox.add_child(btn)
-			_icon_buttons.append(btn)
-
 func _update_color_selection() -> void:
 	if current_track == null:
 		return
@@ -304,20 +282,9 @@ func _update_color_selection() -> void:
 func _update_icon_selection() -> void:
 	if current_track == null:
 		return
-	var is_dark: bool = ThemeManager.is_dark_mode()
-	var track_col: Color = Color.from_string(current_track.color_hex, Color.CYAN)
 	var active_idx: int = PRESET_ICONS.find(current_track.icon_name)
 	if icon_option_button and active_idx >= 0:
 		icon_option_button.selected = active_idx
-
-	for i in range(_icon_buttons.size()):
-		var btn: Button = _icon_buttons[i]
-		var icon_name: String = PRESET_ICONS[i]
-		btn.icon = ThemeManager.get_sound_icon(icon_name)
-		if current_track.icon_name == icon_name:
-			btn.modulate = track_col * 1.3 if is_dark else track_col.darkened(0.25)
-		else:
-			btn.modulate = Color(0.85, 0.9, 1.0, 0.75) if is_dark else Color(0.2, 0.25, 0.35, 0.85)
 
 func _connect_controls() -> void:
 	if btn_reset_track:

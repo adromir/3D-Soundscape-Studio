@@ -118,16 +118,6 @@ custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 
-[node name="IconScroll" type="ScrollContainer" parent="ScrollContainer/Content/AppearanceGroup"]
-custom_minimum_size = Vector2(0, 44)
-layout_mode = 2
-horizontal_scroll_mode = 1
-vertical_scroll_mode = 0
-
-[node name="IconHBox" type="HBoxContainer" parent="ScrollContainer/Content/AppearanceGroup/IconScroll"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
 [node name="HSeparator0" type="HSeparator" parent="ScrollContainer/Content"]
 layout_mode = 2
 

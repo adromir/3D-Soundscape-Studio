@@ -22,7 +22,6 @@ var spatial_engine: SpatialEngine = null
 @onready var btn_export_quick: Button = $Margin/RootVBox/TopTransportBar/ProjectTitleBox/BtnExportQuick
 
 @onready var btn_play: Button = $Margin/RootVBox/TopTransportBar/CenterTransport/BtnPlay
-@onready var btn_pause: Button = $Margin/RootVBox/TopTransportBar/CenterTransport/BtnPause
 @onready var btn_stop: Button = $Margin/RootVBox/TopTransportBar/CenterTransport/BtnStop
 @onready var master_vol_label: Label = $Margin/RootVBox/TopTransportBar/CenterTransport/MasterVolLabel
 @onready var master_slider: HSlider = $Margin/RootVBox/TopTransportBar/CenterTransport/MasterSlider
@@ -109,6 +108,7 @@ func _ready() -> void:
 	)
 
 	DisplayServer.window_set_title("3D Soundscape Studio")
+	get_window().files_dropped.connect(_on_window_files_dropped)
 	_setup_menu_bar()
 	_populate_speaker_layouts()
 	_connect_signals()
@@ -291,16 +291,16 @@ func _on_view_menu_id_pressed(id: int) -> void:
 
 func _on_playback_menu_id_pressed(id: int) -> void:
 	match id:
-		MenuPlaybackAction.PLAY: if spatial_engine: spatial_engine.play_all()
+		MenuPlaybackAction.PLAY: _toggle_play_pause()
 		MenuPlaybackAction.PAUSE: if spatial_engine: spatial_engine.pause_all()
-		MenuPlaybackAction.STOP: if spatial_engine: spatial_engine.stop_all()
+		MenuPlaybackAction.STOP: _stop_playback()
 
 func _on_help_menu_id_pressed(id: int) -> void:
 	match id:
 		MenuHelpAction.ABOUT:
-			if about_dialog: about_dialog.popup_centered()
+			_show_themed_about_dialog()
 		MenuHelpAction.GITHUB:
-			OS.shell_open("https://github.com/adromir")
+			OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio")
 
 func _on_theme_menu_id_pressed(id: int) -> void:
 	_apply_theme(id as ThemeManager.ThemeMode)
@@ -341,12 +341,15 @@ func _populate_speaker_layouts() -> void:
 
 func _connect_signals() -> void:
 	# Navigation Pills
+	for p in [btn_tab_studio, btn_tab_story, btn_tab_samples]:
+		if p:
+			p.toggle_mode = true
 	btn_tab_studio.pressed.connect(func(): _switch_tab(0))
 	btn_tab_story.pressed.connect(func(): _switch_tab(1))
 	btn_tab_samples.pressed.connect(func(): _switch_tab(2))
 	btn_tab_library.pressed.connect(_on_open_pressed)
 
-	for b in [btn_tab_studio, btn_tab_story, btn_tab_samples, btn_tab_library, btn_save_quick, btn_export_quick, btn_play, btn_pause, btn_stop]:
+	for b in [btn_tab_studio, btn_tab_story, btn_tab_samples, btn_tab_library, btn_save_quick, btn_export_quick, btn_play, btn_stop]:
 		if b: b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 	if btn_set_cover:
@@ -357,10 +360,12 @@ func _connect_signals() -> void:
 	if btn_save_quick: btn_save_quick.pressed.connect(_on_save_pressed)
 	if btn_export_quick: btn_export_quick.pressed.connect(func(): if export_dialog and current_project: export_dialog.open_for_project(current_project))
 
-	# Transport Controls
-	if btn_play: btn_play.pressed.connect(func(): if spatial_engine: spatial_engine.play_all())
-	if btn_pause: btn_pause.pressed.connect(func(): if spatial_engine: spatial_engine.pause_all())
-	if btn_stop: btn_stop.pressed.connect(func(): if spatial_engine: spatial_engine.stop_all())
+	# Transport Controls (Combined Play/Pause toggle + Stop)
+	if btn_play: btn_play.pressed.connect(_toggle_play_pause)
+	if btn_stop: btn_stop.pressed.connect(_stop_playback)
+	if spatial_engine:
+		spatial_engine.playback_state_changed.connect(func(_ply: bool): _update_play_pause_ui())
+
 	if master_slider:
 		master_slider.value_changed.connect(func(val: float):
 			if current_project: current_project.master_volume = val
@@ -514,24 +519,18 @@ func _connect_signals() -> void:
 			_switch_tab(0)
 		)
 
+	if spatial_canvas:
+		spatial_canvas.sample_dropped.connect(_on_canvas_sample_dropped)
+
 	if settings_dialog:
-		settings_dialog.settings_saved.connect(func():
-			var s: Dictionary = settings_dialog.load_settings()
-			var radar_anim: bool = bool(s.get("radar_animation", true))
-			if spatial_canvas:
-				spatial_canvas.set_radar_sweep_enabled(radar_anim)
-		)
+		settings_dialog.settings_saved.connect(_on_settings_saved_sync)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.is_pressed() and not event.is_echo():
 		if event.keycode == KEY_SPACE:
 			var focus = get_viewport().gui_get_focus_owner()
 			if not (focus is LineEdit or focus is TextEdit):
-				if spatial_engine:
-					if spatial_engine._is_playing:
-						spatial_engine.pause_all()
-					else:
-						spatial_engine.play_all()
+				_toggle_play_pause()
 				get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_F11:
 			_toggle_fullscreen()
@@ -561,12 +560,12 @@ func _switch_tab(idx: int) -> void:
 	for i in range(pills.size()):
 		var p: Button = pills[i]
 		if p:
+			p.modulate = Color.WHITE
+			p.set_pressed_no_signal(i == idx)
 			if i == idx:
-				p.modulate = Color(1.3, 1.3, 1.3)
-				p.add_theme_color_override("font_color", pal["primary"])
+				p.add_theme_color_override("font_color", pal.get("primary", Color(0.96, 0.82, 0.48)))
 			else:
-				p.modulate = Color(0.8, 0.8, 0.8)
-				p.add_theme_color_override("font_color", pal["text_dim"])
+				p.add_theme_color_override("font_color", pal.get("text_main", Color(0.92, 0.94, 0.96)))
 
 	if idx == 0:
 		_update_dock_layout()
@@ -653,6 +652,12 @@ func _apply_theme(mode: ThemeManager.ThemeMode) -> void:
 			mat.set_shader_parameter("orb1_color", orbs.get("orb1", Color(0.0, 0.55, 0.95, 0.35)))
 			mat.set_shader_parameter("orb2_color", orbs.get("orb2", Color(0.45, 0.15, 0.85, 0.28)))
 			mat.set_shader_parameter("orb3_color", orbs.get("orb3", Color(0.0, 0.85, 0.8, 0.22)))
+			if mode == ThemeManager.ThemeMode.ZEN:
+				mat.set_shader_parameter("use_texture", true)
+				if ResourceLoader.exists("res://assets/textures/zen/bg_zen_atmosphere.png"):
+					mat.set_shader_parameter("bg_texture", load("res://assets/textures/zen/bg_zen_atmosphere.png"))
+			else:
+				mat.set_shader_parameter("use_texture", false)
 
 	if library_dialog and library_dialog.has_method("apply_theme"):
 		library_dialog.apply_theme(mode)
@@ -706,7 +711,6 @@ func update_localization() -> void:
 	if btn_export_quick: btn_export_quick.text = LocalizationData.tr_key("BTN_EXPORT")
 	if btn_tab_library: btn_tab_library.text = LocalizationData.tr_key("BTN_LIBRARY")
 	if btn_play: btn_play.tooltip_text = LocalizationData.tr_key("TOOLTIP_PLAY")
-	if btn_pause: btn_pause.tooltip_text = LocalizationData.tr_key("TOOLTIP_PAUSE")
 	if btn_stop: btn_stop.tooltip_text = LocalizationData.tr_key("TOOLTIP_STOP")
 	if master_slider: master_slider.tooltip_text = LocalizationData.tr_key("TOOLTIP_MASTER_VOL")
 	if layout_option: layout_option.tooltip_text = LocalizationData.tr_key("TOOLTIP_LAYOUT")
@@ -931,6 +935,7 @@ func _on_open_pressed() -> void:
 func _on_set_cover_pressed() -> void:
 	if cover_file_dialog:
 		cover_file_dialog.title = LocalizationData.tr_key("DLG_COVER_TITLE")
+		ThemeManager.apply_theme(cover_file_dialog, ThemeManager.current_theme)
 		cover_file_dialog.popup_centered(Vector2i(750, 500))
 
 func _on_cover_file_selected(path: String) -> void:
@@ -939,6 +944,138 @@ func _on_cover_file_selected(path: String) -> void:
 	if btn_set_cover:
 		btn_set_cover.text = "🖼️ " + path.get_file()
 	print("✔ Selected cover image: ", path)
+
+func _on_canvas_sample_dropped(s_name: String, s_path: String, azimuth: float, distance: float) -> void:
+	if current_project == null: return
+	var track: SoundscapeData.TrackConfig = current_project.add_track(s_name, s_path)
+	track.azimuth = azimuth
+	track.distance = distance
+	if track_list: track_list.set_project(current_project)
+	if spatial_canvas:
+		spatial_canvas.set_project(current_project)
+		spatial_canvas.select_track(track.id)
+	if spatial_engine: spatial_engine.load_project(current_project)
+	if track_inspector: track_inspector.set_track(track)
+
+func _on_window_files_dropped(files: PackedStringArray) -> void:
+	for file in files:
+		var lower: String = file.to_lower()
+		if lower.ends_with(".wav") or lower.ends_with(".mp3") or lower.ends_with(".ogg") or lower.ends_with(".flac"):
+			if _active_tab == 2 and sample_view:
+				sample_view._on_files_imported(PackedStringArray([file]))
+			else:
+				var s_name: String = file.get_file().get_basename().replace("_", " ").capitalize()
+				_on_sample_added(s_name, file)
+		elif lower.ends_with(".png") or lower.ends_with(".jpg") or lower.ends_with(".jpeg") or lower.ends_with(".webp"):
+			_on_cover_file_selected(file)
+
+func _toggle_play_pause() -> void:
+	if spatial_engine == null: return
+	if spatial_engine.is_playing:
+		spatial_engine.pause_all()
+	else:
+		spatial_engine.play_all()
+	_update_play_pause_ui()
+
+func _stop_playback() -> void:
+	if spatial_engine:
+		spatial_engine.stop_all()
+	_update_play_pause_ui()
+
+func _update_play_pause_ui() -> void:
+	if btn_play == null: return
+	var is_ply: bool = (spatial_engine != null and spatial_engine.is_playing)
+	btn_play.icon = load("res://assets/icons/pause.svg") if is_ply else load("res://assets/icons/play.svg")
+	btn_play.tooltip_text = "Pause Playback (Space)" if is_ply else "Play All Tracks (Space)"
+
+func _on_settings_saved_sync() -> void:
+	if settings_dialog == null: return
+	var data: Dictionary = settings_dialog.load_settings()
+	if data.has("speaker_layout") and spatial_engine:
+		var l_idx: int = int(data["speaker_layout"])
+		spatial_engine.set_speaker_layout(l_idx as SpeakerLayouts.LayoutType)
+		if layout_option: layout_option.select(l_idx)
+	if data.has("radar_animation") and spatial_canvas:
+		spatial_canvas.set_radar_sweep_enabled(bool(data["radar_animation"]))
+	if data.has("language"):
+		var lang_val = data["language"]
+		var lang_enum: LocalizationData.Language = LocalizationData.Language.DE if str(lang_val) in ["DE", "1"] else LocalizationData.Language.EN
+		LocalizationData.set_language(lang_enum)
+		_sync_lang_menu_checks()
+		update_localization()
+	if data.has("theme"):
+		var th_val = data["theme"]
+		var th_mode: ThemeManager.ThemeMode = ThemeManager.ThemeMode.ZEN
+		if str(th_val) in ["0", "DARK"]: th_mode = ThemeManager.ThemeMode.DARK
+		elif str(th_val) in ["1", "LIGHT"]: th_mode = ThemeManager.ThemeMode.LIGHT
+		elif str(th_val) in ["2", "CYBERPUNK"]: th_mode = ThemeManager.ThemeMode.CYBERPUNK
+		elif str(th_val) in ["3", "ZEN"]: th_mode = ThemeManager.ThemeMode.ZEN
+		_apply_theme(th_mode)
+		_sync_theme_menu_checks()
+	_sync_speaker_menu_checks()
+
+func _show_themed_about_dialog() -> void:
+	var win: Window = Window.new()
+	win.title = "ℹ️ About 3D Soundscape Studio"
+	win.size = Vector2i(520, 330)
+	win.exclusive = true
+	win.transient = true
+	win.close_requested.connect(win.queue_free)
+
+	var panel: PanelContainer = PanelContainer.new()
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	win.add_child(panel)
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	panel.add_child(margin)
+
+	var vbox: VBoxContainer = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 12)
+	margin.add_child(vbox)
+
+	var title_lbl: Label = Label.new()
+	title_lbl.text = "🎧 3D Soundscape Studio"
+	title_lbl.add_theme_font_size_override("font_size", 16)
+	vbox.add_child(title_lbl)
+
+	var ver_lbl: Label = Label.new()
+	ver_lbl.text = "Version 2.0.0  •  Author: Adromir"
+	ver_lbl.add_theme_font_size_override("font_size", 11)
+	ver_lbl.add_theme_color_override("font_color", ThemeManager.get_palette()["text_dim"])
+	vbox.add_child(ver_lbl)
+
+	var link_btn: LinkButton = LinkButton.new()
+	link_btn.text = "🔗 https://github.com/adromir/3D-Soundscape-Studio"
+	link_btn.uri = "https://github.com/adromir/3D-Soundscape-Studio"
+	link_btn.add_theme_font_size_override("font_size", 11)
+	link_btn.add_theme_color_override("font_color", ThemeManager.get_palette()["primary"])
+	link_btn.pressed.connect(func(): OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio"))
+	vbox.add_child(link_btn)
+
+	var desc_lbl: Label = Label.new()
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_lbl.text = "An advanced Spatial & Multi-Channel Audio Workstation featuring 3D HRTF simulation, interval schedulers, dynamic listener motion paths, organic tactile UI themes, and native offline FFmpeg surround export.\n\nLicense: MIT License"
+	desc_lbl.add_theme_font_size_override("font_size", 11)
+	vbox.add_child(desc_lbl)
+
+	var btn_row: HBoxContainer = HBoxContainer.new()
+	btn_row.alignment = BoxContainer.ALIGNMENT_END
+	vbox.add_child(btn_row)
+
+	var btn_close: Button = Button.new()
+	btn_close.text = "Close"
+	btn_close.custom_minimum_size = Vector2(90, 32)
+	btn_close.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn_close.pressed.connect(win.queue_free)
+	btn_row.add_child(btn_close)
+
+	ThemeManager.apply_theme(win, ThemeManager.current_theme)
+	add_child(win)
+	win.popup_centered()
 
 func _on_save_pressed() -> void:
 	if current_project == null: return
@@ -985,18 +1122,25 @@ func _save_workspace_settings() -> void:
 
 func _load_workspace_settings() -> void:
 	if not FileAccess.file_exists("user://settings.json"):
+		_apply_theme(ThemeManager.current_theme)
 		return
 	var f: FileAccess = FileAccess.open("user://settings.json", FileAccess.READ)
-	if f == null: return
+	if f == null:
+		_apply_theme(ThemeManager.current_theme)
+		return
 	var txt: String = f.get_as_text()
 	f.close()
 
 	var test_json_conv = JSON.new()
-	if test_json_conv.parse(txt) != OK: return
+	if test_json_conv.parse(txt) != OK:
+		_apply_theme(ThemeManager.current_theme)
+		return
 	var data: Dictionary = test_json_conv.get_data()
 
 	if data.has("theme"):
 		_apply_theme(int(data["theme"]) as ThemeManager.ThemeMode)
+	else:
+		_apply_theme(ThemeManager.current_theme)
 	if data.has("language"):
 		LocalizationData.set_language(int(data["language"]) as LocalizationData.Language)
 	if data.has("speaker_layout") and spatial_engine:

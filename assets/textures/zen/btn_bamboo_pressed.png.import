@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8gc5fjc24fwu"
-path="res://.godot/imported/voice.svg-4f4c56cdbf48a606b4856d6b70ac8852.ctex"
+uid="uid://diyovv221m5x"
+path="res://.godot/imported/btn_bamboo_pressed.png-e9e520386e685676a19fd1ebebe11cff.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/sound_icons/voice.svg"
-dest_files=["res://.godot/imported/voice.svg-4f4c56cdbf48a606b4856d6b70ac8852.ctex"]
+source_file="res://assets/textures/zen/btn_bamboo_pressed.png"
+dest_files=["res://.godot/imported/btn_bamboo_pressed.png-e9e520386e685676a19fd1ebebe11cff.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

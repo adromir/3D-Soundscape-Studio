@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cpuwubk70s2jp"
-path="res://.godot/imported/rain.svg-96d79b962cea89c09d16d0df11779030.ctex"
+uid="uid://bkboaey42ylax"
+path="res://.godot/imported/panel_slate_glass.png-e70cb308b51adbef13326ec32740e96c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/icons/sound_icons/rain.svg"
-dest_files=["res://.godot/imported/rain.svg-96d79b962cea89c09d16d0df11779030.ctex"]
+source_file="res://assets/textures/zen/panel_slate_glass.png"
+dest_files=["res://.godot/imported/panel_slate_glass.png-e70cb308b51adbef13326ec32740e96c.ctex"]
 
 [params]
 
@@ -38,6 +38,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

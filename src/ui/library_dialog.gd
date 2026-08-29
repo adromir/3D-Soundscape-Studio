@@ -46,6 +46,12 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 		mat.set_shader_parameter("orb1_color", orbs.get("orb1", Color(0.0, 0.55, 0.95, 0.35)))
 		mat.set_shader_parameter("orb2_color", orbs.get("orb2", Color(0.45, 0.15, 0.85, 0.28)))
 		mat.set_shader_parameter("orb3_color", orbs.get("orb3", Color(0.0, 0.85, 0.8, 0.22)))
+		if mode == ThemeManager.ThemeMode.ZEN:
+			mat.set_shader_parameter("use_texture", true)
+			if ResourceLoader.exists("res://assets/textures/zen/bg_zen_atmosphere.png"):
+				mat.set_shader_parameter("bg_texture", load("res://assets/textures/zen/bg_zen_atmosphere.png"))
+		else:
+			mat.set_shader_parameter("use_texture", false)
 
 	ThemeManager.apply_theme(self, mode)
 	refresh_library()
@@ -157,9 +163,9 @@ func refresh_library() -> void:
 			placeholder_bg.custom_minimum_size = Vector2(0, 115)
 			placeholder_bg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			
-			var placeholder_icon: TextureRect = TextureRect.new()
-			var icon_res: Resource = load("res://assets/icons/sound_icons/music.svg")
+			var icon_res: Texture2D = ThemeManager.get_sound_icon("music")
 			if icon_res:
+				var placeholder_icon: TextureRect = TextureRect.new()
 				placeholder_icon.texture = icon_res
 				placeholder_icon.custom_minimum_size = Vector2(36, 36)
 				placeholder_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE

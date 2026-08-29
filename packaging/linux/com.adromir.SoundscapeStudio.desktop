@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=3D Soundscape Studio
+GenericName=Spatial Ambient Audio Player & Studio
+Comment=3D Spatial Ambient Soundscape Studio & Binaural Player
+Exec=3d-soundscape-studio %U
+Icon=com.adromir.SoundscapeStudio
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;Mixer;Player;
+Keywords=ambient;soundscape;spatial;binaural;audio;
+StartupNotify=true

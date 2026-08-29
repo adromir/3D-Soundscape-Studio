@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.adromir.SoundscapeStudio</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>3D Soundscape Studio</name>
+  <summary>3D Spatial Ambient Soundscape Studio &amp; Binaural Player</summary>
+  <description>
+    <p>
+      3D Soundscape Studio is a professional digital audio workstation and 3D spatial soundscape
+      generator featuring real-time polar positioning, multi-channel HRTF binaural audio rendering,
+      and organic sound textures.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Interactive 3D spatial soundstage with real-time polar drag-and-drop</li>
+      <li>Multi-speaker spatial layouts (Stereo, Binaural HRTF, Quadraphonic, 5.1, 7.1, 7.1.4 Dolby Atmos)</li>
+      <li>Autonomous listener path automation with real-world speeds (0.1 to 30 m/s)</li>
+      <li>Automated sound scraper integrating the Ambient-Mixer public library</li>
+      <li>Rich tactile Organic Zen interface with natural materials and themes</li>
+      <li>High-quality lossless audio export in WAV, FLAC, MP3, and OGG formats</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">com.adromir.SoundscapeStudio.desktop</launchable>
+  <url type="homepage">https://github.com/adromir/3D-Soundscape-Studio</url>
+  <url type="bugtracker">https://github.com/adromir/3D-Soundscape-Studio/issues</url>
+  <developer_name>Adromir</developer_name>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Audio</category>
+    <category>Mixer</category>
+    <category>Player</category>
+  </categories>
+  <provides>
+    <binary>3d-soundscape-studio</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="2.0.0" date="2026-08-30">
+      <description>
+        <p>Initial release of 3D Soundscape Studio with Organic Zen theme, 3D polar positioning, and multi-channel HRTF binaural engine.</p>
+      </description>
+    </release>
+  </releases>
+</component>

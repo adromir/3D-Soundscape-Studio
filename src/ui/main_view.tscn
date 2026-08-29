@@ -19,6 +19,7 @@
 [ext_resource type="Texture2D" path="res://assets/icons/stop.svg" id="18_icon_stop"]
 [ext_resource type="Texture2D" path="res://assets/icons/export.svg" id="19_icon_export"]
 [ext_resource type="Texture2D" path="res://assets/icons/library.svg" id="20_icon_lib"]
+[ext_resource type="Texture2D" path="res://assets/icons/save.svg" id="21_icon_save"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
 shader = ExtResource("2_shader")
@@ -95,14 +96,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="AppTitleLabel" type="Label" parent="Margin/RootVBox/MenuBarContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.75, 0.9, 0.8)
-theme_override_font_sizes/font_size = 11
-text = "🎧 3D Soundscape Studio"
-
 [node name="TopTransportBar" type="HBoxContainer" parent="Margin/RootVBox"]
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 theme_override_constants/separation = 8
 
@@ -116,7 +111,7 @@ theme_override_font_sizes/font_size = 11
 text = "Project:"
 
 [node name="TitleEdit" type="LineEdit" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
-custom_minimum_size = Vector2(160, 24)
+custom_minimum_size = Vector2(165, 30)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
@@ -124,7 +119,7 @@ text = "New Soundscape"
 placeholder_text = "Soundscape Title"
 
 [node name="BtnSetCover" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
-custom_minimum_size = Vector2(72, 26)
+custom_minimum_size = Vector2(80, 32)
 layout_mode = 2
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
@@ -133,14 +128,16 @@ text = "🖼️ Cover"
 tooltip_text = "Select Cover Image for Soundscape"
 
 [node name="BtnSaveQuick" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
-custom_minimum_size = Vector2(70, 26)
+custom_minimum_size = Vector2(82, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
+icon = ExtResource("21_icon_save")
+expand_icon = true
 text = "Save"
 
 [node name="BtnExportQuick" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
-custom_minimum_size = Vector2(76, 26)
+custom_minimum_size = Vector2(88, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
@@ -153,26 +150,18 @@ layout_mode = 2
 
 [node name="CenterTransport" type="HBoxContainer" parent="Margin/RootVBox/TopTransportBar"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
 [node name="BtnPlay" type="Button" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
-custom_minimum_size = Vector2(28, 26)
+custom_minimum_size = Vector2(40, 32)
 layout_mode = 2
 size_flags_vertical = 4
-tooltip_text = "Play All Tracks (Space)"
+tooltip_text = "Play / Pause Playback (Space)"
 icon = ExtResource("16_icon_play")
 expand_icon = true
 
-[node name="BtnPause" type="Button" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
-custom_minimum_size = Vector2(28, 26)
-layout_mode = 2
-size_flags_vertical = 4
-tooltip_text = "Pause Playback"
-icon = ExtResource("17_icon_pause")
-expand_icon = true
-
 [node name="BtnStop" type="Button" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
-custom_minimum_size = Vector2(28, 26)
+custom_minimum_size = Vector2(40, 32)
 layout_mode = 2
 size_flags_vertical = 4
 tooltip_text = "Stop All Playback"
@@ -181,11 +170,12 @@ expand_icon = true
 
 [node name="MasterVolLabel" type="Label" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "Master:"
+theme_override_font_sizes/font_size = 14
+text = "🔊"
+tooltip_text = "Master Volume"
 
 [node name="MasterSlider" type="HSlider" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
-custom_minimum_size = Vector2(80, 20)
+custom_minimum_size = Vector2(85, 24)
 layout_mode = 2
 size_flags_vertical = 4
 min_value = 0.0
@@ -194,7 +184,7 @@ step = 0.01
 value = 1.0
 
 [node name="LayoutOption" type="OptionButton" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
-custom_minimum_size = Vector2(160, 26)
+custom_minimum_size = Vector2(165, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 10
@@ -209,21 +199,21 @@ layout_mode = 2
 theme_override_constants/separation = 4
 
 [node name="BtnTabStudio" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(90, 26)
+custom_minimum_size = Vector2(95, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
 text = "🎛️ Studio"
 
 [node name="BtnTabStory" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(105, 26)
+custom_minimum_size = Vector2(115, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
 text = "📈 Automation"
 
 [node name="BtnTabSamples" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(90, 26)
+custom_minimum_size = Vector2(95, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
@@ -233,7 +223,7 @@ text = "🎵 Samples"
 layout_mode = 2
 
 [node name="BtnTabLibrary" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(95, 26)
+custom_minimum_size = Vector2(95, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
@@ -308,38 +298,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
 text = "📡 3D Spatial Radar Canvas"
-
-[node name="RadiusHBox" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="LblRadius" type="Label" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/RadiusHBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "🔍 Radius:"
-
-[node name="BtnRadiusDec" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/RadiusHBox"]
-custom_minimum_size = Vector2(24, 22)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-text = "−"
-
-[node name="SpinRadius" type="SpinBox" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/RadiusHBox"]
-custom_minimum_size = Vector2(75, 22)
-layout_mode = 2
-min_value = 2.0
-max_value = 100.0
-step = 1.0
-value = 10.0
-suffix = "m"
-
-[node name="BtnRadiusInc" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/RadiusHBox"]
-custom_minimum_size = Vector2(24, 22)
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_override_font_sizes/font_size = 11
-text = "+"
 
 [node name="BtnPopoutRadar" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
 custom_minimum_size = Vector2(26, 22)

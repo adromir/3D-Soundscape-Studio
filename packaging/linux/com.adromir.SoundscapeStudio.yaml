@@ -1,0 +1,34 @@
+app-id: com.adromir.SoundscapeStudio
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: 3d-soundscape-studio
+
+finish-args:
+  - --socket=x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --device=dri
+  - --share=network
+  - --share=ipc
+  - --filesystem=home
+  - --filesystem=xdg-music:create
+  - --filesystem=xdg-download:create
+
+modules:
+  - name: 3d-soundscape-studio
+    buildsystem: simple
+    build-commands:
+      - install -Dm755 3D-Soundscape-Studio.x86_64 /app/bin/3d-soundscape-studio
+      - install -Dm644 packaging/linux/com.adromir.SoundscapeStudio.desktop /app/share/applications/com.adromir.SoundscapeStudio.desktop
+      - install -Dm644 packaging/linux/com.adromir.SoundscapeStudio.metainfo.xml /app/share/metainfo/com.adromir.SoundscapeStudio.metainfo.xml
+      - install -Dm644 icon.png /app/share/icons/hicolor/1024x1024/apps/com.adromir.SoundscapeStudio.png
+    sources:
+      - type: file
+        path: ../../build/linux/3D-Soundscape-Studio.x86_64
+      - type: file
+        path: com.adromir.SoundscapeStudio.desktop
+      - type: file
+        path: com.adromir.SoundscapeStudio.metainfo.xml
+      - type: file
+        path: ../../icon.png

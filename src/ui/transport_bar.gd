@@ -100,7 +100,7 @@ func update_localization() -> void:
 
 func update_theme_icon() -> void:
 	if btn_theme:
-		if ThemeManager.current_theme == ThemeManager.ThemeMode.DARK:
+		if ThemeManager.is_dark_mode():
 			btn_theme.icon = load("res://assets/icons/theme.svg")
 		else:
 			btn_theme.icon = load("res://assets/icons/moon.svg")
