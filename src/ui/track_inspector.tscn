@@ -1,0 +1,472 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2kvy8a1n3p7x"]
+
+[ext_resource type="Script" path="res://src/ui/track_inspector.gd" id="1_inspector"]
+
+[node name="TrackInspector" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+script = ExtResource("1_inspector")
+
+[node name="EmptyStateLabel" type="Label" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.5, 0.5, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "Select an audio track to edit its spatial placement, movement automation, and trigger intervals."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="Content" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="ToolbarHBox" type="HBoxContainer" parent="ScrollContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BtnResetTrack" type="Button" parent="ScrollContainer/Content/ToolbarHBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "🔄 Reset Stem"
+tooltip_text = "Reset this audio stem's volume, position, routing, and trigger settings to original defaults."
+
+[node name="BtnResetAllTracks" type="Button" parent="ScrollContainer/Content/ToolbarHBox"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "⏪ Reset All"
+tooltip_text = "Reset all audio stems in this soundscape to their original defaults."
+
+[node name="NameLabel" type="Label" parent="ScrollContainer/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Track Name"
+
+[node name="NameEdit" type="LineEdit" parent="ScrollContainer/Content"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+placeholder_text = "Enter stem name..."
+
+[node name="AudioSourceGroup" type="VBoxContainer" parent="ScrollContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AudioSourceLabel" type="Label" parent="ScrollContainer/Content/AudioSourceGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Audio Source File"
+
+[node name="AudioHBox" type="HBoxContainer" parent="ScrollContainer/Content/AudioSourceGroup"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="AudioPathLabel" type="Label" parent="ScrollContainer/Content/AudioSourceGroup/AudioHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.6, 0.75, 0.9, 1)
+theme_override_font_sizes/font_size = 10
+text = "No audio file assigned"
+clip_text = true
+
+[node name="BtnLoadAudio" type="Button" parent="ScrollContainer/Content/AudioSourceGroup/AudioHBox"]
+custom_minimum_size = Vector2(75, 22)
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "📂 Load..."
+
+[node name="AppearanceGroup" type="VBoxContainer" parent="ScrollContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="ColorLabel" type="Label" parent="ScrollContainer/Content/AppearanceGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Track Accent Color"
+
+[node name="ColorHBox" type="HBoxContainer" parent="ScrollContainer/Content/AppearanceGroup"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="IconLabel" type="Label" parent="ScrollContainer/Content/AppearanceGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Radar Sound Icon"
+
+[node name="IconOptionButton" type="OptionButton" parent="ScrollContainer/Content/AppearanceGroup"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="IconScroll" type="ScrollContainer" parent="ScrollContainer/Content/AppearanceGroup"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+horizontal_scroll_mode = 1
+vertical_scroll_mode = 0
+
+[node name="IconHBox" type="HBoxContainer" parent="ScrollContainer/Content/AppearanceGroup/IconScroll"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HSeparator0" type="HSeparator" parent="ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="RoutingLabel" type="Label" parent="ScrollContainer/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Spatial Routing"
+
+[node name="RoutingOption" type="OptionButton" parent="ScrollContainer/Content"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="SpatialGroup" type="VBoxContainer" parent="ScrollContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AzimuthHBox" type="HBoxContainer" parent="ScrollContainer/Content/SpatialGroup"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/Content/SpatialGroup/AzimuthHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Azimuth (°)"
+
+[node name="AzimuthValLabel" type="Label" parent="ScrollContainer/Content/SpatialGroup/AzimuthHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "0.0°"
+
+[node name="AzimuthSlider" type="HSlider" parent="ScrollContainer/Content/SpatialGroup"]
+layout_mode = 2
+min_value = -180.0
+max_value = 180.0
+step = 0.5
+
+[node name="ElevationHBox" type="HBoxContainer" parent="ScrollContainer/Content/SpatialGroup"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/Content/SpatialGroup/ElevationHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Elevation (°)"
+
+[node name="ElevationValLabel" type="Label" parent="ScrollContainer/Content/SpatialGroup/ElevationHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "0.0°"
+
+[node name="ElevationSlider" type="HSlider" parent="ScrollContainer/Content/SpatialGroup"]
+layout_mode = 2
+min_value = -90.0
+max_value = 90.0
+step = 0.5
+
+[node name="DistanceHBox" type="HBoxContainer" parent="ScrollContainer/Content/SpatialGroup"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/Content/SpatialGroup/DistanceHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Distance (m)"
+
+[node name="DistanceValLabel" type="Label" parent="ScrollContainer/Content/SpatialGroup/DistanceHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "2.0m"
+
+[node name="DistanceSlider" type="HSlider" parent="ScrollContainer/Content/SpatialGroup"]
+layout_mode = 2
+min_value = 0.5
+max_value = 50.0
+step = 0.1
+value = 2.0
+
+[node name="MultiChannelGroup" type="VBoxContainer" parent="ScrollContainer/Content"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ChannelsLabel" type="Label" parent="ScrollContainer/Content/MultiChannelGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Direct Speaker Routing:"
+
+[node name="ChannelsGrid" type="HFlowContainer" parent="ScrollContainer/Content/MultiChannelGroup"]
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="PresetsHBox" type="HBoxContainer" parent="ScrollContainer/Content/MultiChannelGroup"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BtnStereo" type="Button" parent="ScrollContainer/Content/MultiChannelGroup/PresetsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "Stereo"
+
+[node name="BtnSurround" type="Button" parent="ScrollContainer/Content/MultiChannelGroup/PresetsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "5.1 Quad"
+
+[node name="BtnClearCh" type="Button" parent="ScrollContainer/Content/MultiChannelGroup/PresetsHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 10
+text = "Clear"
+
+[node name="OmnipresentGroup" type="PanelContainer" parent="ScrollContainer/Content"]
+visible = false
+layout_mode = 2
+
+[node name="OmniMargin" type="MarginContainer" parent="ScrollContainer/Content/OmnipresentGroup"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="OmniLabel" type="Label" parent="ScrollContainer/Content/OmnipresentGroup/OmniMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 10
+text = "🌐 Omnipresent Sound Bed (Active on all channels without 3D attenuation)"
+autowrap_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="MovementGroup" type="VBoxContainer" parent="ScrollContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Label" type="Label" parent="ScrollContainer/Content/MovementGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Movement Pattern"
+
+[node name="PatternOption" type="OptionButton" parent="ScrollContainer/Content/MovementGroup"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="TimingLabel" type="Label" parent="ScrollContainer/Content/MovementGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Movement Timing"
+
+[node name="TimingOption" type="OptionButton" parent="ScrollContainer/Content/MovementGroup"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="SpeedHBox" type="HBoxContainer" parent="ScrollContainer/Content/MovementGroup"]
+layout_mode = 2
+
+[node name="SpeedLabel" type="Label" parent="ScrollContainer/Content/MovementGroup/SpeedHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Velocity / Movement Speed"
+
+[node name="SpeedValLabel" type="Label" parent="ScrollContainer/Content/MovementGroup/SpeedHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "1.0x (2.0 m/s)"
+
+[node name="SpeedSlider" type="HSlider" parent="ScrollContainer/Content/MovementGroup"]
+layout_mode = 2
+min_value = 0.1
+max_value = 5.0
+step = 0.1
+value = 1.0
+
+[node name="RoamGroup" type="VBoxContainer" parent="ScrollContainer/Content/MovementGroup"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="RoamDistHBox" type="HBoxContainer" parent="ScrollContainer/Content/MovementGroup/RoamGroup"]
+layout_mode = 2
+
+[node name="RoamDistLabel" type="Label" parent="ScrollContainer/Content/MovementGroup/RoamGroup/RoamDistHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Roam Boundary (Max Radius)"
+
+[node name="RoamDistValLabel" type="Label" parent="ScrollContainer/Content/MovementGroup/RoamGroup/RoamDistHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "10.0m"
+
+[node name="RoamDistSlider" type="HSlider" parent="ScrollContainer/Content/MovementGroup/RoamGroup"]
+layout_mode = 2
+min_value = 1.0
+max_value = 50.0
+step = 0.5
+value = 10.0
+
+[node name="HSeparator2" type="HSeparator" parent="ScrollContainer/Content"]
+layout_mode = 2
+
+[node name="TriggerGroup" type="VBoxContainer" parent="ScrollContainer/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TriggerLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Trigger & Intervals"
+
+[node name="TriggerModeOption" type="OptionButton" parent="ScrollContainer/Content/TriggerGroup"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="CheckCrossfade" type="CheckButton" parent="ScrollContainer/Content/TriggerGroup"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "🔀 Seamless Crossfade Loop"
+tooltip_text = "Enable smooth crossfade transitions between continuous loop repetitions."
+
+[node name="BtnOpenRatePicker" type="Button" parent="ScrollContainer/Content/TriggerGroup"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "🔀 Rate: 1x / 1m (Select Frequency...)"
+
+[node name="RateSummaryLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.95, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "⚡ Rate: 1x / 1m"
+
+[node name="PresetContainer" type="HFlowContainer" parent="ScrollContainer/Content/TriggerGroup"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+
+[node name="FixedGroup" type="VBoxContainer" parent="ScrollContainer/Content/TriggerGroup"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="IntervalHBox" type="HBoxContainer" parent="ScrollContainer/Content/TriggerGroup/FixedGroup"]
+layout_mode = 2
+
+[node name="IntervalLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup/FixedGroup/IntervalHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Fixed Interval (s)"
+
+[node name="IntervalValLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup/FixedGroup/IntervalHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "5.0s"
+
+[node name="IntervalSlider" type="HSlider" parent="ScrollContainer/Content/TriggerGroup/FixedGroup"]
+layout_mode = 2
+min_value = 1.0
+max_value = 120.0
+step = 0.5
+value = 5.0
+
+[node name="DensityGroup" type="VBoxContainer" parent="ScrollContainer/Content/TriggerGroup"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="DensityCountHBox" type="HBoxContainer" parent="ScrollContainer/Content/TriggerGroup/DensityGroup"]
+layout_mode = 2
+
+[node name="DensityCountLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup/DensityGroup/DensityCountHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Triggers per Window"
+
+[node name="DensityCountValLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup/DensityGroup/DensityCountHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "1x"
+
+[node name="DensityCountSlider" type="HSlider" parent="ScrollContainer/Content/TriggerGroup/DensityGroup"]
+layout_mode = 2
+min_value = 1.0
+max_value = 20.0
+step = 1.0
+value = 1.0
+
+[node name="DensityWindowHBox" type="HBoxContainer" parent="ScrollContainer/Content/TriggerGroup/DensityGroup"]
+layout_mode = 2
+
+[node name="DensityWindowLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup/DensityGroup/DensityWindowHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Time Window"
+
+[node name="DensityWindowValLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup/DensityGroup/DensityWindowHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "1.0 min"
+
+[node name="DensityWindowSlider" type="HSlider" parent="ScrollContainer/Content/TriggerGroup/DensityGroup"]
+layout_mode = 2
+min_value = 10.0
+max_value = 3600.0
+step = 10.0
+value = 60.0
+
+[node name="CooldownGroup" type="VBoxContainer" parent="ScrollContainer/Content/TriggerGroup"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="CooldownHBox" type="HBoxContainer" parent="ScrollContainer/Content/TriggerGroup/CooldownGroup"]
+layout_mode = 2
+
+[node name="CooldownLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup/CooldownGroup/CooldownHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "Min. Cooldown / Block (s)"
+
+[node name="CooldownValLabel" type="Label" parent="ScrollContainer/Content/TriggerGroup/CooldownGroup/CooldownHBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "2.0s"
+
+[node name="CooldownSlider" type="HSlider" parent="ScrollContainer/Content/TriggerGroup/CooldownGroup"]
+layout_mode = 2
+min_value = 0.1
+max_value = 30.0
+step = 0.1
+value = 2.0

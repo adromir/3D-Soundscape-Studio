@@ -1,0 +1,182 @@
+[gd_scene load_steps=5 format=3 uid="uid://g8zk2a1n4v9p"]
+
+[ext_resource type="Script" path="res://src/ui/export_dialog.gd" id="1_exp_dlg"]
+[ext_resource type="Shader" path="res://src/ui/ambient_backdrop.gdshader" id="2_shader"]
+[ext_resource type="Texture2D" path="res://assets/icons/export.svg" id="3_icon"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
+shader = ExtResource("2_shader")
+shader_parameter/bg_color = Color(0.035, 0.048, 0.082, 1)
+shader_parameter/orb1_color = Color(0, 0.55, 0.95, 0.35)
+shader_parameter/orb2_color = Color(0.45, 0.15, 0.85, 0.28)
+shader_parameter/orb3_color = Color(0, 0.85, 0.8, 0.22)
+
+[node name="ExportDialog" type="Window"]
+title = "Export Soundscape (Offline Render)"
+initial_position = 2
+size = Vector2i(640, 480)
+visible = false
+wrap_controls = true
+transient = false
+exclusive = false
+unresizable = false
+min_size = Vector2i(520, 400)
+script = ExtResource("1_exp_dlg")
+
+[node name="Background" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_backdrop")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.035, 0.048, 0.082, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderPanel" type="PanelContainer" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="HeaderMargin" type="MarginContainer" parent="Margin/VBox/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="HeaderHBox" type="HBoxContainer" parent="Margin/VBox/HeaderPanel/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Icon" type="TextureRect" parent="Margin/VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("3_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="Margin/VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "Export Soundscape (Offline Render)"
+
+[node name="BtnClose" type="Button" parent="Margin/VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
+custom_minimum_size = Vector2(28, 24)
+layout_mode = 2
+text = "✕"
+
+[node name="ContentPanel" type="PanelContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentMargin" type="MarginContainer" parent="Margin/VBox/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="FormVBox" type="VBoxContainer" parent="Margin/VBox/ContentPanel/ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DurationHBox" type="HBoxContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/DurationHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Export Duration (Seconds):"
+
+[node name="DurationSpin" type="SpinBox" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/DurationHBox"]
+layout_mode = 2
+min_value = 10.0
+max_value = 7200.0
+step = 10.0
+value = 300.0
+
+[node name="LayoutHBox" type="HBoxContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/LayoutHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Target Speaker Layout:"
+
+[node name="LayoutOption" type="OptionButton" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/LayoutHBox"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="SofaHBox" type="HBoxContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/SofaHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "HRTF SOFA File (Optional):"
+
+[node name="SofaEdit" type="LineEdit" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/SofaHBox"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+placeholder_text = "Default Generic HRTF"
+
+[node name="BtnBrowse" type="Button" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/SofaHBox"]
+layout_mode = 2
+text = "Browse..."
+
+[node name="OutputHBox" type="HBoxContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/OutputHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Output File Path:"
+
+[node name="OutputEdit" type="LineEdit" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/OutputHBox"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+placeholder_text = "C:/path/to/soundscape.wav"
+
+[node name="BtnBrowse" type="Button" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/OutputHBox"]
+layout_mode = 2
+text = "Browse..."
+
+[node name="StatusLabel" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Ready to export."
+
+[node name="ProgressBar" type="ProgressBar" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+show_percentage = false
+
+[node name="ButtonHBox" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="BtnCancel" type="Button" parent="Margin/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(80, 28)
+layout_mode = 2
+text = "Cancel"
+
+[node name="BtnStart" type="Button" parent="Margin/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(130, 28)
+layout_mode = 2
+text = "🚀 Start Export"

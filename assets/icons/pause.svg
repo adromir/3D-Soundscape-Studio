@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <defs>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE"/>
+      <stop offset="100%" stop-color="#4FACFE"/>
+    </linearGradient>
+  </defs>
+  <rect x="5" y="4" width="5" height="16" rx="1.5" fill="url(#cyanGrad)"/>
+  <rect x="14" y="4" width="5" height="16" rx="1.5" fill="url(#cyanGrad)"/>
+</svg>

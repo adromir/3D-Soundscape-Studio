@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#080C16" />
+      <stop offset="50%" stop-color="#0D1527" />
+      <stop offset="100%" stop-color="#050810" />
+    </linearGradient>
+
+    <!-- Liquid Glass Gradient -->
+    <linearGradient id="glassSphere" x1="20%" y1="20%" x2="80%" y2="80%">
+      <stop offset="0%" stop-color="#00F2FE" stop-opacity="0.9" />
+      <stop offset="40%" stop-color="#4FACFE" stop-opacity="0.6" />
+      <stop offset="80%" stop-color="#7F00FF" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#000B24" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Specular Highlight -->
+    <linearGradient id="sheen" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.7" />
+      <stop offset="50%" stop-color="#00F2FE" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Glowing Radial Core -->
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00F2FE" stop-opacity="1" />
+      <stop offset="40%" stop-color="#00C3FF" stop-opacity="0.5" />
+      <stop offset="80%" stop-color="#4FACFE" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Filter Glow -->
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Base Rounded Squircle -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <rect width="508" height="508" x="2" y="2" rx="110" fill="none" stroke="#00F2FE" stroke-opacity="0.3" stroke-width="2.5" />
+
+  <!-- Ambient Glow Behind Orb -->
+  <circle cx="256" cy="256" r="160" fill="url(#coreGlow)" opacity="0.65" />
+
+  <!-- 3D Polar Spatial Audio Latitude/Longitude Rings -->
+  <!-- Outer Equator Ring -->
+  <ellipse cx="256" cy="256" rx="140" ry="46" fill="none" stroke="#00F2FE" stroke-width="3" opacity="0.85" filter="url(#neonGlow)" />
+  <!-- Inclined Orbit 1 -->
+  <ellipse cx="256" cy="256" rx="138" ry="44" fill="none" stroke="#F6D365" stroke-width="2.5" opacity="0.7" transform="rotate(-32 256 256)" />
+  <!-- Inclined Orbit 2 -->
+  <ellipse cx="256" cy="256" rx="138" ry="44" fill="none" stroke="#4FACFE" stroke-width="2.5" opacity="0.7" transform="rotate(32 256 256)" />
+
+  <!-- Central Liquid Glass Sphere -->
+  <circle cx="256" cy="256" r="88" fill="url(#glassSphere)" />
+  <circle cx="256" cy="256" r="88" fill="none" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="2" />
+
+  <!-- Glass Specular Highlight -->
+  <ellipse cx="228" cy="216" rx="44" ry="24" fill="url(#sheen)" transform="rotate(-25 228 216)" />
+
+  <!-- Central Acoustic Core Beacon -->
+  <circle cx="256" cy="256" r="18" fill="#FFFFFF" filter="url(#neonGlow)" />
+  <circle cx="256" cy="256" r="10" fill="#00F2FE" />
+
+  <!-- Orbiting Spatial Sound Nodes -->
+  <!-- Top Node -->
+  <circle cx="360" cy="180" r="12" fill="#F6D365" filter="url(#neonGlow)" />
+  <circle cx="360" cy="180" r="6" fill="#FFFFFF" />
+  <!-- Bottom Left Node -->
+  <circle cx="150" cy="330" r="11" fill="#00F2FE" filter="url(#neonGlow)" />
+  <circle cx="150" cy="330" r="5" fill="#FFFFFF" />
+  <!-- Top Right Node -->
+  <circle cx="170" cy="165" r="9" fill="#FF5E7E" filter="url(#neonGlow)" />
+</svg>

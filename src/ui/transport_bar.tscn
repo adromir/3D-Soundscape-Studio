@@ -1,0 +1,85 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8xm9a2c1w7y"]
+
+[ext_resource type="Script" path="res://src/ui/transport_bar.gd" id="1_transport"]
+
+[node name="TransportBar" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 36)
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+script = ExtResource("1_transport")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnPlay" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "Play"
+
+[node name="BtnPause" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "Pause"
+
+[node name="BtnStop" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(60, 24)
+layout_mode = 2
+text = "Stop"
+
+[node name="VSeparator" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="MasterLabel" type="Label" parent="HBox"]
+layout_mode = 2
+text = "Master:"
+
+[node name="MasterSlider" type="HSlider" parent="HBox"]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 1.5
+step = 0.01
+value = 1.0
+
+[node name="VSeparator2" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="LayoutOption" type="OptionButton" parent="HBox"]
+custom_minimum_size = Vector2(170, 24)
+layout_mode = 2
+
+[node name="VSeparator3" type="VSeparator" parent="HBox"]
+layout_mode = 2
+
+[node name="BtnLibrary" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(70, 24)
+layout_mode = 2
+text = "Library"
+
+[node name="BtnExport" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(90, 24)
+layout_mode = 2
+text = "Export Audio"
+
+[node name="Spacer" type="Control" parent="HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="StatusLabel" type="Label" parent="HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.8, 0.9, 1)
+text = "Ready"
+
+[node name="BtnLang" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(36, 24)
+layout_mode = 2
+text = "DE"
+
+[node name="BtnTheme" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(32, 24)
+layout_mode = 2
+tooltip_text = "Toggle Dark / Light Theme"
