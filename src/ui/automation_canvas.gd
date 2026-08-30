@@ -51,20 +51,38 @@ func _draw() -> void:
 
 	# 1. Background Grid & Coordinates
 	draw_circle(center, radius, pal["canvas_bg"])
-	draw_arc(center, radius, 0, TAU, 64, pal["panel_border_glow"], 1.8, true)
+	draw_arc(center, radius, 0, TAU, 96, pal["panel_border_glow"], 2.0, true)
 
-	for i in range(1, 4):
-		var r: float = radius * (float(i) / 3.0)
-		draw_arc(center, r, 0, TAU, 48, pal["canvas_grid"], 1.0, true)
+	# 4 Concentric Polar Distance Rings & Zone Labels
+	var rings: int = 4
+	for i in range(1, rings + 1):
+		var r: float = radius * (float(i) / float(rings))
+		var ring_color: Color = pal["canvas_grid"]
+		ring_color.a = 0.45 if i == rings else 0.22
+		draw_arc(center, r, 0, TAU, 96, ring_color, 1.2, true)
 
-	draw_line(center - Vector2(radius, 0), center + Vector2(radius, 0), pal["canvas_grid"], 1.0, true)
-	draw_line(center - Vector2(0, radius), center + Vector2(0, radius), pal["canvas_grid"], 1.0, true)
+		# Distance label for each radar zone
+		var dist_val: float = soundspace_max_distance * (float(i) / float(rings))
+		var lbl_pos: Vector2 = center + Vector2(6, -r + 14)
+		draw_string(ThemeDB.fallback_font, lbl_pos, "%.1fm" % dist_val, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["text_dim"])
 
-	# Soundspace Radius Badge
-	var scale_badge_rect: Rect2 = Rect2(Vector2(size.x - 130, 10), Vector2(120, 24))
-	draw_rect(scale_badge_rect, pal["panel_bg"], true)
-	draw_rect(scale_badge_rect, pal["panel_border"], false, 1.0)
-	draw_string(ThemeDB.fallback_font, scale_badge_rect.position + Vector2(8, 16), "🔍 Radius: %.0fm" % soundspace_max_distance, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, pal["text_main"])
+	# 8 Radial Crosshair Lines
+	var radial_lines: int = 8
+	for r_idx in range(radial_lines):
+		var ang: float = float(r_idx) * (TAU / float(radial_lines))
+		var line_end: Vector2 = center + Vector2(cos(ang), sin(ang)) * radius
+		var is_cardinal: bool = (r_idx % 2 == 0)
+		var line_col: Color = pal["canvas_grid"]
+		line_col.a = 0.5 if is_cardinal else 0.18
+		draw_line(center, line_end, line_col, 1.0 if not is_cardinal else 1.5, true)
+
+	# Cardinal Orientation Badges (F, B, L, R)
+	var f_color: Color = pal["primary"]
+	var dim_color: Color = pal["text_dim"]
+	draw_string(ThemeDB.fallback_font, Vector2(center.x - 4, center.y - radius + 16), "F", HORIZONTAL_ALIGNMENT_CENTER, -1, 13, f_color)
+	draw_string(ThemeDB.fallback_font, Vector2(center.x - 4, center.y + radius - 6), "B", HORIZONTAL_ALIGNMENT_CENTER, -1, 13, dim_color)
+	draw_string(ThemeDB.fallback_font, Vector2(center.x - radius + 8, center.y + 4), "L", HORIZONTAL_ALIGNMENT_CENTER, -1, 13, dim_color)
+	draw_string(ThemeDB.fallback_font, Vector2(center.x + radius - 16, center.y + 4), "R", HORIZONTAL_ALIGNMENT_CENTER, -1, 13, dim_color)
 
 	# Bottom instructions hint
 	var hint_text: String = "Left-Click inside circle to add Waypoints  |  Drag to move  |  Right-Click to delete"

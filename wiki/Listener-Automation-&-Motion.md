@@ -2,7 +2,7 @@
 
 The **Listener Automation** system enables you to turn static ambient soundscapes into dynamic virtual acoustic journeys. Instead of remaining motionless at the center, the virtual listener walks, tours, or navigates along a path through the audio landscape.
 
-![Listener Automation View](../docs/images/03_listener_automation_view.png)
+![Listener Automation View](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/03_listener_automation_view.png)
 
 ---
 

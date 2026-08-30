@@ -2,7 +2,7 @@
 
 Welcome to the official documentation for **3D Soundscape Studio**, a next-generation Digital Audio Workstation (DAW) and spatial soundscape generator engineered specifically for binaural audio, multi-channel surround rendering, interactive polar audio positioning, and ambient soundscapes.
 
-![Studio Overview](../docs/images/01_studio_overview.png)
+![Studio Overview](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/01_studio_overview.png)
 
 ---
 

@@ -2,7 +2,7 @@
 
 3D Soundscape Studio provides both real-time multi-speaker playback and high-precision offline surround rendering powered by FFmpeg and SOFA (Spatially Oriented Format for Acoustics) HRIR databases.
 
-![Export Surround Dialog](../docs/images/06_export_surround_dialog.png)
+![Export Surround Dialog](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/06_export_surround_dialog.png)
 
 ---
 

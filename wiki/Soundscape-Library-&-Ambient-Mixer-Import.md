@@ -2,7 +2,7 @@
 
 3D Soundscape Studio features a built-in Soundscape Library and an integrated Sample Browser for managing your personal audio collections and importing presets from online communities.
 
-![Soundscape Library Dialog](../docs/images/05_soundscape_library_dialog.png)
+![Soundscape Library Dialog](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/05_soundscape_library_dialog.png)
 
 ---
 
@@ -33,7 +33,7 @@ Easily import soundscapes and templates from [ambient-mixer.com](https://www.amb
 
 The **Sample Browser** (`F3`) allows you to organize and audition standalone audio samples:
 
-![Sample Browser View](../docs/images/04_sample_browser_view.png)
+![Sample Browser View](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/04_sample_browser_view.png)
 
 ### Key Capabilities:
 - **Category Filter Tabs**: Switch between `ALL`, `Weather`, `Nature`, `Elements`, `Ambient`, `FX`, `Music`, `Voices`, or custom user categories.

@@ -10,25 +10,25 @@ Switch themes seamlessly via **View > Thematic Style** or in the **Preferences**
 
 ### 1. 🎋 Tactile Organic Zen (Default)
 Crafted with authentic stone textures, natural bamboo panels, amber gold accents, and subtle earthy aesthetics.
-![Organic Zen Theme](../docs/images/01_studio_overview.png)
+![Organic Zen Theme](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/01_studio_overview.png)
 
 ---
 
 ### 2. 🌌 Dark Slate Studio
 A sleek, professional DAW theme featuring deep charcoal slate panels, high-contrast gold accents, and minimal eye strain for long mixing sessions.
-![Dark Slate Theme](../docs/images/09_theme_dark_slate.png)
+![Dark Slate Theme](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/09_theme_dark_slate.png)
 
 ---
 
 ### 3. ⚡ Cyberpunk Neon
 A high-energy futuristic aesthetic with luminous cyan framing, hot magenta glows, and high-tech polar grid coordinates.
-![Cyberpunk Neon Theme](../docs/images/10_theme_cyberpunk_neon.png)
+![Cyberpunk Neon Theme](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/10_theme_cyberpunk_neon.png)
 
 ---
 
 ### 4. ☀️ High-Contrast Light
 A bright, ultra-crisp daylight mode with pure black radar pucks and high-contrast typography, ideal for bright studios or outdoor listening.
-![Light Theme](../docs/images/11_theme_light.png)
+![Light Theme](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/11_theme_light.png)
 
 ---
 
@@ -44,7 +44,7 @@ Switch languages instantly in **View > Language** or in the Preferences dialog. 
 
 ## ⚙️ Preferences Dialog (`Ctrl + ,`)
 
-![Preferences Dialog](../docs/images/07_preferences_dialog.png)
+![Preferences Dialog](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/07_preferences_dialog.png)
 
 Configure application-wide settings:
 - **Audio Output Device & Buffer Size**: Adjust latency vs. stability.
@@ -58,4 +58,4 @@ Configure application-wide settings:
 
 View version information, author credits, project links, and the complete MIT license in **Help > About 3D Soundscape Studio...**:
 
-![About Dialog with MIT License](../docs/images/08_about_dialog_mit_license.png)
+![About Dialog with MIT License](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/08_about_dialog_mit_license.png)

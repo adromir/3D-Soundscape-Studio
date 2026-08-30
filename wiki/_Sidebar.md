@@ -1,12 +1,12 @@
-### [3D Soundscape Studio Wiki](Home)
+### 🎧 3D Soundscape Studio
 
-- **[📖 Getting Started & Overview](Home)**
+- **[📖 Getting Started](Home)**
 - **[🎯 3D Spatial Audio Radar](3D-Spatial-Audio-Radar)**
 - **[🛤️ Listener Automation & Motion](Listener-Automation-&-Motion)**
-- **[🎛️ Stem Audio Tracks & Parameter Inspector](Stem-Audio-Tracks-&-Parameter-Inspector)**
-- **[📚 Soundscape Library & Ambient-Mixer Import](Soundscape-Library-&-Ambient-Mixer-Import)**
-- **[🔊 Multi-Channel Surround & Offline Export](Multi-Channel-Surround-&-Offline-Export)**
-- **[🎨 Themes, Localization & Preferences](Themes-Localization-&-Preferences)**
+- **[🎛️ Stem Audio Tracks & Inspector](Stem-Audio-Tracks-&-Parameter-Inspector)**
+- **[📚 Soundscape Library & Import](Soundscape-Library-&-Ambient-Mixer-Import)**
+- **[🔊 Surround Sound & Export](Multi-Channel-Surround-&-Offline-Export)**
+- **[🎨 Themes & Preferences](Themes-Localization-&-Preferences)**
 
 ---
 - **[⚖️ MIT License](Home#license)**

@@ -2,7 +2,7 @@
 
 The **Stem / Audio Tracks** dock and **Track Inspector** provide complete multichannel control over every audio stem in your project.
 
-![Studio Overview with Stem Controls](../docs/images/01_studio_overview.png)
+![Studio Overview with Stem Controls](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/01_studio_overview.png)
 
 ---
 

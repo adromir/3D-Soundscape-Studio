@@ -1065,13 +1065,31 @@ func _show_themed_about_dialog() -> void:
 	ver_lbl.add_theme_color_override("font_color", ThemeManager.get_palette().get("text_dim", Color(0.7, 0.75, 0.8)))
 	vbox.add_child(ver_lbl)
 
+	var links_row: HBoxContainer = HBoxContainer.new()
+	links_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(links_row)
+
 	var link_btn: LinkButton = LinkButton.new()
-	link_btn.text = "https://github.com/adromir/3D-Soundscape-Studio"
+	link_btn.text = "GitHub Repository"
 	link_btn.uri = "https://github.com/adromir/3D-Soundscape-Studio"
 	link_btn.add_theme_font_size_override("font_size", 11)
 	link_btn.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
 	link_btn.pressed.connect(func(): OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio"))
-	vbox.add_child(link_btn)
+	links_row.add_child(link_btn)
+
+	var link_sep: Label = Label.new()
+	link_sep.text = "•"
+	link_sep.add_theme_font_size_override("font_size", 11)
+	link_sep.add_theme_color_override("font_color", ThemeManager.get_palette().get("text_dim", Color(0.7, 0.75, 0.8)))
+	links_row.add_child(link_sep)
+
+	var wiki_btn: LinkButton = LinkButton.new()
+	wiki_btn.text = "Wiki & Documentation"
+	wiki_btn.uri = "https://github.com/adromir/3D-Soundscape-Studio/wiki"
+	wiki_btn.add_theme_font_size_override("font_size", 11)
+	wiki_btn.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
+	wiki_btn.pressed.connect(func(): OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio/wiki"))
+	links_row.add_child(wiki_btn)
 
 	var desc_lbl: Label = Label.new()
 	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

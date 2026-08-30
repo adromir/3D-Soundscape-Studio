@@ -2,7 +2,7 @@
 
 The **3D Spatial Audio Radar** is the central visual positioning environment in 3D Soundscape Studio. It maps sound sources around a central virtual listener in real-time using polar coordinates $(r, \theta, \phi)$.
 
-![3D Spatial Audio Radar & Track Inspector](../docs/images/02_track_inspector_radar.png)
+![3D Spatial Audio Radar & Track Inspector](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/02_track_inspector_radar.png)
 
 ---
 
