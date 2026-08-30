@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://c8vk7p2x9a1w"]
+[gd_scene format=3 uid="uid://c8vk7p2yaa1w"]
 
 [ext_resource type="Script" path="res://src/ui/soundscape_browser.gd" id="1_sc_browser"]
-[ext_resource type="Texture2D" path="res://assets/icons/library.svg" id="2_icon_lib"]
+[ext_resource type="Texture2D" path="res://assets/icons/search.svg" id="2_icon_search"]
 
 [node name="SoundscapeBrowser" type="PanelContainer"]
 anchors_preset = 15
@@ -15,76 +15,55 @@ script = ExtResource("1_sc_browser")
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
-[node name="HeaderPanel" type="PanelContainer" parent="VBox"]
-layout_mode = 2
-
-[node name="HeaderMargin" type="MarginContainer" parent="VBox/HeaderPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 8
-
-[node name="HeaderHBox" type="HBoxContainer" parent="VBox/HeaderPanel/HeaderMargin"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="IconLib" type="TextureRect" parent="VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 2
-size_flags_vertical = 4
-texture = ExtResource("2_icon_lib")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="LibTitleLabel" type="Label" parent="VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "Soundscape Library"
-
-[node name="HeaderSpacer" type="Control" parent="VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="SearchInput" type="LineEdit" parent="VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
-custom_minimum_size = Vector2(240, 30)
-layout_mode = 2
-placeholder_text = "Search soundscapes..."
-clear_button_enabled = true
-
-[node name="DownloadPanel" type="PanelContainer" parent="VBox"]
-layout_mode = 2
-
-[node name="DownloadMargin" type="MarginContainer" parent="VBox/DownloadPanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 6
-
-[node name="DownloadBar" type="HBoxContainer" parent="VBox/DownloadPanel/DownloadMargin"]
+[node name="TopBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="UrlLabel" type="Label" parent="VBox/DownloadPanel/DownloadMargin/DownloadBar"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "Ambient Mixer Downloader:"
-
-[node name="UrlInput" type="LineEdit" parent="VBox/DownloadPanel/DownloadMargin/DownloadBar"]
+[node name="SearchBox" type="HBoxContainer" parent="VBox/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Paste Ambient Mixer URL or ID (e.g. https://www.ambient-mixer.com/mix/tropical-rain-forest)"
+theme_override_constants/separation = 6
+
+[node name="SearchIcon" type="TextureRect" parent="VBox/TopBar/SearchBox"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("2_icon_search")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SearchInput" type="LineEdit" parent="VBox/TopBar/SearchBox"]
+custom_minimum_size = Vector2(180, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+placeholder_text = "Search soundscapes by title, author, or tag..."
 clear_button_enabled = true
 
-[node name="BtnDownload" type="Button" parent="VBox/DownloadPanel/DownloadMargin/DownloadBar"]
-custom_minimum_size = Vector2(140, 32)
+[node name="VSep" type="VSeparator" parent="VBox/TopBar"]
+layout_mode = 2
+
+[node name="UrlInput" type="LineEdit" parent="VBox/TopBar"]
+custom_minimum_size = Vector2(340, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+theme_override_font_sizes/font_size = 11
+placeholder_text = "Paste Ambient Mixer URL or ID (e.g. ambient-mixer.com/mix/tropical-rain-forest)"
+clear_button_enabled = true
+
+[node name="BtnDownload" type="Button" parent="VBox/TopBar"]
+custom_minimum_size = Vector2(145, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
 text = "Download & Import"
+
+[node name="CategoryHBox" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
 
 [node name="ProgressBar" type="ProgressBar" parent="VBox"]
 visible = false
@@ -111,7 +90,7 @@ theme_override_constants/v_separation = 12
 columns = 4
 
 [node name="CoverFileDialog" type="FileDialog" parent="."]
-title = "Open a File"
+title = "Select Soundscape Cover Image"
 initial_position = 2
 size = Vector2i(650, 480)
 ok_button_text = "Open"

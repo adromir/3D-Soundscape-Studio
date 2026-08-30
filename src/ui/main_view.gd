@@ -23,8 +23,8 @@ var spatial_engine: SpatialEngine = null
 
 @onready var btn_play: Button = $Margin/RootVBox/TopTransportBar/CenterTransport/BtnPlay
 @onready var btn_stop: Button = $Margin/RootVBox/TopTransportBar/CenterTransport/BtnStop
-@onready var master_vol_icon: TextureRect = $Margin/RootVBox/TopTransportBar/CenterTransport/MasterVolIcon if has_node("Margin/RootVBox/TopTransportBar/CenterTransport/MasterVolIcon") else null
-@onready var master_slider: HSlider = $Margin/RootVBox/TopTransportBar/CenterTransport/MasterSlider
+@onready var master_vol_icon: TextureRect = $Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill/Margin/HBox/MasterVolIcon if has_node("Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill/Margin/HBox/MasterVolIcon") else ($Margin/RootVBox/TopTransportBar/CenterTransport/MasterVolIcon if has_node("Margin/RootVBox/TopTransportBar/CenterTransport/MasterVolIcon") else null)
+@onready var master_slider: HSlider = $Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill/Margin/HBox/MasterSlider if has_node("Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill/Margin/HBox/MasterSlider") else ($Margin/RootVBox/TopTransportBar/CenterTransport/MasterSlider if has_node("Margin/RootVBox/TopTransportBar/CenterTransport/MasterSlider") else null)
 @onready var layout_option: OptionButton = $Margin/RootVBox/TopTransportBar/CenterTransport/LayoutOption
 
 # Nav Tabs
@@ -683,7 +683,7 @@ func _dock_inspector_back() -> void:
 		_save_workspace_settings()
 
 func _apply_theme(mode: ThemeManager.ThemeMode) -> void:
-	ThemeManager.apply_theme(get_tree().root, mode)
+	ThemeManager.apply_theme(get_tree().root if get_tree() else self, mode)
 	var orbs: Dictionary = ThemeManager.get_orb_colors(mode)
 	if has_node("Background"):
 		var bg: ColorRect = $Background
@@ -699,6 +699,35 @@ func _apply_theme(mode: ThemeManager.ThemeMode) -> void:
 					mat.set_shader_parameter("bg_texture", load("res://assets/textures/zen/bg_zen_atmosphere.png"))
 			else:
 				mat.set_shader_parameter("use_texture", false)
+
+	if has_node("Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill"):
+		var vol_pill: PanelContainer = $Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill
+		var pal: Dictionary = ThemeManager.get_palette()
+		var pill_sb: StyleBox
+		if mode == ThemeManager.ThemeMode.ZEN and ResourceLoader.exists("res://assets/textures/zen/btn_slate_normal.png"):
+			var b_tex: StyleBoxTexture = StyleBoxTexture.new()
+			b_tex.texture = load("res://assets/textures/zen/btn_slate_normal.png")
+			b_tex.texture_margin_left = 10
+			b_tex.texture_margin_right = 10
+			b_tex.texture_margin_top = 10
+			b_tex.texture_margin_bottom = 10
+			b_tex.content_margin_left = 8
+			b_tex.content_margin_right = 8
+			b_tex.content_margin_top = 4
+			b_tex.content_margin_bottom = 4
+			pill_sb = b_tex
+		else:
+			var b_flat: StyleBoxFlat = StyleBoxFlat.new()
+			b_flat.bg_color = pal["btn_normal"]
+			b_flat.border_color = pal["panel_border"]
+			b_flat.set_border_width_all(1)
+			b_flat.set_corner_radius_all(5)
+			b_flat.content_margin_left = 8
+			b_flat.content_margin_right = 8
+			b_flat.content_margin_top = 4
+			b_flat.content_margin_bottom = 4
+			pill_sb = b_flat
+		vol_pill.add_theme_stylebox_override("panel", pill_sb)
 
 	if soundscape_browser and soundscape_browser.has_method("apply_theme"):
 		soundscape_browser.apply_theme(mode)
@@ -780,7 +809,7 @@ func load_project(proj: SoundscapeData.SoundscapeProject) -> void:
 
 	if btn_set_cover:
 		if not current_project.cover_image_path.is_empty():
-			btn_set_cover.text = "🖼️ " + current_project.cover_image_path.get_file()
+			btn_set_cover.text = current_project.cover_image_path.get_file()
 		else:
 			btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
 
@@ -986,7 +1015,7 @@ func _on_cover_file_selected(path: String) -> void:
 	if current_project == null: return
 	current_project.cover_image_path = path
 	if btn_set_cover:
-		btn_set_cover.text = "🖼️ " + path.get_file()
+		btn_set_cover.text = path.get_file()
 	print("✔ Selected cover image: ", path)
 
 func _on_canvas_sample_dropped(s_name: String, s_path: String, azimuth: float, distance: float) -> void:
@@ -1237,8 +1266,6 @@ func _on_save_as_pressed() -> void:
 	var saved_path: String = LibraryManager.save_soundscape(current_project, new_folder)
 	print("✔ Project saved as: ", saved_path)
 	if soundscape_browser: soundscape_browser.refresh_library()
-
-# ==================== WORKSPACE & SETTINGS PERSISTENCE ====================
 
 func _save_workspace_settings() -> void:
 	var existing_data: Dictionary = {}

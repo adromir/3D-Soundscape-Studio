@@ -151,11 +151,46 @@ const TRANSLATIONS: Dictionary = {
 		Language.IT: "Carica audio..."
 	},
 	"TAB_SAMPLES": {
-		Language.EN: "Audio Samples",
-		Language.DE: "Audio-Samples",
-		Language.FR: "Échantillons audio",
-		Language.ES: "Muestras de audio",
-		Language.IT: "Campioni audio"
+		Language.EN: "Sounds Library",
+		Language.DE: "Sound-Bibliothek",
+		Language.FR: "Bibliothèque de Sons",
+		Language.ES: "Biblioteca de Sonidos",
+		Language.IT: "Libreria Suoni"
+	},
+	"BTN_IMPORT": {
+		Language.EN: "Import Audio...",
+		Language.DE: "Audio importieren...",
+		Language.FR: "Importer audio...",
+		Language.ES: "Importar audio...",
+		Language.IT: "Importa audio..."
+	},
+	"BTN_REFRESH": {
+		Language.EN: "Refresh",
+		Language.DE: "Aktualisieren",
+		Language.FR: "Actualiser",
+		Language.ES: "Actualizar",
+		Language.IT: "Aggiorna"
+	},
+	"BTN_ADD_CATEGORY": {
+		Language.EN: "Add Category",
+		Language.DE: "Kategorie hinzufügen",
+		Language.FR: "Ajouter catégorie",
+		Language.ES: "Añadir categoría",
+		Language.IT: "Aggiungi categoria"
+	},
+	"BTN_SET_COVER": {
+		Language.EN: "Cover",
+		Language.DE: "Titelbild",
+		Language.FR: "Pochette",
+		Language.ES: "Portada",
+		Language.IT: "Copertina"
+	},
+	"TOOLTIP_SET_COVER": {
+		Language.EN: "Select Cover Image for Soundscape",
+		Language.DE: "Titelbild für Soundscape auswählen",
+		Language.FR: "Sélectionner une image de couverture",
+		Language.ES: "Seleccionar imagen de portada",
+		Language.IT: "Seleziona immagine di copertina"
 	},
 	"BTN_LIBRARY": {
 		Language.EN: "Library",
@@ -506,20 +541,6 @@ const TRANSLATIONS: Dictionary = {
 		Language.FR: "Lecture aléatoire (⇌)",
 		Language.ES: "Reproducción aleatoria (⇌)",
 		Language.IT: "Riproduzione casuale (⇌)"
-	},
-	"BTN_SET_COVER": {
-		Language.EN: "🖼️ Cover",
-		Language.DE: "🖼️ Titelbild",
-		Language.FR: "🖼️ Couverture",
-		Language.ES: "🖼️ Portada",
-		Language.IT: "🖼️ Copertina"
-	},
-	"TOOLTIP_SET_COVER": {
-		Language.EN: "Select Cover Image for Soundscape",
-		Language.DE: "Titelbild für Soundscape auswählen",
-		Language.FR: "Sélectionner une image de couverture",
-		Language.ES: "Seleccionar imagen de portada",
-		Language.IT: "Seleziona immagine di copertina"
 	},
 	"DLG_COVER_TITLE": {
 		Language.EN: "Select Soundscape Cover Image",

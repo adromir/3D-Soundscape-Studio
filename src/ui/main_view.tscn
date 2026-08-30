@@ -31,6 +31,8 @@
 [ext_resource type="Texture2D" path="res://assets/icons/popout.svg" id="30_icon_popout"]
 [ext_resource type="Texture2D" path="res://assets/icons/reset.svg" id="31_icon_reset"]
 [ext_resource type="Texture2D" path="res://assets/icons/trash.svg" id="32_icon_trash"]
+[ext_resource type="Texture2D" path="res://assets/icons/plus.svg" id="33_icon_plus"]
+[ext_resource type="Texture2D" path="res://assets/icons/search.svg" id="34_icon_search"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
 shader = ExtResource("2_shader")
@@ -181,8 +183,24 @@ tooltip_text = "Stop All Playback"
 icon = ExtResource("18_icon_stop")
 expand_icon = true
 
-[node name="MasterVolIcon" type="TextureRect" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
-custom_minimum_size = Vector2(18, 18)
+[node name="VolumePill" type="PanelContainer" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
+custom_minimum_size = Vector2(130, 32)
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="Margin" type="MarginContainer" parent="Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 2
+
+[node name="HBox" type="HBoxContainer" parent="Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MasterVolIcon" type="TextureRect" parent="Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill/Margin/HBox"]
+custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("23_icon_volume")
@@ -190,9 +208,10 @@ expand_mode = 1
 stretch_mode = 5
 tooltip_text = "Master Volume"
 
-[node name="MasterSlider" type="HSlider" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
-custom_minimum_size = Vector2(85, 24)
+[node name="MasterSlider" type="HSlider" parent="Margin/RootVBox/TopTransportBar/CenterTransport/VolumePill/Margin/HBox"]
+custom_minimum_size = Vector2(85, 20)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 min_value = 0.0
 max_value = 1.5
@@ -548,7 +567,7 @@ mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("26_icon_samples")
 expand_icon = true
-text = "Samples Library"
+text = "Sounds Library"
 
 [node name="SoundscapeBrowser" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox" instance=ExtResource("7_sc_browser")]
 layout_mode = 2
@@ -568,23 +587,43 @@ theme_override_constants/separation = 8
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SearchEdit" type="LineEdit" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar"]
+[node name="SearchBox" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="SearchIcon" type="TextureRect" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar/SearchBox"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("34_icon_search")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SearchEdit" type="LineEdit" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar/SearchBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 placeholder_text = "Search single audio stems & samples..."
+clear_button_enabled = true
 
 [node name="BtnImportSample" type="Button" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar"]
-custom_minimum_size = Vector2(130, 26)
+custom_minimum_size = Vector2(135, 30)
 layout_mode = 2
+mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
-text = "📂 Import Audio..."
+icon = ExtResource("33_icon_plus")
+expand_icon = true
+text = "Import Audio..."
 
 [node name="BtnRefresh" type="Button" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar"]
-custom_minimum_size = Vector2(90, 26)
+custom_minimum_size = Vector2(95, 30)
 layout_mode = 2
+mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
-text = "🔄 Refresh"
+icon = ExtResource("31_icon_reset")
+expand_icon = true
+text = "Refresh"
 
 [node name="CategoryHBox" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox"]
 layout_mode = 2

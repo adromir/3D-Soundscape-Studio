@@ -6,7 +6,7 @@ extends PanelContainer
 
 signal sample_added_to_project(sample_name: String, sample_path: String)
 
-@onready var search_edit: LineEdit = $VBox/TopBar/SearchEdit if has_node("VBox/TopBar/SearchEdit") else null
+@onready var search_edit: LineEdit = $VBox/TopBar/SearchBox/SearchEdit if has_node("VBox/TopBar/SearchBox/SearchEdit") else ($VBox/TopBar/SearchEdit if has_node("VBox/TopBar/SearchEdit") else null)
 @onready var btn_import: Button = $VBox/TopBar/BtnImportSample if has_node("VBox/TopBar/BtnImportSample") else null
 @onready var btn_refresh: Button = $VBox/TopBar/BtnRefresh if has_node("VBox/TopBar/BtnRefresh") else null
 @onready var category_hbox: HBoxContainer = $VBox/CategoryHBox if has_node("VBox/CategoryHBox") else null
@@ -82,11 +82,11 @@ func _ready() -> void:
 
 func update_localization() -> void:
 	if btn_import:
-		btn_import.text = "📂 " + LocalizationData.tr_key("BTN_IMPORT") if LocalizationData.tr_key("BTN_IMPORT") != "BTN_IMPORT" else "📂 Import Audio..."
+		btn_import.text = LocalizationData.tr_key("BTN_IMPORT") if LocalizationData.tr_key("BTN_IMPORT") != "BTN_IMPORT" else "Import Audio..."
 	if btn_refresh:
-		btn_refresh.text = "🔄 " + LocalizationData.tr_key("BTN_REFRESH") if LocalizationData.tr_key("BTN_REFRESH") != "BTN_REFRESH" else "🔄 Refresh"
+		btn_refresh.text = LocalizationData.tr_key("BTN_REFRESH") if LocalizationData.tr_key("BTN_REFRESH") != "BTN_REFRESH" else "Refresh"
 	if search_edit:
-		search_edit.placeholder_text = "Search samples by name, category, or sound icon..."
+		search_edit.placeholder_text = "Search single audio stems & samples..."
 
 func _load_categories() -> void:
 	_categories = DEFAULT_CATEGORIES.duplicate()
@@ -163,23 +163,59 @@ func _prompt_add_category() -> void:
 		_add_cat_dialog.queue_free()
 
 	_add_cat_dialog = Window.new()
-	_add_cat_dialog.title = "Add Custom Category"
+	_add_cat_dialog.title = ""
 	_add_cat_dialog.size = Vector2i(380, 160)
 	_add_cat_dialog.exclusive = true
 	_add_cat_dialog.wrap_controls = true
 	_add_cat_dialog.transient = true
+	_add_cat_dialog.borderless = true
 	_add_cat_dialog.close_requested.connect(_add_cat_dialog.queue_free)
 
+	var pal: Dictionary = ThemeManager.get_palette()
 	var panel: PanelContainer = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_add_cat_dialog.add_child(panel)
 
+	var main_vbox: VBoxContainer = VBoxContainer.new()
+	main_vbox.add_theme_constant_override("separation", 0)
+	panel.add_child(main_vbox)
+
+	var header_panel: PanelContainer = PanelContainer.new()
+	var header_sb: StyleBoxFlat = StyleBoxFlat.new()
+	header_sb.bg_color = pal["btn_normal"]
+	header_sb.border_color = pal["panel_border"]
+	header_sb.border_width_bottom = 1
+	header_sb.content_margin_left = 16
+	header_sb.content_margin_right = 12
+	header_sb.content_margin_top = 8
+	header_sb.content_margin_bottom = 8
+	header_panel.add_theme_stylebox_override("panel", header_sb)
+	main_vbox.add_child(header_panel)
+
+	var header_hbox: HBoxContainer = HBoxContainer.new()
+	header_hbox.add_theme_constant_override("separation", 8)
+	header_panel.add_child(header_hbox)
+
+	var title_lbl: Label = Label.new()
+	title_lbl.text = "Add Custom Category"
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_lbl.add_theme_font_size_override("font_size", 12)
+	title_lbl.add_theme_color_override("font_color", pal["primary"])
+	header_hbox.add_child(title_lbl)
+
+	var btn_close_top: Button = Button.new()
+	btn_close_top.text = "✕"
+	btn_close_top.custom_minimum_size = Vector2(24, 24)
+	btn_close_top.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn_close_top.pressed.connect(_add_cat_dialog.queue_free)
+	header_hbox.add_child(btn_close_top)
+
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 16)
 	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	panel.add_child(margin)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	main_vbox.add_child(margin)
 
 	var vbox: VBoxContainer = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 10)
@@ -494,23 +530,59 @@ func _open_sample_editor(s: Dictionary) -> void:
 		_edit_dialog.queue_free()
 
 	_edit_dialog = Window.new()
-	_edit_dialog.title = "Edit Sound: " + s["name"]
-	_edit_dialog.size = Vector2i(440, 360)
+	_edit_dialog.title = ""
+	_edit_dialog.size = Vector2i(440, 390)
 	_edit_dialog.exclusive = true
 	_edit_dialog.wrap_controls = true
 	_edit_dialog.transient = true
+	_edit_dialog.borderless = true
 	_edit_dialog.close_requested.connect(_edit_dialog.queue_free)
 
+	var pal: Dictionary = ThemeManager.get_palette()
 	var panel: PanelContainer = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_edit_dialog.add_child(panel)
 
+	var main_vbox: VBoxContainer = VBoxContainer.new()
+	main_vbox.add_theme_constant_override("separation", 0)
+	panel.add_child(main_vbox)
+
+	var header_panel: PanelContainer = PanelContainer.new()
+	var header_sb: StyleBoxFlat = StyleBoxFlat.new()
+	header_sb.bg_color = pal["btn_normal"]
+	header_sb.border_color = pal["panel_border"]
+	header_sb.border_width_bottom = 1
+	header_sb.content_margin_left = 16
+	header_sb.content_margin_right = 12
+	header_sb.content_margin_top = 8
+	header_sb.content_margin_bottom = 8
+	header_panel.add_theme_stylebox_override("panel", header_sb)
+	main_vbox.add_child(header_panel)
+
+	var header_hbox: HBoxContainer = HBoxContainer.new()
+	header_hbox.add_theme_constant_override("separation", 8)
+	header_panel.add_child(header_hbox)
+
+	var title_lbl: Label = Label.new()
+	title_lbl.text = "Edit Sound: " + s["name"]
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_lbl.add_theme_font_size_override("font_size", 12)
+	title_lbl.add_theme_color_override("font_color", pal["primary"])
+	header_hbox.add_child(title_lbl)
+
+	var btn_close_top: Button = Button.new()
+	btn_close_top.text = "✕"
+	btn_close_top.custom_minimum_size = Vector2(24, 24)
+	btn_close_top.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn_close_top.pressed.connect(_edit_dialog.queue_free)
+	header_hbox.add_child(btn_close_top)
+
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 16)
 	margin.add_theme_constant_override("margin_right", 16)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	panel.add_child(margin)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	main_vbox.add_child(margin)
 
 	var vbox: VBoxContainer = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 10)
