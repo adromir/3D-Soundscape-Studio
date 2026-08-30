@@ -179,18 +179,18 @@ const TRANSLATIONS: Dictionary = {
 		Language.IT: "Aggiungi categoria"
 	},
 	"BTN_SET_COVER": {
-		Language.EN: "Cover",
-		Language.DE: "Titelbild",
-		Language.FR: "Pochette",
-		Language.ES: "Portada",
-		Language.IT: "Copertina"
+		Language.EN: "Change Cover",
+		Language.DE: "Titelbild ändern",
+		Language.FR: "Changer la pochette",
+		Language.ES: "Cambiar portada",
+		Language.IT: "Cambia copertina"
 	},
 	"TOOLTIP_SET_COVER": {
-		Language.EN: "Select Cover Image for Soundscape",
-		Language.DE: "Titelbild für Soundscape auswählen",
-		Language.FR: "Sélectionner une image de couverture",
-		Language.ES: "Seleccionar imagen de portada",
-		Language.IT: "Seleziona immagine di copertina"
+		Language.EN: "Select Cover Image Artwork for Soundscape",
+		Language.DE: "Titelbild / Artwork für dieses Soundscape auswählen",
+		Language.FR: "Sélectionner une image de couverture / pochette",
+		Language.ES: "Seleccionar imagen de portada para el soundscape",
+		Language.IT: "Seleziona immagine di copertina per il soundscape"
 	},
 	"BTN_LIBRARY": {
 		Language.EN: "Library",
@@ -955,19 +955,208 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Categoría:",
 		Language.IT: "Categoria:"
 	},
-	"LBL_RADAR_ICON": {
-		Language.EN: "Radar Sound Icon:",
-		Language.DE: "Radar Sound-Symbol:",
-		Language.FR: "Icône du son sur le radar :",
-		Language.ES: "Icono del sonido en radar:",
-		Language.IT: "Icona del suono sul radar:"
-	},
 	"LBL_ACCENT_COLOR": {
 		Language.EN: "Accent Color Glow:",
 		Language.DE: "Akzentfarb-Leuchten:",
 		Language.FR: "Couleur d'accent :",
 		Language.ES: "Color de acento:",
 		Language.IT: "Colore d'accento:"
+	},
+	"BTN_DOWNLOAD_IMPORT": {
+		Language.EN: "Download & Import...",
+		Language.DE: "Herunterladen & Importieren...",
+		Language.FR: "Télécharger & Importer...",
+		Language.ES: "Descargar e Importar...",
+		Language.IT: "Scarica e Importa..."
+	},
+	"TOOLTIP_DOWNLOAD_IMPORT": {
+		Language.EN: "Download and import soundscapes from ambient-mixer.com",
+		Language.DE: "Soundscapes von ambient-mixer.com herunterladen und importieren",
+		Language.FR: "Télécharger et importer des soundscapes depuis ambient-mixer.com",
+		Language.ES: "Descargar e importar soundscapes de ambient-mixer.com",
+		Language.IT: "Scarica e importa soundscape da ambient-mixer.com"
+	},
+	"LBL_DOWNLOAD_URL": {
+		Language.EN: "Paste Ambient-Mixer Soundscape URL or ID:",
+		Language.DE: "Ambient-Mixer-URL oder -ID einfügen:",
+		Language.FR: "Coller l'URL ou l'ID Ambient-Mixer :",
+		Language.ES: "Pegar URL o ID de Ambient-Mixer:",
+		Language.IT: "Incolla URL o ID Ambient-Mixer:"
+	},
+	"BTN_LOAD_PROJECT": {
+		Language.EN: "Load Project",
+		Language.DE: "Projekt laden",
+		Language.FR: "Charger le projet",
+		Language.ES: "Cargar proyecto",
+		Language.IT: "Carica progetto"
+	},
+	"TOOLTIP_CHANGE_COVER": {
+		Language.EN: "Change Cover Artwork",
+		Language.DE: "Titelbild ändern",
+		Language.FR: "Changer la pochette",
+		Language.ES: "Cambiar portada",
+		Language.IT: "Cambia copertina"
+	},
+	"TOOLTIP_EDIT_SOUNDSCAPE": {
+		Language.EN: "Edit Soundscape Info & Category",
+		Language.DE: "Soundscape-Info & Kategorie bearbeiten",
+		Language.FR: "Modifier les infos et la catégorie",
+		Language.ES: "Editar información y categoría",
+		Language.IT: "Modifica informazioni e categoria"
+	},
+	"TOOLTIP_DELETE_SOUNDSCAPE": {
+		Language.EN: "Delete Soundscape from Library",
+		Language.DE: "Soundscape aus der Bibliothek löschen",
+		Language.FR: "Supprimer le soundscape de la bibliothèque",
+		Language.ES: "Eliminar soundscape de la biblioteca",
+		Language.IT: "Elimina soundscape dalla libreria"
+	},
+	"DLG_EDIT_SOUNDSCAPE_TITLE": {
+		Language.EN: "Edit Soundscape Properties",
+		Language.DE: "Soundscape-Eigenschaften bearbeiten",
+		Language.FR: "Modifier les propriétés du soundscape",
+		Language.ES: "Editar propiedades del soundscape",
+		Language.IT: "Modifica proprietà del soundscape"
+	},
+	"LBL_SOUNDSCAPE_TITLE": {
+		Language.EN: "Soundscape Title:",
+		Language.DE: "Soundscape-Titel:",
+		Language.FR: "Titre du soundscape :",
+		Language.ES: "Título del soundscape:",
+		Language.IT: "Titolo del soundscape:"
+	},
+	"LBL_AUTHOR": {
+		Language.EN: "Author:",
+		Language.DE: "Autor:",
+		Language.FR: "Auteur :",
+		Language.ES: "Autor:",
+		Language.IT: "Autore:"
+	},
+	"EMPTY_SOUNDSCAPES_DESC": {
+		Language.EN: "No soundscapes found in this category.\nClick 'Download & Import...' to get soundscapes from ambient-mixer.com or save a soundscape in the Studio!",
+		Language.DE: "Keine Soundscapes in dieser Kategorie gefunden.\nKlicke auf 'Herunterladen & Importieren...' oder speichere eine Soundscape im Studio!",
+		Language.FR: "Aucun soundscape dans cette catégorie.\nCliquez sur 'Télécharger & Importer...' ou créez-en un dans le Studio !",
+		Language.ES: "No hay soundscapes en esta categoría.\n¡Haz clic en 'Descargar e Importar...' o crea uno en el Studio!",
+		Language.IT: "Nessun soundscape in questa categoria.\nFai clic su 'Scarica e Importa...' o creane uno nello Studio!"
+	},
+	"EMPTY_SAMPLES_DESC": {
+		Language.EN: "No audio samples match the current filter.\nClick 'Import Audio...' to add audio files from your computer.",
+		Language.DE: "Keine Audiosamples entsprechen dem Filter.\nKlicke auf 'Audio importieren...', um Dateien hinzuzufügen.",
+		Language.FR: "Aucun échantillon audio ne correspond.\nCliquez sur 'Importer audio...' pour ajouter des fichiers.",
+		Language.ES: "No hay muestras que coincidan.\nHaz clic en 'Importar audio...' para añadir archivos.",
+		Language.IT: "Nessun campione corrisponde al filtro.\nFai clic su 'Importa audio...' per aggiungere file."
+	},
+	"INSP_STEM_NAME": {
+		Language.EN: "Stem / Audio Track Name",
+		Language.DE: "Spur- / Stem-Name",
+		Language.FR: "Nom de la piste / de l'élément",
+		Language.ES: "Nombre de la pista",
+		Language.IT: "Nome della traccia"
+	},
+	"INSP_AUDIO_SOURCE": {
+		Language.EN: "Audio Source File",
+		Language.DE: "Audiodatei-Quelle",
+		Language.FR: "Fichier source audio",
+		Language.ES: "Archivo de origen de audio",
+		Language.IT: "File sorgente audio"
+	},
+	"INSP_ACCENT_COLOR": {
+		Language.EN: "Track Accent Color",
+		Language.DE: "Spur-Akzentfarbe",
+		Language.FR: "Couleur d'accent",
+		Language.ES: "Color de acento",
+		Language.IT: "Colore d'accento"
+	},
+	"INSP_RADAR_ICON": {
+		Language.EN: "Radar Sound Icon",
+		Language.DE: "Radar Sound-Symbol",
+		Language.FR: "Icône sur le canevas radar",
+		Language.ES: "Icono en radar",
+		Language.IT: "Icona sul radar"
+	},
+	"INSP_ROUTING": {
+		Language.EN: "Spatial Routing",
+		Language.DE: "Räumliches Routing",
+		Language.FR: "Routage spatial",
+		Language.ES: "Enrutamiento espacial",
+		Language.IT: "Routing spaziale"
+	},
+	"INSP_SPATIAL_POS": {
+		Language.EN: "3D Spatial Positioning",
+		Language.DE: "3D-Raumpositionierung",
+		Language.FR: "Positionnement spatial 3D",
+		Language.ES: "Posicionamiento espacial 3D",
+		Language.IT: "Posizionamento spaziale 3D"
+	},
+	"INSP_AZIMUTH": {
+		Language.EN: "Azimuth (°)",
+		Language.DE: "Azimut (°)",
+		Language.FR: "Azimut (°)",
+		Language.ES: "Azimut (°)",
+		Language.IT: "Azimut (°)"
+	},
+	"INSP_ELEVATION": {
+		Language.EN: "Elevation (°)",
+		Language.DE: "Höhe / Elevation (°)",
+		Language.FR: "Élévation (°)",
+		Language.ES: "Elevación (°)",
+		Language.IT: "Elevazione (°)"
+	},
+	"INSP_DISTANCE": {
+		Language.EN: "Distance (m)",
+		Language.DE: "Entfernung (m)",
+		Language.FR: "Distance (m)",
+		Language.ES: "Distancia (m)",
+		Language.IT: "Distanza (m)"
+	},
+	"INSP_MOVEMENT_AUTO": {
+		Language.EN: "Movement Pattern",
+		Language.DE: "Bewegungsmuster",
+		Language.FR: "Modèle de mouvement",
+		Language.ES: "Patrón de movimiento",
+		Language.IT: "Pattern di movimento"
+	},
+	"INSP_MOV_TIMING": {
+		Language.EN: "Movement Timing",
+		Language.DE: "Bewegungs-Timing",
+		Language.FR: "Synchronisation de mouvement",
+		Language.ES: "Sincronización de movimiento",
+		Language.IT: "Tempistica del movimento"
+	},
+	"INSP_MOV_SPEED": {
+		Language.EN: "Velocity / Movement Speed",
+		Language.DE: "Geschwindigkeit / Tempo",
+		Language.FR: "Vitesse de déplacement",
+		Language.ES: "Velocidad de movimiento",
+		Language.IT: "Velocità di movimento"
+	},
+	"INSP_ROAM_RADIUS": {
+		Language.EN: "Roam Boundary (Max Radius)",
+		Language.DE: "Wander-Grenze (Max Radius)",
+		Language.FR: "Rayon de déplacement maximal",
+		Language.ES: "Radio máximo de movimiento",
+		Language.IT: "Raggio massimo di movimento"
+	},
+	"INSP_TRIGGER_INTERVALS": {
+		Language.EN: "Trigger & Intervals",
+		Language.DE: "Trigger & Intervalle",
+		Language.FR: "Déclenchement & Intervalles",
+		Language.ES: "Disparador e Intervalos",
+		Language.IT: "Trigger e Intervalli"
+	},
+	"INSP_MULTI_CHANNEL": {
+		Language.EN: "Direct Speaker Routing:",
+		Language.DE: "Direkte Lautsprecherzuweisung:",
+		Language.FR: "Attribution directe aux haut-parleurs :",
+		Language.ES: "Enrutamiento directo a altavoces:",
+		Language.IT: "Assegnazione diretta agli altoparlanti:"
+	},
+	"INSP_OMNIPRESENT_DESC": {
+		Language.EN: "🌐 Omnipresent Sound Bed (Active on all channels without 3D attenuation)",
+		Language.DE: "🌐 Omnipräsenter Klangteppich (Auf allen Kanälen ohne 3D-Abschwächung aktiv)",
+		Language.FR: "🌐 Tapis sonore omniprésent (Actif sur tous les canaux sans atténuation 3D)",
+		Language.ES: "🌐 Capa sonora omnipresente (Activo en todos los canales sin atenuación 3D)",
+		Language.IT: "🌐 Tappeto sonoro onnipresente (Attivo su tutti i canali senza attenuazione 3D)"
 	}
 }
 

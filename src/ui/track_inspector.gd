@@ -453,6 +453,54 @@ func _select_option_by_id(opt: OptionButton, target_id: int) -> void:
 			return
 
 func update_localization() -> void:
+	if empty_state_label: empty_state_label.text = LocalizationData.tr_key("EMPTY_INSPECTOR_DESC")
+
+	var name_lbl = get_node_or_null("ScrollContainer/Content/NameLabel")
+	if name_lbl: name_lbl.text = LocalizationData.tr_key("INSP_STEM_NAME")
+	if name_edit: name_edit.placeholder_text = LocalizationData.tr_key("INSP_STEM_NAME") + "..."
+
+	var audio_src_lbl = get_node_or_null("ScrollContainer/Content/AudioSourceGroup/AudioSourceLabel")
+	if audio_src_lbl: audio_src_lbl.text = LocalizationData.tr_key("INSP_AUDIO_SOURCE")
+
+	var color_lbl = get_node_or_null("ScrollContainer/Content/AppearanceGroup/ColorLabel")
+	if color_lbl: color_lbl.text = LocalizationData.tr_key("INSP_ACCENT_COLOR")
+
+	var icon_lbl = get_node_or_null("ScrollContainer/Content/AppearanceGroup/IconLabel")
+	if icon_lbl: icon_lbl.text = LocalizationData.tr_key("INSP_RADAR_ICON")
+
+	var routing_lbl = get_node_or_null("ScrollContainer/Content/RoutingLabel")
+	if routing_lbl: routing_lbl.text = LocalizationData.tr_key("INSP_ROUTING")
+
+	var az_lbl = get_node_or_null("ScrollContainer/Content/SpatialGroup/AzimuthHBox/Label")
+	if az_lbl: az_lbl.text = LocalizationData.tr_key("INSP_AZIMUTH")
+
+	var el_lbl = get_node_or_null("ScrollContainer/Content/SpatialGroup/ElevationHBox/Label")
+	if el_lbl: el_lbl.text = LocalizationData.tr_key("INSP_ELEVATION")
+
+	var dist_lbl = get_node_or_null("ScrollContainer/Content/SpatialGroup/DistanceHBox/Label")
+	if dist_lbl: dist_lbl.text = LocalizationData.tr_key("INSP_DISTANCE")
+
+	var mov_lbl = get_node_or_null("ScrollContainer/Content/MovementGroup/Label")
+	if mov_lbl: mov_lbl.text = LocalizationData.tr_key("INSP_MOVEMENT_AUTO")
+
+	var timing_lbl = get_node_or_null("ScrollContainer/Content/MovementGroup/TimingLabel")
+	if timing_lbl: timing_lbl.text = LocalizationData.tr_key("INSP_MOV_TIMING")
+
+	var speed_lbl = get_node_or_null("ScrollContainer/Content/MovementGroup/SpeedHBox/SpeedLabel")
+	if speed_lbl: speed_lbl.text = LocalizationData.tr_key("INSP_MOV_SPEED")
+
+	var roam_lbl = get_node_or_null("ScrollContainer/Content/MovementGroup/RoamGroup/RoamDistHBox/RoamDistLabel")
+	if roam_lbl: roam_lbl.text = LocalizationData.tr_key("INSP_ROAM_RADIUS")
+
+	var trig_lbl = get_node_or_null("ScrollContainer/Content/TriggerGroup/TriggerLabel")
+	if trig_lbl: trig_lbl.text = LocalizationData.tr_key("INSP_TRIGGER_INTERVALS")
+
+	var omni_lbl = get_node_or_null("ScrollContainer/Content/OmnipresentGroup/OmniMargin/OmniLabel")
+	if omni_lbl: omni_lbl.text = LocalizationData.tr_key("INSP_OMNIPRESENT_DESC")
+
+	var ch_lbl = get_node_or_null("ScrollContainer/Content/MultiChannelGroup/ChannelsLabel")
+	if ch_lbl: ch_lbl.text = LocalizationData.tr_key("INSP_MULTI_CHANNEL")
+
 	if routing_option:
 		var sel_id: int = routing_option.get_selected_id()
 		routing_option.clear()

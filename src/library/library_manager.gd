@@ -45,6 +45,7 @@ static func get_all_soundscapes() -> Array[Dictionary]:
 				"project_path": project_path,
 				"has_project": FileAccess.file_exists(ProjectSettings.globalize_path(project_path)),
 				"title": folder_name.capitalize(),
+				"category": "Nature",
 				"description": "",
 				"author": "Unknown",
 				"cover_path": cover_path
@@ -57,12 +58,20 @@ static func get_all_soundscapes() -> Array[Dictionary]:
 					if test_json.parse(meta_file.get_as_text()) == OK:
 						var meta_dict: Dictionary = test_json.get_data() as Dictionary
 						info["title"] = meta_dict.get("title", info["title"])
+						info["category"] = meta_dict.get("category", "Nature")
 						info["description"] = meta_dict.get("description", "")
 						info["author"] = meta_dict.get("author", "Unknown")
 						var meta_cover: String = meta_dict.get("cover", meta_dict.get("cover_image_path", ""))
 						if not meta_cover.is_empty() and FileAccess.file_exists(ProjectSettings.globalize_path(meta_cover)):
 							info["cover_path"] = meta_cover
 					meta_file.close()
+			elif info["has_project"]:
+				var proj: SoundscapeData.SoundscapeProject = load_project_file(project_path)
+				if proj:
+					info["title"] = proj.title
+					info["category"] = proj.category
+					info["author"] = proj.author
+					info["description"] = proj.description
 
 			results.append(info)
 
@@ -151,6 +160,7 @@ static func save_soundscape(project: SoundscapeData.SoundscapeProject, target_fo
 			f_read.close()
 
 	existing_meta["title"] = project.title
+	existing_meta["category"] = project.category
 	existing_meta["author"] = project.author
 	existing_meta["description"] = project.description
 	existing_meta["track_count"] = project.tracks.size()
@@ -170,8 +180,53 @@ static func save_project(project: SoundscapeData.SoundscapeProject, path: String
 	var file: FileAccess = FileAccess.open(global_p, FileAccess.WRITE)
 	if file == null:
 		return false
-	file.store_string(JSON.stringify(project.to_dict(), "\t"))
+	var json_str: String = JSON.stringify(project.to_dict(), "\t")
+	file.store_string(json_str)
+	file.close()
 	return true
+
+static func update_soundscape_info(folder_or_slug: String, new_title: String, new_category: String, new_author: String = "") -> bool:
+	if folder_or_slug.is_empty():
+		return false
+
+	var folder_name: String = folder_or_slug
+	if folder_or_slug.begins_with(get_library_root()):
+		folder_name = folder_or_slug.replace(get_library_root() + "/", "").split("/")[0]
+
+	var folder_path: String = get_library_root().path_join(folder_name)
+	var proj_file: String = folder_path.path_join("project.ambmix")
+	var meta_file: String = folder_path.path_join("metadata.json")
+
+	# Update project.ambmix
+	if FileAccess.file_exists(ProjectSettings.globalize_path(proj_file)):
+		var proj: SoundscapeData.SoundscapeProject = load_project_file(proj_file)
+		if proj:
+			if not new_title.is_empty(): proj.title = new_title
+			if not new_category.is_empty(): proj.category = new_category
+			if not new_author.is_empty(): proj.author = new_author
+			proj.save_to_file(proj_file)
+
+	# Update metadata.json
+	var existing_meta: Dictionary = {}
+	if FileAccess.file_exists(ProjectSettings.globalize_path(meta_file)):
+		var f_read: FileAccess = FileAccess.open(ProjectSettings.globalize_path(meta_file), FileAccess.READ)
+		if f_read != null:
+			var json_obj: JSON = JSON.new()
+			if json_obj.parse(f_read.get_as_text()) == OK and json_obj.data is Dictionary:
+				existing_meta = json_obj.data
+			f_read.close()
+
+	if not new_title.is_empty(): existing_meta["title"] = new_title
+	if not new_category.is_empty(): existing_meta["category"] = new_category
+	if not new_author.is_empty(): existing_meta["author"] = new_author
+	existing_meta["last_modified"] = Time.get_datetime_string_from_system()
+
+	var f_write: FileAccess = FileAccess.open(ProjectSettings.globalize_path(meta_file), FileAccess.WRITE)
+	if f_write != null:
+		f_write.store_string(JSON.stringify(existing_meta, "\t"))
+		f_write.close()
+		return true
+	return false
 
 static func delete_soundscape(folder_name: String) -> bool:
 	var path: String = get_library_root().path_join(folder_name)

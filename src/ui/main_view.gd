@@ -686,16 +686,19 @@ func _switch_tab(idx: int, subtab_idx: int = -1) -> void:
 
 	# Highlight Active Nav Pill
 	var pal: Dictionary = ThemeManager.get_palette()
+	var is_light: bool = (ThemeManager.current_theme == ThemeManager.ThemeMode.LIGHT)
+	var active_col: Color = Color(0.0, 0.22, 0.48) if is_light else pal.get("primary", Color(0.96, 0.82, 0.48))
+	var inactive_col: Color = pal.get("text_main", Color(0.92, 0.94, 0.96))
+
 	var pills: Array[Button] = [btn_tab_studio, btn_tab_story, btn_tab_library]
 	for i in range(pills.size()):
 		var p: Button = pills[i]
 		if p:
 			p.modulate = Color.WHITE
 			p.set_pressed_no_signal(i == idx)
-			if i == idx:
-				p.add_theme_color_override("font_color", pal.get("primary", Color(0.96, 0.82, 0.48)))
-			else:
-				p.add_theme_color_override("font_color", pal.get("text_main", Color(0.92, 0.94, 0.96)))
+			p.add_theme_color_override("font_color", active_col if i == idx else inactive_col)
+			p.add_theme_color_override("font_pressed_color", active_col if i == idx else inactive_col)
+			p.add_theme_color_override("icon_pressed_color", active_col if i == idx else inactive_col)
 
 	if idx == 0:
 		_update_dock_layout()
@@ -719,12 +722,20 @@ func _switch_library_subtab(sub_idx: int) -> void:
 			sample_browser.scan_samples()
 
 	var pal: Dictionary = ThemeManager.get_palette()
+	var is_light: bool = (ThemeManager.current_theme == ThemeManager.ThemeMode.LIGHT)
+	var active_col: Color = Color(0.0, 0.22, 0.48) if is_light else pal.get("primary", Color(0.96, 0.82, 0.48))
+	var inactive_col: Color = pal.get("text_main", Color(0.92, 0.94, 0.96))
+
 	if btn_subtab_soundscapes:
 		btn_subtab_soundscapes.set_pressed_no_signal(sub_idx == 0)
-		btn_subtab_soundscapes.add_theme_color_override("font_color", pal.get("primary", Color(0.96, 0.82, 0.48)) if sub_idx == 0 else pal.get("text_main", Color(0.92, 0.94, 0.96)))
+		btn_subtab_soundscapes.add_theme_color_override("font_color", active_col if sub_idx == 0 else inactive_col)
+		btn_subtab_soundscapes.add_theme_color_override("font_pressed_color", active_col if sub_idx == 0 else inactive_col)
+		btn_subtab_soundscapes.add_theme_color_override("icon_pressed_color", active_col if sub_idx == 0 else inactive_col)
 	if btn_subtab_samples:
 		btn_subtab_samples.set_pressed_no_signal(sub_idx == 1)
-		btn_subtab_samples.add_theme_color_override("font_color", pal.get("primary", Color(0.96, 0.82, 0.48)) if sub_idx == 1 else pal.get("text_main", Color(0.92, 0.94, 0.96)))
+		btn_subtab_samples.add_theme_color_override("font_color", active_col if sub_idx == 1 else inactive_col)
+		btn_subtab_samples.add_theme_color_override("font_pressed_color", active_col if sub_idx == 1 else inactive_col)
+		btn_subtab_samples.add_theme_color_override("icon_pressed_color", active_col if sub_idx == 1 else inactive_col)
 
 # ==================== UNDOCK / POP-OUT HANDLING ====================
 
@@ -880,10 +891,16 @@ func _on_sample_added(sample_name: String, path: String) -> void:
 func update_localization() -> void:
 	_setup_menu_bar()
 
+	var pal: Dictionary = ThemeManager.get_palette()
+	var prefix_lbl: Label = get_node_or_null("Margin/RootVBox/TopTransportBar/ProjectTitleBox/TitlePrefix") as Label
+	if prefix_lbl:
+		prefix_lbl.text = LocalizationData.tr_key("LBL_PROJECT")
+		prefix_lbl.add_theme_color_override("font_color", pal.get("text_main", Color.WHITE))
+
 	if btn_set_cover:
-		if current_project == null or current_project.cover_image_path.is_empty():
-			btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
-		btn_set_cover.tooltip_text = LocalizationData.tr_key("TOOLTIP_SET_COVER")
+		btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
+		var cov_info: String = (" (" + current_project.cover_image_path.get_file() + ")") if current_project and not current_project.cover_image_path.is_empty() else ""
+		btn_set_cover.tooltip_text = LocalizationData.tr_key("TOOLTIP_SET_COVER") + cov_info
 
 	if btn_save_quick: btn_save_quick.text = LocalizationData.tr_key("BTN_SAVE")
 	if btn_export_quick: btn_export_quick.text = LocalizationData.tr_key("BTN_EXPORT")
@@ -898,6 +915,16 @@ func update_localization() -> void:
 	if btn_stop: btn_stop.tooltip_text = LocalizationData.tr_key("TOOLTIP_STOP")
 	if master_slider: master_slider.tooltip_text = LocalizationData.tr_key("TOOLTIP_MASTER_VOL")
 	if layout_option: layout_option.tooltip_text = LocalizationData.tr_key("TOOLTIP_LAYOUT")
+
+	# Dock Headers
+	var title_left = get_node_or_null("Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft/TitleLeft")
+	if title_left: title_left.text = LocalizationData.tr_key("HEADER_STEMS_TRACKS")
+	var title_center = get_node_or_null("Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/TitleCenter")
+	if title_center: title_center.text = LocalizationData.tr_key("HEADER_RADAR_CANVAS")
+	var title_right = get_node_or_null("Margin/RootVBox/ViewsStack/StudioView/RightDock/VBoxRight/HeaderRight/TitleRight")
+	if title_right: title_right.text = LocalizationData.tr_key("HEADER_TRACK_INSPECTOR")
+	var title_story = get_node_or_null("Margin/RootVBox/ViewsStack/StoryView/StoryVBox/StoryTopBar/TitleStory")
+	if title_story: title_story.text = LocalizationData.tr_key("HEADER_AUTOMATION")
 
 	if track_list: track_list.update_localization()
 	if track_inspector: track_inspector.update_localization()
@@ -921,10 +948,9 @@ func load_project(proj: SoundscapeData.SoundscapeProject, record_recent: bool = 
 		title_edit.text = current_project.title
 
 	if btn_set_cover:
-		if not current_project.cover_image_path.is_empty():
-			btn_set_cover.text = current_project.cover_image_path.get_file()
-		else:
-			btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
+		btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
+		var cov_info: String = (" (" + current_project.cover_image_path.get_file() + ")") if not current_project.cover_image_path.is_empty() else ""
+		btn_set_cover.tooltip_text = LocalizationData.tr_key("TOOLTIP_SET_COVER") + cov_info
 
 	if track_list: track_list.set_project(current_project)
 	if spatial_canvas: spatial_canvas.set_project(current_project)
@@ -1128,7 +1154,8 @@ func _on_cover_file_selected(path: String) -> void:
 	if current_project == null: return
 	current_project.cover_image_path = path
 	if btn_set_cover:
-		btn_set_cover.text = path.get_file()
+		btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
+		btn_set_cover.tooltip_text = LocalizationData.tr_key("TOOLTIP_SET_COVER") + " (" + path.get_file() + ")"
 	print("✔ Selected cover image: ", path)
 
 func _on_canvas_sample_dropped(s_name: String, s_path: String, azimuth: float, distance: float) -> void:

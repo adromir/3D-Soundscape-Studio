@@ -36,12 +36,13 @@ static func sanitize_filename(raw_name: String) -> String:
 		clean = "untitled_mix"
 	return clean.to_lower()
 
-func start_import_from_url(input_url: String) -> void:
+func start_import_from_url(input_url: String, category: String = "Nature") -> void:
 	_download_queue.clear()
 	_audio_mapping.clear()
 	_current_download_idx = 0
 	_total_downloads = 0
 	_project = SoundscapeData.SoundscapeProject.new()
+	_project.category = category
 
 	input_url = input_url.strip_edges()
 	if input_url.is_empty():

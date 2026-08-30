@@ -322,6 +322,7 @@ class ListenerPathConfig extends RefCounted:
 class SoundscapeProject extends RefCounted:
 	var source_path: String = ""
 	var title: String = "Untitled Soundscape"
+	var category: String = "Nature"
 	var description: String = ""
 	var author: String = "Adromir"
 	var cover_image_path: String = ""
@@ -341,6 +342,7 @@ class SoundscapeProject extends RefCounted:
 		return {
 			"version": 1,
 			"title": title,
+			"category": category,
 			"description": description,
 			"author": author,
 			"cover_image_path": cover_image_path,
@@ -356,6 +358,7 @@ class SoundscapeProject extends RefCounted:
 	static func from_dict(dict: Dictionary) -> SoundscapeProject:
 		var project: SoundscapeProject = SoundscapeProject.new()
 		project.title = dict.get("title", "Untitled Soundscape")
+		project.category = dict.get("category", "Nature")
 		project.description = dict.get("description", "")
 		project.author = dict.get("author", "Adromir")
 		project.cover_image_path = dict.get("cover_image_path", "")

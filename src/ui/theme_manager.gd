@@ -386,12 +386,26 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	theme.set_stylebox("focus", "LineEdit", btn_hover)
 
 	# 6. Global Typography and Font Colors
+	var is_light: bool = (mode == ThemeMode.LIGHT)
+	var btn_hover_text: Color = Color(0.0, 0.20, 0.50) if is_light else Color.WHITE
+	var btn_pressed_text: Color = Color(0.0, 0.15, 0.38) if is_light else pal["primary"]
+	var btn_hover_pressed_text: Color = Color(0.0, 0.15, 0.38) if is_light else Color.WHITE
+	var btn_icon_col: Color = pal["text_main"]
+	var btn_icon_hover_col: Color = Color(0.0, 0.20, 0.50) if is_light else Color.WHITE
+	var btn_icon_pressed_col: Color = Color(0.0, 0.15, 0.38) if is_light else pal["primary"]
+
 	theme.set_color("font_color", "Label", pal["text_main"])
 	theme.set_color("font_color", "Button", pal["text_main"])
-	theme.set_color("font_hover_color", "Button", Color.WHITE)
-	theme.set_color("font_pressed_color", "Button", pal["primary"])
-	theme.set_color("font_hover_pressed_color", "Button", Color.WHITE)
-	theme.set_color("font_focus_color", "Button", pal["text_main"])
+	theme.set_color("font_hover_color", "Button", btn_hover_text)
+	theme.set_color("font_pressed_color", "Button", btn_pressed_text)
+	theme.set_color("font_hover_pressed_color", "Button", btn_hover_pressed_text)
+	theme.set_color("font_focus_color", "Button", btn_hover_text)
+	theme.set_color("icon_normal_color", "Button", btn_icon_col)
+	theme.set_color("icon_hover_color", "Button", btn_icon_hover_col)
+	theme.set_color("icon_pressed_color", "Button", btn_icon_pressed_col)
+	theme.set_color("icon_hover_pressed_color", "Button", btn_icon_pressed_col)
+	theme.set_color("icon_focus_color", "Button", btn_icon_hover_col)
+
 	theme.set_color("font_color", "LineEdit", pal["text_main"])
 	theme.set_color("font_placeholder_color", "LineEdit", pal["text_dim"])
 
@@ -409,13 +423,13 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	theme.set_stylebox("hover", "CheckButton", btn_hover)
 	theme.set_stylebox("pressed", "CheckButton", btn_pressed)
 	theme.set_color("font_color", "CheckButton", pal["text_main"])
-	theme.set_color("font_pressed_color", "CheckButton", pal["primary"])
-	theme.set_color("font_hover_color", "CheckButton", Color.WHITE)
+	theme.set_color("font_pressed_color", "CheckButton", btn_pressed_text)
+	theme.set_color("font_hover_color", "CheckButton", btn_hover_text)
 
 	# 7. MenuBar Styling (Native Desktop Menu Bar)
 	var menubar_normal: StyleBoxEmpty = StyleBoxEmpty.new()
 	var menubar_hover: StyleBoxFlat = StyleBoxFlat.new()
-	menubar_hover.bg_color = Color(1.0, 1.0, 1.0, 0.08)
+	menubar_hover.bg_color = Color(0.0, 0.2, 0.5, 0.08) if is_light else Color(1.0, 1.0, 1.0, 0.08)
 	menubar_hover.set_corner_radius_all(4)
 	menubar_hover.content_margin_left = 8
 	menubar_hover.content_margin_right = 8
@@ -423,7 +437,7 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	menubar_hover.content_margin_bottom = 3
 
 	var menubar_pressed: StyleBoxFlat = StyleBoxFlat.new()
-	menubar_pressed.bg_color = Color(1.0, 1.0, 1.0, 0.15)
+	menubar_pressed.bg_color = Color(0.0, 0.2, 0.5, 0.15) if is_light else Color(1.0, 1.0, 1.0, 0.15)
 	menubar_pressed.set_corner_radius_all(4)
 	menubar_pressed.content_margin_left = 8
 	menubar_pressed.content_margin_right = 8
@@ -434,8 +448,8 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	theme.set_stylebox("hover", "MenuBar", menubar_hover)
 	theme.set_stylebox("pressed", "MenuBar", menubar_pressed)
 	theme.set_color("font_color", "MenuBar", pal["text_main"])
-	theme.set_color("font_hover_color", "MenuBar", Color.WHITE)
-	theme.set_color("font_pressed_color", "MenuBar", pal["primary"])
+	theme.set_color("font_hover_color", "MenuBar", btn_hover_text)
+	theme.set_color("font_pressed_color", "MenuBar", btn_pressed_text)
 
 	# 8. PopupMenu Styling (Desktop Dropdown Menus)
 	var popup_panel: StyleBoxFlat = StyleBoxFlat.new()
