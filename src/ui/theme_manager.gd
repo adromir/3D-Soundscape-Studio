@@ -481,6 +481,10 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	win_border.set_border_width_all(1)
 	win_border.border_color = pal["panel_border_glow"]
 	win_border.set_corner_radius_all(10)
+	win_border.expand_margin_top = 28
+	win_border.expand_margin_bottom = 2
+	win_border.expand_margin_left = 2
+	win_border.expand_margin_right = 2
 	win_border.content_margin_left = 12
 	win_border.content_margin_right = 12
 	win_border.content_margin_top = 10

@@ -1032,37 +1032,78 @@ static func get_app_version() -> String:
 
 func _show_themed_about_dialog() -> void:
 	var win: Window = Window.new()
-	win.title = "About 3D Soundscape Studio"
-	win.size = Vector2i(540, 500)
+	win.title = ""
+	win.size = Vector2i(540, 520)
 	win.exclusive = true
 	win.transient = true
+	win.borderless = true
 	win.close_requested.connect(win.queue_free)
+	add_child(win)
+	win.popup_centered()
 
+	var pal: Dictionary = ThemeManager.get_palette()
 	var panel: PanelContainer = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	win.add_child(panel)
 
-	var margin: MarginContainer = MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 24)
-	margin.add_theme_constant_override("margin_right", 24)
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_bottom", 20)
-	panel.add_child(margin)
+	var main_vbox: VBoxContainer = VBoxContainer.new()
+	main_vbox.add_theme_constant_override("separation", 0)
+	panel.add_child(main_vbox)
 
-	var vbox: VBoxContainer = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
+	# --- SOLID TITLE BAR HEADER ---
+	var header_panel: PanelContainer = PanelContainer.new()
+	var header_sb: StyleBoxFlat = StyleBoxFlat.new()
+	header_sb.bg_color = pal["btn_normal"]
+	header_sb.border_color = pal["panel_border"]
+	header_sb.border_width_bottom = 1
+	header_sb.content_margin_left = 16
+	header_sb.content_margin_right = 12
+	header_sb.content_margin_top = 10
+	header_sb.content_margin_bottom = 10
+	header_panel.add_theme_stylebox_override("panel", header_sb)
+	main_vbox.add_child(header_panel)
+
+	var header_hbox: HBoxContainer = HBoxContainer.new()
+	header_hbox.add_theme_constant_override("separation", 8)
+	header_panel.add_child(header_hbox)
 
 	var title_lbl: Label = Label.new()
-	title_lbl.text = "3D Soundscape Studio"
-	title_lbl.add_theme_font_size_override("font_size", 16)
-	title_lbl.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
-	vbox.add_child(title_lbl)
+	title_lbl.text = "About 3D Soundscape Studio"
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_lbl.add_theme_font_size_override("font_size", 13)
+	title_lbl.add_theme_color_override("font_color", pal["primary"])
+	header_hbox.add_child(title_lbl)
+
+	var btn_close: Button = Button.new()
+	btn_close.text = "✕"
+	btn_close.custom_minimum_size = Vector2(24, 24)
+	btn_close.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn_close.pressed.connect(win.queue_free)
+	header_hbox.add_child(btn_close)
+
+	# --- CONTENT MARGIN ---
+	var margin: MarginContainer = MarginContainer.new()
+	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_top", 14)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	main_vbox.add_child(margin)
+
+	var vbox: VBoxContainer = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	margin.add_child(vbox)
+
+	var app_title: Label = Label.new()
+	app_title.text = "3D Soundscape Studio"
+	app_title.add_theme_font_size_override("font_size", 15)
+	app_title.add_theme_color_override("font_color", pal["primary"])
+	vbox.add_child(app_title)
 
 	var ver_lbl: Label = Label.new()
 	ver_lbl.text = "Version %s  •  Author: Adromir" % get_app_version()
 	ver_lbl.add_theme_font_size_override("font_size", 11)
-	ver_lbl.add_theme_color_override("font_color", ThemeManager.get_palette().get("text_dim", Color(0.7, 0.75, 0.8)))
+	ver_lbl.add_theme_color_override("font_color", pal["text_dim"])
 	vbox.add_child(ver_lbl)
 
 	var links_row: HBoxContainer = HBoxContainer.new()
@@ -1073,20 +1114,20 @@ func _show_themed_about_dialog() -> void:
 	link_btn.text = "GitHub Repository"
 	link_btn.uri = "https://github.com/adromir/3D-Soundscape-Studio"
 	link_btn.add_theme_font_size_override("font_size", 11)
-	link_btn.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
+	link_btn.add_theme_color_override("font_color", pal["primary"])
 	links_row.add_child(link_btn)
 
 	var link_sep: Label = Label.new()
 	link_sep.text = "•"
 	link_sep.add_theme_font_size_override("font_size", 11)
-	link_sep.add_theme_color_override("font_color", ThemeManager.get_palette().get("text_dim", Color(0.7, 0.75, 0.8)))
+	link_sep.add_theme_color_override("font_color", pal["text_dim"])
 	links_row.add_child(link_sep)
 
 	var wiki_btn: LinkButton = LinkButton.new()
 	wiki_btn.text = "Wiki & Documentation"
 	wiki_btn.uri = "https://github.com/adromir/3D-Soundscape-Studio/wiki"
 	wiki_btn.add_theme_font_size_override("font_size", 11)
-	wiki_btn.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
+	wiki_btn.add_theme_color_override("font_color", pal["primary"])
 	links_row.add_child(wiki_btn)
 
 	var desc_lbl: Label = Label.new()
@@ -1106,7 +1147,7 @@ func _show_themed_about_dialog() -> void:
 	lic_box.add_child(lic_title)
 
 	var scroll: ScrollContainer = ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(0, 150)
+	scroll.custom_minimum_size = Vector2(0, 140)
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	lic_box.add_child(scroll)
@@ -1115,7 +1156,7 @@ func _show_themed_about_dialog() -> void:
 	lic_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	lic_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lic_text.add_theme_font_size_override("font_size", 10)
-	lic_text.add_theme_color_override("font_color", ThemeManager.get_palette().get("text_dim", Color(0.65, 0.7, 0.78)))
+	lic_text.add_theme_color_override("font_color", pal["text_dim"])
 	lic_text.text = """Copyright (c) 2026 Adromir (https://github.com/adromir)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -1129,16 +1170,14 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	btn_row.alignment = BoxContainer.ALIGNMENT_END
 	vbox.add_child(btn_row)
 
-	var btn_close: Button = Button.new()
-	btn_close.text = "Close"
-	btn_close.custom_minimum_size = Vector2(90, 32)
-	btn_close.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	btn_close.pressed.connect(win.queue_free)
-	btn_row.add_child(btn_close)
+	var close_btn: Button = Button.new()
+	close_btn.text = "Close"
+	close_btn.custom_minimum_size = Vector2(80, 28)
+	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	close_btn.pressed.connect(win.queue_free)
+	btn_row.add_child(close_btn)
 
 	ThemeManager.apply_theme(win, ThemeManager.current_theme)
-	add_child(win)
-	win.popup_centered()
 
 func _on_save_pressed() -> void:
 	if current_project == null: return
