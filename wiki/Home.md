@@ -15,6 +15,7 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 | 🎛️ **Multi-Track Stem Mixer** | Control stem volumes, mute/solo states, random/periodic trigger rates, seamless crossfade loops, and custom track color swatches. |
 | 📚 **Built-In Library & Ambient-Mixer Import** | Browse curated soundscapes, import XML templates directly from ambient-mixer.com, and manage custom audio sample banks. |
 | 🔊 **Multi-Channel Surround & FFmpeg Export** | Real-time playback and offline mixdown to Stereo Binaural (HRTF / SOFA), Quadraphonic 4.0, 5.1 Surround, 7.1 Surround, and 7.1.4 Dolby Atmos. |
+| 🎧 **SOFA HRTF Spatialization** | Load custom measured Head-Related Transfer Function profiles (`.sofa`) for personalized 3D headphone listening. |
 | 🎨 **Organic Tactile Themes** | Choose between 4 distinct handcrafted visual styles: *Tactile Organic Zen*, *Dark Slate Studio*, *High-Contrast Light*, and *Cyberpunk Neon*. |
 | 🌍 **Multi-Language Support** | Instant real-time UI localization in **English** and **German**. |
 
@@ -46,6 +47,7 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 - **[🎛️ Stem Audio Tracks & Parameter Inspector](Stem-Audio-Tracks-&-Parameter-Inspector)**: Configure stems, volume curves, trigger intervals, and channel routing.
 - **[📚 Soundscape Library & Ambient-Mixer Import](Soundscape-Library-&-Ambient-Mixer-Import)**: Manage sound collections, custom sample categories, and online imports.
 - **[🔊 Multi-Channel Surround & Offline Export](Multi-Channel-Surround-&-Offline-Export)**: Set up speaker configurations, SOFA profiles, and FFmpeg mixdowns.
+- **[🎧 SOFA HRTF & Spatial Audio Guide](SOFA-HRTF-Spatial-Audio-Guide)**: Deep dive into HRTF filters, SOFA database sources, and personalized binaural audio.
 - **[🎨 Themes, Localization & Preferences](Themes-Localization-&-Preferences)**: Customize themes, languages, and workspace preferences.
 
 ---

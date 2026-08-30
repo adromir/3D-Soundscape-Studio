@@ -12,7 +12,8 @@ Welcome to the **3D Soundscape Studio** documentation repository. Below you'll f
 4. [🎛️ Stem Audio Tracks & Parameter Inspector](../wiki/Stem-Audio-Tracks-&-Parameter-Inspector.md)
 5. [📚 Soundscape Library & Ambient-Mixer Import](../wiki/Soundscape-Library-&-Ambient-Mixer-Import.md)
 6. [🔊 Multi-Channel Surround & Offline Export](../wiki/Multi-Channel-Surround-&-Offline-Export.md)
-7. [🎨 Themes, Localization & Preferences](../wiki/Themes-Localization-&-Preferences.md)
+7. [🎧 SOFA HRTF & Spatial Audio Guide](../wiki/SOFA-HRTF-Spatial-Audio-Guide.md)
+8. [🎨 Themes, Localization & Preferences](../wiki/Themes-Localization-&-Preferences.md)
 
 ---
 

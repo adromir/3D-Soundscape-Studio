@@ -6,6 +6,7 @@
 - **[🎛️ Stem Audio Tracks & Inspector](Stem-Audio-Tracks-&-Parameter-Inspector)**
 - **[📚 Soundscape Library & Import](Soundscape-Library-&-Ambient-Mixer-Import)**
 - **[🔊 Surround Sound & Export](Multi-Channel-Surround-&-Offline-Export)**
+- **[🎧 SOFA & HRTF Audio Guide](SOFA-HRTF-Spatial-Audio-Guide)**
 - **[🎨 Themes & Preferences](Themes-Localization-&-Preferences)**
 
 ---
