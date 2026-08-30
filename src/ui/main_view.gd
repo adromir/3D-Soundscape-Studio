@@ -30,13 +30,20 @@ var spatial_engine: SpatialEngine = null
 # Nav Tabs
 @onready var btn_tab_studio: Button = $Margin/RootVBox/TopTransportBar/NavTabsRow/BtnTabStudio
 @onready var btn_tab_story: Button = $Margin/RootVBox/TopTransportBar/NavTabsRow/BtnTabStory
-@onready var btn_tab_samples: Button = $Margin/RootVBox/TopTransportBar/NavTabsRow/BtnTabSamples
 @onready var btn_tab_library: Button = $Margin/RootVBox/TopTransportBar/NavTabsRow/BtnTabLibrary
 
 # Views Stack
 @onready var studio_view: HBoxContainer = $Margin/RootVBox/ViewsStack/StudioView
 @onready var story_view: PanelContainer = $Margin/RootVBox/ViewsStack/StoryView
-@onready var sample_view: SampleBrowser = $Margin/RootVBox/ViewsStack/SampleView
+@onready var library_view: PanelContainer = $Margin/RootVBox/ViewsStack/LibraryView
+
+# Library Sub-views
+@onready var btn_subtab_soundscapes: Button = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SubTabsRow/BtnSubTabSoundscapes
+@onready var btn_subtab_samples: Button = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SubTabsRow/BtnSubTabSamples
+@onready var soundscape_browser: PanelContainer = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SoundscapeBrowser
+@onready var sample_browser: PanelContainer = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser
+
+var _active_library_subtab: int = 0
 
 # Studio Docks
 @onready var left_dock: PanelContainer = $Margin/RootVBox/ViewsStack/StudioView/LeftDock
@@ -75,7 +82,6 @@ var spatial_engine: SpatialEngine = null
 @onready var radar_window: RadarWindow = $RadarWindow
 @onready var tracks_window: TracksWindow = $TracksWindow
 @onready var inspector_window: InspectorWindow = $InspectorWindow
-@onready var library_dialog: LibraryDialog = $LibraryDialog
 @onready var export_dialog: ExportDialog = $ExportDialog
 @onready var settings_dialog: SettingsDialog = $SettingsDialog
 @onready var rate_picker_popup: RatePickerPopup = $RatePickerPopup
@@ -341,15 +347,24 @@ func _populate_speaker_layouts() -> void:
 
 func _connect_signals() -> void:
 	# Navigation Pills
-	for p in [btn_tab_studio, btn_tab_story, btn_tab_samples]:
+	for p in [btn_tab_studio, btn_tab_story, btn_tab_library]:
 		if p:
 			p.toggle_mode = true
 	btn_tab_studio.pressed.connect(func(): _switch_tab(0))
 	btn_tab_story.pressed.connect(func(): _switch_tab(1))
-	btn_tab_samples.pressed.connect(func(): _switch_tab(2))
-	btn_tab_library.pressed.connect(_on_open_pressed)
+	btn_tab_library.pressed.connect(func(): _switch_tab(2))
 
-	for b in [btn_tab_studio, btn_tab_story, btn_tab_samples, btn_tab_library, btn_save_quick, btn_export_quick, btn_play, btn_stop]:
+	# Library Sub-tabs
+	for b in [btn_subtab_soundscapes, btn_subtab_samples]:
+		if b:
+			b.toggle_mode = true
+			b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	if btn_subtab_soundscapes:
+		btn_subtab_soundscapes.pressed.connect(func(): _switch_library_subtab(0))
+	if btn_subtab_samples:
+		btn_subtab_samples.pressed.connect(func(): _switch_library_subtab(1))
+
+	for b in [btn_tab_studio, btn_tab_story, btn_tab_library, btn_save_quick, btn_export_quick, btn_play, btn_stop]:
 		if b: b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 	if btn_set_cover:
@@ -450,9 +465,6 @@ func _connect_signals() -> void:
 	if rate_picker_popup:
 		rate_picker_popup.rate_applied.connect(_on_rate_applied)
 
-	if sample_view:
-		sample_view.sample_added_to_project.connect(_on_sample_added)
-
 	# Automation Canvas Controls
 	if btn_toggle_path:
 		btn_toggle_path.toggled.connect(func(toggled: bool):
@@ -517,11 +529,14 @@ func _connect_signals() -> void:
 				automation_canvas.set_playhead(t)
 		)
 
-	if library_dialog:
-		library_dialog.soundscape_loaded.connect(func(proj: SoundscapeData.SoundscapeProject):
+	if soundscape_browser:
+		soundscape_browser.soundscape_loaded.connect(func(proj: SoundscapeData.SoundscapeProject):
 			load_project(proj)
 			_switch_tab(0)
 		)
+
+	if sample_browser:
+		sample_browser.sample_added_to_project.connect(_on_sample_added)
 
 	if spatial_canvas:
 		spatial_canvas.sample_dropped.connect(_on_canvas_sample_dropped)
@@ -546,21 +561,21 @@ func _unhandled_input(event: InputEvent) -> void:
 			_switch_tab(1)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_F3:
-			_switch_tab(2)
+			_switch_tab(2, 0)
 			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_F4:
-			_on_open_pressed()
+			_switch_tab(2, 1)
 			get_viewport().set_input_as_handled()
 
-func _switch_tab(idx: int) -> void:
+func _switch_tab(idx: int, subtab_idx: int = -1) -> void:
 	_active_tab = idx
 	studio_view.visible = (idx == 0)
 	story_view.visible = (idx == 1)
-	sample_view.visible = (idx == 2)
+	library_view.visible = (idx == 2)
 
 	# Highlight Active Nav Pill
 	var pal: Dictionary = ThemeManager.get_palette()
-	var pills: Array[Button] = [btn_tab_studio, btn_tab_story, btn_tab_samples]
+	var pills: Array[Button] = [btn_tab_studio, btn_tab_story, btn_tab_library]
 	for i in range(pills.size()):
 		var p: Button = pills[i]
 		if p:
@@ -575,8 +590,30 @@ func _switch_tab(idx: int) -> void:
 		_update_dock_layout()
 	elif idx == 1 and automation_canvas and current_project:
 		automation_canvas.set_project(current_project)
-	elif idx == 2 and sample_view:
-		sample_view.scan_samples()
+	elif idx == 2:
+		if subtab_idx >= 0:
+			_switch_library_subtab(subtab_idx)
+		else:
+			_switch_library_subtab(_active_library_subtab)
+
+func _switch_library_subtab(sub_idx: int) -> void:
+	_active_library_subtab = sub_idx
+	if soundscape_browser:
+		soundscape_browser.visible = (sub_idx == 0)
+		if sub_idx == 0:
+			soundscape_browser.refresh_library()
+	if sample_browser:
+		sample_browser.visible = (sub_idx == 1)
+		if sub_idx == 1:
+			sample_browser.scan_samples()
+
+	var pal: Dictionary = ThemeManager.get_palette()
+	if btn_subtab_soundscapes:
+		btn_subtab_soundscapes.set_pressed_no_signal(sub_idx == 0)
+		btn_subtab_soundscapes.add_theme_color_override("font_color", pal.get("primary", Color(0.96, 0.82, 0.48)) if sub_idx == 0 else pal.get("text_main", Color(0.92, 0.94, 0.96)))
+	if btn_subtab_samples:
+		btn_subtab_samples.set_pressed_no_signal(sub_idx == 1)
+		btn_subtab_samples.add_theme_color_override("font_color", pal.get("primary", Color(0.96, 0.82, 0.48)) if sub_idx == 1 else pal.get("text_main", Color(0.92, 0.94, 0.96)))
 
 # ==================== UNDOCK / POP-OUT HANDLING ====================
 
@@ -663,8 +700,10 @@ func _apply_theme(mode: ThemeManager.ThemeMode) -> void:
 			else:
 				mat.set_shader_parameter("use_texture", false)
 
-	if library_dialog and library_dialog.has_method("apply_theme"):
-		library_dialog.apply_theme(mode)
+	if soundscape_browser and soundscape_browser.has_method("apply_theme"):
+		soundscape_browser.apply_theme(mode)
+	if sample_browser and sample_browser.has_method("apply_theme"):
+		sample_browser.apply_theme(mode)
 	if settings_dialog and settings_dialog.has_method("apply_theme"):
 		settings_dialog.apply_theme(mode)
 	if export_dialog and export_dialog.has_method("apply_theme"):
@@ -714,6 +753,8 @@ func update_localization() -> void:
 	if btn_save_quick: btn_save_quick.text = LocalizationData.tr_key("BTN_SAVE")
 	if btn_export_quick: btn_export_quick.text = LocalizationData.tr_key("BTN_EXPORT")
 	if btn_tab_library: btn_tab_library.text = LocalizationData.tr_key("BTN_LIBRARY")
+	if btn_subtab_soundscapes: btn_subtab_soundscapes.text = LocalizationData.tr_key("TAB_SOUNDSCAPES")
+	if btn_subtab_samples: btn_subtab_samples.text = LocalizationData.tr_key("TAB_SAMPLES")
 	if btn_play: btn_play.tooltip_text = LocalizationData.tr_key("TOOLTIP_PLAY")
 	if btn_stop: btn_stop.tooltip_text = LocalizationData.tr_key("TOOLTIP_STOP")
 	if master_slider: master_slider.tooltip_text = LocalizationData.tr_key("TOOLTIP_MASTER_VOL")
@@ -721,7 +762,8 @@ func update_localization() -> void:
 
 	if track_list: track_list.update_localization()
 	if track_inspector: track_inspector.update_localization()
-	if library_dialog: library_dialog.update_localization()
+	if soundscape_browser: soundscape_browser.update_localization()
+	if sample_browser and sample_browser.has_method("update_localization"): sample_browser.update_localization()
 	if export_dialog: export_dialog.update_localization()
 	if settings_dialog: settings_dialog.update_localization()
 
@@ -932,9 +974,7 @@ func _on_new_pressed() -> void:
 	_create_new_project("New Soundscape")
 
 func _on_open_pressed() -> void:
-	if library_dialog:
-		library_dialog.refresh_library()
-		library_dialog.popup_centered(Vector2i(850, 600))
+	_switch_tab(2, 0)
 
 func _on_set_cover_pressed() -> void:
 	if cover_file_dialog:
@@ -965,8 +1005,8 @@ func _on_window_files_dropped(files: PackedStringArray) -> void:
 	for file in files:
 		var lower: String = file.to_lower()
 		if lower.ends_with(".wav") or lower.ends_with(".mp3") or lower.ends_with(".ogg") or lower.ends_with(".flac"):
-			if _active_tab == 2 and sample_view:
-				sample_view._on_files_imported(PackedStringArray([file]))
+			if _active_tab == 2 and _active_library_subtab == 1 and sample_browser:
+				sample_browser._on_files_imported(PackedStringArray([file]))
 			else:
 				var s_name: String = file.get_file().get_basename().replace("_", " ").capitalize()
 				_on_sample_added(s_name, file)
@@ -1186,7 +1226,7 @@ func _on_save_pressed() -> void:
 	current_project.title = title
 	var saved_path: String = LibraryManager.save_soundscape(current_project)
 	print("✔ Project saved to Library: ", saved_path)
-	if library_dialog: library_dialog.refresh_library()
+	if soundscape_browser: soundscape_browser.refresh_library()
 
 func _on_save_as_pressed() -> void:
 	if current_project == null: return
@@ -1196,7 +1236,7 @@ func _on_save_as_pressed() -> void:
 	var new_folder: String = AmbientMixerClient.sanitize_filename(title)
 	var saved_path: String = LibraryManager.save_soundscape(current_project, new_folder)
 	print("✔ Project saved as: ", saved_path)
-	if library_dialog: library_dialog.refresh_library()
+	if soundscape_browser: soundscape_browser.refresh_library()
 
 # ==================== WORKSPACE & SETTINGS PERSISTENCE ====================
 

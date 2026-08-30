@@ -26,7 +26,7 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 1. **Launch 3D Soundscape Studio**:
    - Download the latest installer (`.msi` on Windows, `.AppImage` / `.deb` / `.flatpak` on Linux, or `.dmg` on macOS) from the [Releases](https://github.com/adromir/3D-Soundscape-Studio/releases) page.
 2. **Add or Import Audio Tracks**:
-   - Click **`+ Add Audio Track`** at the bottom-left dock or open **Library** (`F4`) to load a preset like *Tropical Rain Forest*.
+   - Click **`+ Add Audio Track`** at the bottom-left dock or open **Library** (`F3` / `F4`) to load a preset like *Tropical Rain Forest*.
    - Or drag & drop your own `.wav`, `.ogg`, or `.mp3` files directly into the Studio!
 3. **Position Sound Sources in 3D Space**:
    - Drag track pucks across the **3D Spatial Radar Canvas** to position them around the listener.
@@ -45,7 +45,7 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 - **[🎯 3D Spatial Audio Radar](3D-Spatial-Audio-Radar)**: Master polar spatialization, distance attenuation, and visual source markers.
 - **[🛤️ Listener Automation & Motion](Listener-Automation-&-Motion)**: Design dynamic movement paths, speed regulation, and waypoint curves.
 - **[🎛️ Stem Audio Tracks & Parameter Inspector](Stem-Audio-Tracks-&-Parameter-Inspector)**: Configure stems, volume curves, trigger intervals, and channel routing.
-- **[📚 Soundscape Library & Ambient-Mixer Import](Soundscape-Library-&-Ambient-Mixer-Import)**: Manage sound collections, custom sample categories, and online imports.
+- **[📚 Soundscape & Samples Library](Soundscape-Library-&-Ambient-Mixer-Import)**: Manage sound collections, custom sample categories, and online imports.
 - **[🔊 Multi-Channel Surround & Offline Export](Multi-Channel-Surround-&-Offline-Export)**: Set up speaker configurations, SOFA profiles, and FFmpeg mixdowns.
 - **[🎧 SOFA HRTF & Spatial Audio Guide](SOFA-HRTF-Spatial-Audio-Guide)**: Deep dive into HRTF filters, SOFA database sources, and personalized binaural audio.
 - **[🎨 Themes, Localization & Preferences](Themes-Localization-&-Preferences)**: Customize themes, languages, and workspace preferences.

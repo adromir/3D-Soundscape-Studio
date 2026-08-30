@@ -176,6 +176,72 @@ static func delete_soundscape(folder_name: String) -> bool:
 		return false
 	return _remove_dir_recursive(path)
 
+static func load_soundscape(path: String) -> SoundscapeData.SoundscapeProject:
+	return load_project_file(path)
+
+static func load_soundscape_cover_texture(target: String) -> ImageTexture:
+	var file_to_load: String = ""
+	if target.begins_with("res://") or target.begins_with("user://") or target.is_absolute_path():
+		file_to_load = ProjectSettings.globalize_path(target)
+	else:
+		# Slug or folder name
+		var base_folder: String = LIBRARY_ROOT + "/" + target
+		for ext in ["jpg", "jpeg", "png", "webp"]:
+			var test_path: String = base_folder + "/cover." + ext
+			if FileAccess.file_exists(ProjectSettings.globalize_path(test_path)):
+				file_to_load = ProjectSettings.globalize_path(test_path)
+				break
+
+	if not file_to_load.is_empty() and FileAccess.file_exists(file_to_load):
+		var img: Image = Image.new()
+		if img.load(file_to_load) == OK:
+			return ImageTexture.create_from_image(img)
+	return null
+
+static func set_soundscape_cover(folder_or_slug: String, source_image_path: String) -> bool:
+	if folder_or_slug.is_empty() or source_image_path.is_empty():
+		return false
+
+	var folder_name: String = folder_or_slug
+	if folder_or_slug.begins_with(LIBRARY_ROOT):
+		folder_name = folder_or_slug.replace(LIBRARY_ROOT + "/", "").split("/")[0]
+
+	var folder_path: String = LIBRARY_ROOT + "/" + folder_name
+	var global_folder: String = ProjectSettings.globalize_path(folder_path)
+	if not DirAccess.dir_exists_absolute(global_folder):
+		DirAccess.make_dir_recursive_absolute(global_folder)
+
+	var ext: String = source_image_path.get_extension().to_lower()
+	if ext.is_empty(): ext = "png"
+	var target_cover_rel: String = folder_path + "/cover." + ext
+	var global_target: String = ProjectSettings.globalize_path(target_cover_rel)
+	var global_src: String = ProjectSettings.globalize_path(source_image_path)
+
+	if FileAccess.file_exists(global_src):
+		DirAccess.copy_absolute(global_src, global_target)
+
+		# Update metadata.json
+		var meta_path: String = folder_path + "/metadata.json"
+		var global_meta: String = ProjectSettings.globalize_path(meta_path)
+		var existing_meta: Dictionary = {}
+		if FileAccess.file_exists(global_meta):
+			var f_read: FileAccess = FileAccess.open(global_meta, FileAccess.READ)
+			if f_read != null:
+				var json_obj: JSON = JSON.new()
+				if json_obj.parse(f_read.get_as_text()) == OK and json_obj.data is Dictionary:
+					existing_meta = json_obj.data
+				f_read.close()
+
+		existing_meta["cover"] = target_cover_rel
+		existing_meta["last_modified"] = Time.get_datetime_string_from_system()
+
+		var f_write: FileAccess = FileAccess.open(global_meta, FileAccess.WRITE)
+		if f_write != null:
+			f_write.store_string(JSON.stringify(existing_meta, "\t"))
+			f_write.close()
+		return true
+	return false
+
 static func _remove_dir_recursive(path: String) -> bool:
 	var dir: DirAccess = DirAccess.open(path)
 	if dir == null:

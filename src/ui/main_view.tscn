@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" path="res://src/ui/track_list.tscn" id="3_track_list"]
 [ext_resource type="PackedScene" path="res://src/ui/spatial_canvas.tscn" id="4_spatial_canvas"]
 [ext_resource type="PackedScene" path="res://src/ui/track_inspector.tscn" id="5_track_inspector"]
-[ext_resource type="PackedScene" path="res://src/ui/library_dialog.tscn" id="7_library_dialog"]
+[ext_resource type="PackedScene" path="res://src/ui/soundscape_browser.tscn" id="7_sc_browser"]
 [ext_resource type="PackedScene" path="res://src/ui/export_dialog.tscn" id="8_export_dialog"]
 [ext_resource type="PackedScene" path="res://src/ui/radar_window.tscn" id="9_radar_win"]
 [ext_resource type="PackedScene" path="res://src/ui/tracks_window.tscn" id="10_tracks_win"]
@@ -232,20 +232,8 @@ icon = ExtResource("25_icon_auto")
 expand_icon = true
 text = "Automation"
 
-[node name="BtnTabSamples" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(95, 32)
-layout_mode = 2
-size_flags_vertical = 4
-theme_override_font_sizes/font_size = 11
-icon = ExtResource("26_icon_samples")
-expand_icon = true
-text = "Samples"
-
-[node name="VSepNav" type="VSeparator" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-layout_mode = 2
-
 [node name="BtnTabLibrary" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(95, 32)
+custom_minimum_size = Vector2(100, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
@@ -530,53 +518,88 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("13_auto_canvas")
 
-[node name="SampleView" type="PanelContainer" parent="Margin/RootVBox/ViewsStack"]
+[node name="LibraryView" type="PanelContainer" parent="Margin/RootVBox/ViewsStack"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="Margin/RootVBox/ViewsStack/LibraryView"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SubTabsRow" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnSubTabSoundscapes" type="Button" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SubTabsRow"]
+custom_minimum_size = Vector2(170, 30)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+icon = ExtResource("20_icon_lib")
+expand_icon = true
+text = "Soundscape Library"
+
+[node name="BtnSubTabSamples" type="Button" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SubTabsRow"]
+custom_minimum_size = Vector2(150, 30)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 11
+icon = ExtResource("26_icon_samples")
+expand_icon = true
+text = "Samples Library"
+
+[node name="SoundscapeBrowser" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox" instance=ExtResource("7_sc_browser")]
+layout_mode = 2
+
+[node name="SampleBrowser" type="PanelContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox"]
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("15_sample_browser")
 
-[node name="VBox" type="VBoxContainer" parent="Margin/RootVBox/ViewsStack/SampleView"]
+[node name="VBox" type="VBoxContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="TopBar" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/SampleView/VBox"]
+[node name="TopBar" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="SearchEdit" type="LineEdit" parent="Margin/RootVBox/ViewsStack/SampleView/VBox/TopBar"]
+[node name="SearchEdit" type="LineEdit" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 placeholder_text = "Search single audio stems & samples..."
 
-[node name="BtnImportSample" type="Button" parent="Margin/RootVBox/ViewsStack/SampleView/VBox/TopBar"]
+[node name="BtnImportSample" type="Button" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar"]
 custom_minimum_size = Vector2(130, 26)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "📂 Import Audio..."
 
-[node name="BtnRefresh" type="Button" parent="Margin/RootVBox/ViewsStack/SampleView/VBox/TopBar"]
+[node name="BtnRefresh" type="Button" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/TopBar"]
 custom_minimum_size = Vector2(90, 26)
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "🔄 Refresh"
 
-[node name="CategoryHBox" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/SampleView/VBox"]
+[node name="CategoryHBox" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/ViewsStack/SampleView/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ItemsVBox" type="VBoxContainer" parent="Margin/RootVBox/ViewsStack/SampleView/VBox/Scroll"]
+[node name="ItemsVBox" type="VBoxContainer" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser/VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="ImportFileDialog" type="FileDialog" parent="Margin/RootVBox/ViewsStack/SampleView"]
+[node name="ImportFileDialog" type="FileDialog" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser"]
 title = "Import Audio Samples"
 size = Vector2i(700, 450)
 visible = false
@@ -594,9 +617,6 @@ Author: Adromir (https://github.com/adromir)
 License: MIT License
 
 An advanced Spatial & Multi-Channel Audio Workstation featuring 3D HRTF simulation, interval schedulers, dynamic listener motion paths, and native offline FFmpeg surround export."
-
-[node name="LibraryDialog" parent="." instance=ExtResource("7_library_dialog")]
-visible = false
 
 [node name="ExportDialog" parent="." instance=ExtResource("8_export_dialog")]
 visible = false

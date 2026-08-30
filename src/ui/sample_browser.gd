@@ -78,6 +78,15 @@ func _ready() -> void:
 	_load_categories()
 	_setup_category_filters()
 	scan_samples()
+	update_localization()
+
+func update_localization() -> void:
+	if btn_import:
+		btn_import.text = "📂 " + LocalizationData.tr_key("BTN_IMPORT") if LocalizationData.tr_key("BTN_IMPORT") != "BTN_IMPORT" else "📂 Import Audio..."
+	if btn_refresh:
+		btn_refresh.text = "🔄 " + LocalizationData.tr_key("BTN_REFRESH") if LocalizationData.tr_key("BTN_REFRESH") != "BTN_REFRESH" else "🔄 Refresh"
+	if search_edit:
+		search_edit.placeholder_text = "Search samples by name, category, or sound icon..."
 
 func _load_categories() -> void:
 	_categories = DEFAULT_CATEGORIES.duplicate()

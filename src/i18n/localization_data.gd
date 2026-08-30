@@ -583,6 +583,13 @@ const TRANSLATIONS: Dictionary = {
 		Language.FR: "🔀 Fondu enchaîné continu",
 		Language.ES: "🔀 Bucle continuo con fundido",
 		Language.IT: "🔀 Loop continuo con dissolvenza"
+	},
+	"TAB_SOUNDSCAPES": {
+		Language.EN: "Soundscape Library",
+		Language.DE: "Soundscape-Bibliothek",
+		Language.FR: "Bibliothèque de Soundscapes",
+		Language.ES: "Biblioteca de Soundscapes",
+		Language.IT: "Libreria Soundscape"
 	}
 }
 

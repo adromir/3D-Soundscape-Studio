@@ -18,6 +18,7 @@ var radar_sweep_enabled: bool = true
 var _active_pulses: Dictionary = {} # track_id -> pulse_progress (0.0 to 1.0)
 var _radar_sweep_angle: float = 0.0 # Radians for animated sweep
 var _icon_textures: Dictionary = {}
+var _empty_text: String = "No audio tracks yet\nDrop audio or click + Add Track"
 
 func _get_icon_texture(icon_name: String) -> Texture2D:
 	if _icon_textures.has(icon_name):
@@ -39,6 +40,11 @@ func _ready() -> void:
 		mouse_default_cursor_shape = Control.CURSOR_ARROW
 		queue_redraw()
 	)
+	update_localization()
+
+func update_localization() -> void:
+	_empty_text = LocalizationData.tr_key("EMPTY_TRACKS_TITLE") if LocalizationData.tr_key("EMPTY_TRACKS_TITLE") != "EMPTY_TRACKS_TITLE" else "No audio tracks yet"
+	queue_redraw()
 
 func set_project(proj: SoundscapeData.SoundscapeProject) -> void:
 	project = proj
@@ -174,8 +180,7 @@ func _draw() -> void:
 	draw_line(center + Vector2(5, -13), center + Vector2(0, -18), listener_col, 2.0, true)
 
 	if project == null or project.tracks.is_empty():
-		var empty_text: String = LocalizationData.tr_key("EMPTY_TRACKS_TITLE")
-		draw_string(ThemeDB.fallback_font, Vector2(center.x - 70, center.y + 40), empty_text, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, pal["text_dim"])
+		draw_string(ThemeDB.fallback_font, Vector2(center.x - 70, center.y + 40), _empty_text, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, pal["text_dim"])
 		return
 
 	# 5. Omnipresent Atmosphere Rings
