@@ -129,7 +129,7 @@ theme_override_constants/separation = 6
 [node name="LibPathEdit" type="LineEdit" parent="Margin/VBox/Tabs/DirectoriesTab/LibHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Default: user://library/"
+placeholder_text = "Default: ./data/library/"
 
 [node name="BtnBrowseLib" type="Button" parent="Margin/VBox/Tabs/DirectoriesTab/LibHBox"]
 custom_minimum_size = Vector2(80, 26)
@@ -148,7 +148,7 @@ theme_override_constants/separation = 6
 [node name="SamplesPathEdit" type="LineEdit" parent="Margin/VBox/Tabs/DirectoriesTab/SamplesHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Default: user://samples/"
+placeholder_text = "Default: ./data/samples/"
 
 [node name="BtnBrowseSamples" type="Button" parent="Margin/VBox/Tabs/DirectoriesTab/SamplesHBox"]
 custom_minimum_size = Vector2(80, 26)
@@ -167,7 +167,7 @@ theme_override_constants/separation = 6
 [node name="ExportPathEdit" type="LineEdit" parent="Margin/VBox/Tabs/DirectoriesTab/ExportHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Default: user://exports/"
+placeholder_text = "Default: ./data/exports/"
 
 [node name="BtnBrowseExport" type="Button" parent="Margin/VBox/Tabs/DirectoriesTab/ExportHBox"]
 custom_minimum_size = Vector2(80, 26)

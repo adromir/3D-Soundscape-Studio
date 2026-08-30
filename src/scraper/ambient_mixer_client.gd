@@ -4,6 +4,8 @@ extends Node
 # Author: Adromir
 # Repository: https://github.com/adromir
 
+const AppPaths = preload("res://src/core/app_paths.gd")
+
 signal progress_changed(current: int, total: int, status_text: String)
 signal download_completed(project_path: String, project: SoundscapeData.SoundscapeProject)
 signal download_failed(error_message: String)
@@ -154,20 +156,20 @@ func _parse_xml_and_prepare_downloads(xml_content: String) -> void:
 		_mix_title = "Mix " + _template_id
 
 	var slug: String = sanitize_filename(_mix_title)
-	_target_folder = "user://library/" + slug
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_target_folder + "/audio"))
+	_target_folder = AppPaths.get_default_library_dir().path_join(slug)
+	DirAccess.make_dir_recursive_absolute(_target_folder.path_join("audio"))
 
 	# Save raw XML archive
-	var xml_backup_path: String = ProjectSettings.globalize_path(_target_folder + "/raw_template.xml")
+	var xml_backup_path: String = _target_folder.path_join("raw_template.xml")
 	var f_xml: FileAccess = FileAccess.open(xml_backup_path, FileAccess.WRITE)
 	if f_xml != null:
 		f_xml.store_string(xml_content)
 		f_xml.close()
 
 	# If project already exists, create a backup to preserve prior user work
-	var existing_ambmix: String = ProjectSettings.globalize_path(_target_folder + "/project.ambmix")
+	var existing_ambmix: String = _target_folder.path_join("project.ambmix")
 	if FileAccess.file_exists(existing_ambmix):
-		var bak_path: String = ProjectSettings.globalize_path(_target_folder + "/project.ambmix.bak")
+		var bak_path: String = _target_folder.path_join("project.ambmix.bak")
 		DirAccess.copy_absolute(existing_ambmix, bak_path)
 
 	_project.title = _mix_title

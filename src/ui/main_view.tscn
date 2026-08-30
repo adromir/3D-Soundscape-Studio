@@ -132,10 +132,12 @@ text = "New Soundscape"
 placeholder_text = "Soundscape Title"
 
 [node name="BtnSetCover" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
-custom_minimum_size = Vector2(80, 32)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
+theme_override_constants/icon_max_width = 16
+theme_override_constants/h_separation = 6
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("22_icon_image")
 expand_icon = true
@@ -143,18 +145,22 @@ text = "Cover"
 tooltip_text = "Select Cover Image for Soundscape"
 
 [node name="BtnSaveQuick" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
-custom_minimum_size = Vector2(82, 32)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_constants/icon_max_width = 16
+theme_override_constants/h_separation = 6
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("21_icon_save")
 expand_icon = true
 text = "Save"
 
 [node name="BtnExportQuick" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
-custom_minimum_size = Vector2(88, 32)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_constants/icon_max_width = 16
+theme_override_constants/h_separation = 6
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("19_icon_export")
 expand_icon = true
@@ -231,30 +237,36 @@ mouse_filter = 2
 
 [node name="NavTabsRow" type="HBoxContainer" parent="Margin/RootVBox/TopTransportBar"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
 [node name="BtnTabStudio" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(95, 32)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_constants/icon_max_width = 16
+theme_override_constants/h_separation = 6
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("24_icon_studio")
 expand_icon = true
 text = "Studio"
 
 [node name="BtnTabStory" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(115, 32)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_constants/icon_max_width = 16
+theme_override_constants/h_separation = 6
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("25_icon_auto")
 expand_icon = true
 text = "Automation"
 
 [node name="BtnTabLibrary" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
-custom_minimum_size = Vector2(100, 32)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 size_flags_vertical = 4
+theme_override_constants/icon_max_width = 16
+theme_override_constants/h_separation = 6
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("20_icon_lib")
 expand_icon = true
@@ -558,18 +570,22 @@ layout_mode = 2
 theme_override_constants/separation = 6
 
 [node name="BtnSubTabSoundscapes" type="Button" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SubTabsRow"]
-custom_minimum_size = Vector2(170, 30)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_constants/icon_max_width = 16
+theme_override_constants/h_separation = 6
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("20_icon_lib")
 expand_icon = true
 text = "Soundscape Library"
 
 [node name="BtnSubTabSamples" type="Button" parent="Margin/RootVBox/ViewsStack/LibraryView/VBox/SubTabsRow"]
-custom_minimum_size = Vector2(150, 30)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_constants/icon_max_width = 16
+theme_override_constants/h_separation = 6
 theme_override_font_sizes/font_size = 11
 icon = ExtResource("26_icon_samples")
 expand_icon = true

@@ -4,9 +4,12 @@ extends Window
 # Author: Adromir
 # Repository: https://github.com/adromir
 
+const AppPaths = preload("res://src/core/app_paths.gd")
+
 signal settings_saved()
 
-const SETTINGS_FILE: String = "user://settings.json"
+static func get_settings_file() -> String:
+	return AppPaths.get_settings_file()
 
 @onready var background_rect: ColorRect = $Background if has_node("Background") else null
 @onready var header_panel: PanelContainer = $Margin/VBox/HeaderPanel if has_node("Margin/VBox/HeaderPanel") else null
@@ -177,10 +180,10 @@ func load_settings() -> Dictionary:
 	var data: Dictionary = {
 		"output_device": AudioServer.get_output_device(),
 		"speaker_layout": 0,
-		"library_path": OS.get_user_data_dir() + "/library",
-		"samples_path": OS.get_user_data_dir() + "/samples",
-		"export_path": OS.get_user_data_dir() + "/exports",
-		"sofa_path": "",
+		"library_path": AppPaths.get_default_library_dir(),
+		"samples_path": AppPaths.get_default_samples_dir(),
+		"export_path": AppPaths.get_default_exports_dir(),
+		"sofa_path": AppPaths.get_default_sofa_dir(),
 		"ffmpeg_path": FfmpegExporter.get_ffmpeg_binary_path(),
 		"language": "EN",
 		"theme": "ZEN",
@@ -189,8 +192,8 @@ func load_settings() -> Dictionary:
 		"dock_inspector": true,
 		"radar_animation": true
 	}
-	if FileAccess.file_exists(SETTINGS_FILE):
-		var file: FileAccess = FileAccess.open(SETTINGS_FILE, FileAccess.READ)
+	if FileAccess.file_exists(get_settings_file()):
+		var file: FileAccess = FileAccess.open(get_settings_file(), FileAccess.READ)
 		if file:
 			var json_str: String = file.get_as_text()
 			file.close()
@@ -264,8 +267,8 @@ func _on_save_pressed() -> void:
 
 func _save_current_settings(should_hide: bool = false) -> void:
 	var existing_data: Dictionary = {}
-	if FileAccess.file_exists(SETTINGS_FILE):
-		var fr: FileAccess = FileAccess.open(SETTINGS_FILE, FileAccess.READ)
+	if FileAccess.file_exists(get_settings_file()):
+		var fr: FileAccess = FileAccess.open(get_settings_file(), FileAccess.READ)
 		if fr:
 			var json: JSON = JSON.new()
 			if json.parse(fr.get_as_text()) == OK and json.data is Dictionary:
@@ -290,7 +293,7 @@ func _save_current_settings(should_hide: bool = false) -> void:
 	if not existing_data["output_device"].is_empty():
 		AudioServer.set_output_device(existing_data["output_device"])
 
-	var file: FileAccess = FileAccess.open(SETTINGS_FILE, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(get_settings_file(), FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(existing_data, "\t"))
 		file.close()
@@ -324,6 +327,28 @@ func update_localization() -> void:
 		tabs.set_tab_title(1, LocalizationData.tr_key("SETTINGS_TAB_DIRECTORIES"))
 		tabs.set_tab_title(2, LocalizationData.tr_key("SETTINGS_TAB_FFMPEG"))
 		tabs.set_tab_title(3, LocalizationData.tr_key("SETTINGS_TAB_DISPLAY"))
+	
+	var dev_lbl = get_node_or_null("Margin/VBox/Tabs/AudioTab/DeviceLabel")
+	if dev_lbl: dev_lbl.text = LocalizationData.tr_key("SETTINGS_AUDIO_DEVICE")
+	var layout_lbl = get_node_or_null("Margin/VBox/Tabs/AudioTab/LayoutLabel")
+	if layout_lbl: layout_lbl.text = LocalizationData.tr_key("SETTINGS_SPEAKER_LAYOUT")
+	
+	var lib_lbl = get_node_or_null("Margin/VBox/Tabs/DirectoriesTab/LibPathLabel")
+	if lib_lbl: lib_lbl.text = LocalizationData.tr_key("SETTINGS_LIB_DIR_LABEL")
+	var samples_lbl = get_node_or_null("Margin/VBox/Tabs/DirectoriesTab/SamplesPathLabel")
+	if samples_lbl: samples_lbl.text = LocalizationData.tr_key("SETTINGS_SAMPLES_DIR_LABEL")
+	var export_lbl = get_node_or_null("Margin/VBox/Tabs/DirectoriesTab/ExportPathLabel")
+	if export_lbl: export_lbl.text = LocalizationData.tr_key("SETTINGS_EXPORTS_DIR_LABEL")
+	var sofa_lbl = get_node_or_null("Margin/VBox/Tabs/DirectoriesTab/SofaPathLabel")
+	if sofa_lbl: sofa_lbl.text = LocalizationData.tr_key("SETTINGS_SOFA_LABEL")
+
+	for b in [btn_browse_lib, btn_browse_samples, btn_browse_export, btn_browse_sofa, btn_browse_ffmpeg]:
+		if b: b.text = LocalizationData.tr_key("BTN_BROWSE")
+
+	var ffmpeg_lbl = get_node_or_null("Margin/VBox/Tabs/FFmpegTab/FFmpegPathLabel")
+	if ffmpeg_lbl: ffmpeg_lbl.text = LocalizationData.tr_key("SETTINGS_FFMPEG_PATH_LABEL")
+	if btn_test_ffmpeg: btn_test_ffmpeg.text = LocalizationData.tr_key("SETTINGS_FFMPEG_TEST_BTN")
+
 	if language_label: language_label.text = LocalizationData.tr_key("SETTINGS_LANGUAGE_LABEL")
 	if theme_label: theme_label.text = LocalizationData.tr_key("SETTINGS_THEME_LABEL")
 	if radar_anim_label: radar_anim_label.text = LocalizationData.tr_key("SETTINGS_RADAR_ANIM_LABEL")

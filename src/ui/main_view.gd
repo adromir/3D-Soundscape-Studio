@@ -4,6 +4,8 @@ extends Control
 # Author: Adromir
 # Repository: https://github.com/adromir
 
+const AppPaths = preload("res://src/core/app_paths.gd")
+
 var current_project: SoundscapeData.SoundscapeProject = null
 var spatial_engine: SpatialEngine = null
 
@@ -93,7 +95,8 @@ var _lang_popup: PopupMenu = null
 var _speaker_popup: PopupMenu = null
 var _recent_popup: PopupMenu = null
 var _recent_projects: Array[Dictionary] = []
-const RECENT_PROJECTS_FILE: String = "user://recent_projects.json"
+static func get_recent_projects_file() -> String:
+	return AppPaths.get_recent_projects_file()
 const CLEAR_RECENT_ID: int = 9999
 
 # Menu Action IDs
@@ -274,9 +277,9 @@ func _sync_speaker_menu_checks() -> void:
 
 func _load_recent_projects() -> void:
 	_recent_projects.clear()
-	if not FileAccess.file_exists(RECENT_PROJECTS_FILE):
+	if not FileAccess.file_exists(get_recent_projects_file()):
 		return
-	var f: FileAccess = FileAccess.open(RECENT_PROJECTS_FILE, FileAccess.READ)
+	var f: FileAccess = FileAccess.open(get_recent_projects_file(), FileAccess.READ)
 	if f:
 		var json: JSON = JSON.new()
 		if json.parse(f.get_as_text()) == OK and json.data is Array:
@@ -286,7 +289,7 @@ func _load_recent_projects() -> void:
 		f.close()
 
 func _save_recent_projects() -> void:
-	var f: FileAccess = FileAccess.open(RECENT_PROJECTS_FILE, FileAccess.WRITE)
+	var f: FileAccess = FileAccess.open(get_recent_projects_file(), FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify(_recent_projects, "\t"))
 		f.close()
@@ -343,12 +346,12 @@ func _on_recent_menu_id_pressed(id: int) -> void:
 		if not p_path.is_empty() and FileAccess.file_exists(ProjectSettings.globalize_path(p_path)):
 			loaded_proj = LibraryManager.load_project_file(p_path)
 		elif not folder_name.is_empty():
-			var full_path: String = "user://library/" + folder_name + "/project.ambmix"
+			var full_path: String = AppPaths.get_default_library_dir().path_join(folder_name).path_join("project.ambmix")
 			loaded_proj = LibraryManager.load_project_file(full_path)
 		else:
 			var slug: String = AmbientMixerClient.sanitize_filename(entry.get("title", ""))
-			var full_path: String = "user://library/" + slug + "/project.ambmix"
-			if FileAccess.file_exists(ProjectSettings.globalize_path(full_path)):
+			var full_path: String = AppPaths.get_default_library_dir().path_join(slug).path_join("project.ambmix")
+			if FileAccess.file_exists(full_path):
 				loaded_proj = LibraryManager.load_project_file(full_path)
 		if loaded_proj:
 			load_project(loaded_proj)
@@ -884,9 +887,13 @@ func update_localization() -> void:
 
 	if btn_save_quick: btn_save_quick.text = LocalizationData.tr_key("BTN_SAVE")
 	if btn_export_quick: btn_export_quick.text = LocalizationData.tr_key("BTN_EXPORT")
-	if btn_tab_library: btn_tab_library.text = LocalizationData.tr_key("BTN_LIBRARY")
+	if btn_tab_studio: btn_tab_studio.text = LocalizationData.tr_key("TAB_STUDIO")
+	if btn_tab_story: btn_tab_story.text = LocalizationData.tr_key("TAB_AUTOMATION")
+	if btn_tab_library: btn_tab_library.text = LocalizationData.tr_key("TAB_LIBRARY")
 	if btn_subtab_soundscapes: btn_subtab_soundscapes.text = LocalizationData.tr_key("TAB_SOUNDSCAPES")
 	if btn_subtab_samples: btn_subtab_samples.text = LocalizationData.tr_key("TAB_SAMPLES")
+	if btn_reset_all_tracks: btn_reset_all_tracks.text = LocalizationData.tr_key("BTN_RESET_ALL")
+	if btn_clear_path: btn_clear_path.text = LocalizationData.tr_key("PATH_CLEAR_BTN")
 	if btn_play: btn_play.tooltip_text = LocalizationData.tr_key("TOOLTIP_PLAY")
 	if btn_stop: btn_stop.tooltip_text = LocalizationData.tr_key("TOOLTIP_STOP")
 	if master_slider: master_slider.tooltip_text = LocalizationData.tr_key("TOOLTIP_MASTER_VOL")
@@ -1397,8 +1404,8 @@ func _on_save_as_pressed() -> void:
 
 func _save_workspace_settings() -> void:
 	var existing_data: Dictionary = {}
-	if FileAccess.file_exists("user://settings.json"):
-		var fr: FileAccess = FileAccess.open("user://settings.json", FileAccess.READ)
+	if FileAccess.file_exists(AppPaths.get_settings_file()):
+		var fr: FileAccess = FileAccess.open(AppPaths.get_settings_file(), FileAccess.READ)
 		if fr:
 			var json = JSON.new()
 			if json.parse(fr.get_as_text()) == OK and json.data is Dictionary:
@@ -1422,16 +1429,16 @@ func _save_workspace_settings() -> void:
 		existing_data["inspector_pos"] = [inspector_window.position.x, inspector_window.position.y]
 		existing_data["inspector_size"] = [inspector_window.size.x, inspector_window.size.y]
 
-	var f: FileAccess = FileAccess.open("user://settings.json", FileAccess.WRITE)
+	var f: FileAccess = FileAccess.open(AppPaths.get_settings_file(), FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify(existing_data, "\t"))
 		f.close()
 
 func _load_workspace_settings() -> void:
-	if not FileAccess.file_exists("user://settings.json"):
+	if not FileAccess.file_exists(AppPaths.get_settings_file()):
 		_apply_theme(ThemeManager.current_theme)
 		return
-	var f: FileAccess = FileAccess.open("user://settings.json", FileAccess.READ)
+	var f: FileAccess = FileAccess.open(AppPaths.get_settings_file(), FileAccess.READ)
 	if f == null:
 		_apply_theme(ThemeManager.current_theme)
 		return

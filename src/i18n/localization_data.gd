@@ -737,6 +737,237 @@ const TRANSLATIONS: Dictionary = {
 		Language.FR: "Annuler",
 		Language.ES: "Cancelar",
 		Language.IT: "Annulla"
+	},
+	"TAB_STUDIO": {
+		Language.EN: "Studio",
+		Language.DE: "Studio",
+		Language.FR: "Studio",
+		Language.ES: "Estudio",
+		Language.IT: "Studio"
+	},
+	"TAB_AUTOMATION": {
+		Language.EN: "Automation",
+		Language.DE: "Automation",
+		Language.FR: "Automatisation",
+		Language.ES: "Automatización",
+		Language.IT: "Automazione"
+	},
+	"TAB_LIBRARY": {
+		Language.EN: "Library",
+		Language.DE: "Bibliothek",
+		Language.FR: "Bibliothèque",
+		Language.ES: "Biblioteca",
+		Language.IT: "Libreria"
+	},
+	"BTN_RESET_ALL": {
+		Language.EN: "Reset All",
+		Language.DE: "Alle zurücksetzen",
+		Language.FR: "Tout réinitialiser",
+		Language.ES: "Restablecer todo",
+		Language.IT: "Ripristina tutto"
+	},
+	"LBL_PROJECT": {
+		Language.EN: "Project:",
+		Language.DE: "Projekt:",
+		Language.FR: "Projet :",
+		Language.ES: "Proyecto:",
+		Language.IT: "Progetto:"
+	},
+	"SEARCH_SOUNDSCAPES_PLACEHOLDER": {
+		Language.EN: "Search soundscapes by title, author, or tag...",
+		Language.DE: "Soundscapes nach Titel, Autor oder Tag suchen...",
+		Language.FR: "Rechercher des soundscapes...",
+		Language.ES: "Buscar soundscapes por título o autor...",
+		Language.IT: "Cerca soundscape per titolo o autore..."
+	},
+	"SEARCH_SAMPLES_PLACEHOLDER": {
+		Language.EN: "Search single audio stems & samples...",
+		Language.DE: "Einzelne Audiospuren & Samples durchsuchen...",
+		Language.FR: "Rechercher des échantillons audio...",
+		Language.ES: "Buscar pistas y muestras de audio...",
+		Language.IT: "Cerca campioni e tracce audio..."
+	},
+	"HEADER_STEMS_TRACKS": {
+		Language.EN: "Stems / Audio Tracks",
+		Language.DE: "Stems / Audiospuren",
+		Language.FR: "Pistes / Canaux audio",
+		Language.ES: "Pistas / Canales de audio",
+		Language.IT: "Tracce / Canali audio"
+	},
+	"HEADER_RADAR_CANVAS": {
+		Language.EN: "3D Spatial Radar Canvas",
+		Language.DE: "3D-Spatial-Radar Arbeitsfläche",
+		Language.FR: "Canevas radar spatial 3D",
+		Language.ES: "Lienzo de radar espacial 3D",
+		Language.IT: "Canvas radar spaziale 3D"
+	},
+	"HEADER_TRACK_INSPECTOR": {
+		Language.EN: "Track Inspector",
+		Language.DE: "Spur-Eigenschaften",
+		Language.FR: "Inspecteur de piste",
+		Language.ES: "Inspector de pista",
+		Language.IT: "Ispettore traccia"
+	},
+	"EMPTY_INSPECTOR_DESC": {
+		Language.EN: "Select an audio track to edit its spatial placement, movement automation, and trigger intervals.",
+		Language.DE: "Wähle eine Audiospur aus, um ihre Raumposition, Bewegungsautomation und Trigger-Intervalle zu bearbeiten.",
+		Language.FR: "Sélectionnez une piste pour modifier sa position spatiale et ses déclencheurs.",
+		Language.ES: "Selecciona una pista para editar su posición espacial y disparadores.",
+		Language.IT: "Seleziona una traccia per modificare la posizione spaziale e i trigger."
+	},
+	"HEADER_AUTOMATION": {
+		Language.EN: "Listener Path Automation",
+		Language.DE: "Hörer-Pfad-Automation",
+		Language.FR: "Automatisation de trajectoire de l'auditeur",
+		Language.ES: "Automatización de trayectoria del oyente",
+		Language.IT: "Automazione del percorso dell'ascoltatore"
+	},
+	"PATH_ACTIVE": {
+		Language.EN: "Path: Active (Moving)",
+		Language.DE: "Pfad: Aktiv (In Bewegung)",
+		Language.FR: "Trajectoire : Active",
+		Language.ES: "Trayectoria: Activa",
+		Language.IT: "Percorso: Attivo"
+	},
+	"PATH_DISABLED": {
+		Language.EN: "Path: Disabled (Center)",
+		Language.DE: "Pfad: Deaktiviert (Zentrum)",
+		Language.FR: "Trajectoire : Désactivée",
+		Language.ES: "Trayectoria: Desactivada",
+		Language.IT: "Percorso: Disattivato"
+	},
+	"PATH_LOOP_CLOSED": {
+		Language.EN: "Mode: Closed Loop",
+		Language.DE: "Modus: Geschlossener Rundkurs",
+		Language.FR: "Mode : Boucle fermée",
+		Language.ES: "Modo: Bucle cerrado",
+		Language.IT: "Modalità: Percorso chiuso"
+	},
+	"PATH_LOOP_OPEN": {
+		Language.EN: "Mode: Open Path",
+		Language.DE: "Modus: Offener Weg",
+		Language.FR: "Mode : Trajectoire ouverte",
+		Language.ES: "Modo: Trayectoria abierta",
+		Language.IT: "Modalità: Percorso aperto"
+	},
+	"PATH_SPEED_LABEL": {
+		Language.EN: "Speed:",
+		Language.DE: "Geschwindigkeit:",
+		Language.FR: "Vitesse :",
+		Language.ES: "Velocidad:",
+		Language.IT: "Velocità:"
+	},
+	"PATH_CLEAR_BTN": {
+		Language.EN: "Clear",
+		Language.DE: "Löschen",
+		Language.FR: "Effacer",
+		Language.ES: "Borrar",
+		Language.IT: "Cancella"
+	},
+	"SETTINGS_AUDIO_DEVICE": {
+		Language.EN: "Output Audio Device:",
+		Language.DE: "Audio-Ausgabegerät:",
+		Language.FR: "Périphérique de sortie audio :",
+		Language.ES: "Dispositivo de salida de audio:",
+		Language.IT: "Dispositivo di uscita audio:"
+	},
+	"SETTINGS_SPEAKER_LAYOUT": {
+		Language.EN: "Speaker Layout Configuration:",
+		Language.DE: "Lautsprecher-Setup & Kanalbelegung:",
+		Language.FR: "Configuration des haut-parleurs :",
+		Language.ES: "Configuración de altavoces:",
+		Language.IT: "Configurazione altoparlanti:"
+	},
+	"SETTINGS_LIB_DIR_LABEL": {
+		Language.EN: "Soundscape Library Storage Path:",
+		Language.DE: "Soundscape-Bibliothek Speicherpfad:",
+		Language.FR: "Répertoire de la bibliothèque de soundscapes :",
+		Language.ES: "Ruta de la biblioteca de soundscapes:",
+		Language.IT: "Percorso libreria soundscape:"
+	},
+	"SETTINGS_SAMPLES_DIR_LABEL": {
+		Language.EN: "Single Sounds & Samples Pool Path:",
+		Language.DE: "Sounds- & Samples-Pool Speicherpfad:",
+		Language.FR: "Répertoire des échantillons audio :",
+		Language.ES: "Ruta de muestras de audio:",
+		Language.IT: "Percorso campioni audio:"
+	},
+	"SETTINGS_EXPORTS_DIR_LABEL": {
+		Language.EN: "Rendered Exports Storage Path:",
+		Language.DE: "Audio-Exporte Speicherpfad:",
+		Language.FR: "Répertoire des exports audio :",
+		Language.ES: "Ruta de exportaciones:",
+		Language.IT: "Percorso esportazioni:"
+	},
+	"SETTINGS_SOFA_LABEL": {
+		Language.EN: "Default Custom HRTF SOFA File (Optional):",
+		Language.DE: "Standard HRTF SOFA-Datei (Optional):",
+		Language.FR: "Fichier HRTF SOFA par défaut (Optionnel) :",
+		Language.ES: "Archivo HRTF SOFA predeterminado (Opcional):",
+		Language.IT: "File HRTF SOFA predefinito (Opzionale):"
+	},
+	"SETTINGS_FFMPEG_PATH_LABEL": {
+		Language.EN: "FFmpeg Executable Binary Path:",
+		Language.DE: "FFmpeg ausführbare Programmdatei:",
+		Language.FR: "Chemin du binaire FFmpeg :",
+		Language.ES: "Ruta del ejecutable FFmpeg:",
+		Language.IT: "Percorso eseguibile FFmpeg:"
+	},
+	"SETTINGS_FFMPEG_TEST_BTN": {
+		Language.EN: "Test FFmpeg",
+		Language.DE: "FFmpeg testen",
+		Language.FR: "Tester FFmpeg",
+		Language.ES: "Probar FFmpeg",
+		Language.IT: "Testa FFmpeg"
+	},
+	"BTN_BROWSE": {
+		Language.EN: "Browse...",
+		Language.DE: "Durchsuchen...",
+		Language.FR: "Parcourir...",
+		Language.ES: "Examinar...",
+		Language.IT: "Sfoglia..."
+	},
+	"BTN_SAVE_CHANGES": {
+		Language.EN: "Save Changes",
+		Language.DE: "Änderungen speichern",
+		Language.FR: "Enregistrer les modifications",
+		Language.ES: "Guardar cambios",
+		Language.IT: "Salva modifiche"
+	},
+	"DLG_EDIT_SOUND_TITLE": {
+		Language.EN: "Edit Sound Properties",
+		Language.DE: "Sound-Eigenschaften bearbeiten",
+		Language.FR: "Modifier les propriétés du son",
+		Language.ES: "Editar propiedades del sonido",
+		Language.IT: "Modifica proprietà del suono"
+	},
+	"LBL_SOUND_NAME": {
+		Language.EN: "Sound / Stem Name:",
+		Language.DE: "Sound / Spur-Name:",
+		Language.FR: "Nom du son / de la piste :",
+		Language.ES: "Nombre del sonido / pista:",
+		Language.IT: "Nome del suono / traccia:"
+	},
+	"LBL_CATEGORY": {
+		Language.EN: "Category:",
+		Language.DE: "Kategorie:",
+		Language.FR: "Catégorie :",
+		Language.ES: "Categoría:",
+		Language.IT: "Categoria:"
+	},
+	"LBL_RADAR_ICON": {
+		Language.EN: "Radar Sound Icon:",
+		Language.DE: "Radar Sound-Symbol:",
+		Language.FR: "Icône du son sur le radar :",
+		Language.ES: "Icono del sonido en radar:",
+		Language.IT: "Icona del suono sul radar:"
+	},
+	"LBL_ACCENT_COLOR": {
+		Language.EN: "Accent Color Glow:",
+		Language.DE: "Akzentfarb-Leuchten:",
+		Language.FR: "Couleur d'accent :",
+		Language.ES: "Color de acento:",
+		Language.IT: "Colore d'accento:"
 	}
 }
 

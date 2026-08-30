@@ -4,6 +4,8 @@ extends PanelContainer
 # Author: Adromir
 # Repository: https://github.com/adromir/3D-Soundscape-Studio
 
+const AppPaths = preload("res://src/core/app_paths.gd")
+
 signal sample_added_to_project(sample_name: String, sample_path: String)
 
 @onready var search_edit: LineEdit = $VBox/TopBar/SearchBox/SearchEdit if has_node("VBox/TopBar/SearchBox/SearchEdit") else ($VBox/TopBar/SearchEdit if has_node("VBox/TopBar/SearchEdit") else null)
@@ -20,8 +22,12 @@ var _currently_playing_path: String = ""
 var _categories: Array[String] = ["ALL", "Weather", "Nature", "Elements", "Ambient", "FX", "Music", "Voices", "Custom"]
 
 const DEFAULT_CATEGORIES: Array[String] = ["ALL", "Weather", "Nature", "Elements", "Ambient", "FX", "Music", "Voices", "Custom"]
-const CATEGORIES_FILE: String = "user://sample_categories.json"
-const METADATA_FILE: String = "user://sample_metadata.json"
+
+static func get_categories_file() -> String:
+	return AppPaths.get_sample_categories_file()
+
+static func get_metadata_file() -> String:
+	return AppPaths.get_sample_metadata_file()
 
 const AVAILABLE_ICONS: Array[String] = [
 	"volume", "fire", "water", "birds", "wind", "rain", "bell", "steps", "music", "fx", "voice"
@@ -90,8 +96,8 @@ func update_localization() -> void:
 
 func _load_categories() -> void:
 	_categories = DEFAULT_CATEGORIES.duplicate()
-	if FileAccess.file_exists(CATEGORIES_FILE):
-		var file: FileAccess = FileAccess.open(CATEGORIES_FILE, FileAccess.READ)
+	if FileAccess.file_exists(get_categories_file()):
+		var file: FileAccess = FileAccess.open(get_categories_file(), FileAccess.READ)
 		if file:
 			var json: JSON = JSON.new()
 			if json.parse(file.get_as_text()) == OK and json.data is Array:
@@ -103,15 +109,15 @@ func _load_categories() -> void:
 			file.close()
 
 func _save_categories() -> void:
-	var file: FileAccess = FileAccess.open(CATEGORIES_FILE, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(get_categories_file(), FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(_categories, "\t"))
 		file.close()
 
 func _load_metadata() -> Dictionary:
 	var meta: Dictionary = {}
-	if FileAccess.file_exists(METADATA_FILE):
-		var file: FileAccess = FileAccess.open(METADATA_FILE, FileAccess.READ)
+	if FileAccess.file_exists(get_metadata_file()):
+		var file: FileAccess = FileAccess.open(get_metadata_file(), FileAccess.READ)
 		if file:
 			var json: JSON = JSON.new()
 			if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
@@ -120,7 +126,7 @@ func _load_metadata() -> Dictionary:
 	return meta
 
 func _save_metadata(meta: Dictionary) -> void:
-	var file: FileAccess = FileAccess.open(METADATA_FILE, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(get_metadata_file(), FileAccess.WRITE)
 	if file:
 		file.store_string(JSON.stringify(meta, "\t"))
 		file.close()
@@ -279,13 +285,13 @@ func _on_import_pressed() -> void:
 		import_dialog.popup_centered(Vector2i(750, 480))
 
 func _on_files_imported(paths: PackedStringArray) -> void:
-	var samples_dir: String = OS.get_user_data_dir() + "/samples"
+	var samples_dir: String = AppPaths.get_default_samples_dir()
 	if not DirAccess.dir_exists_absolute(samples_dir):
 		DirAccess.make_dir_recursive_absolute(samples_dir)
 
 	for p in paths:
 		var file_name: String = p.get_file()
-		var dest_path: String = samples_dir + "/" + file_name
+		var dest_path: String = samples_dir.path_join(file_name)
 		DirAccess.copy_absolute(p, dest_path)
 
 	scan_samples()
@@ -294,19 +300,19 @@ func scan_samples() -> void:
 	_samples.clear()
 	var metadata: Dictionary = _load_metadata()
 	
-	# 1. Scan user://samples/ directory
-	var samples_path: String = OS.get_user_data_dir() + "/samples"
+	# 1. Scan default samples directory
+	var samples_path: String = AppPaths.get_default_samples_dir()
 	_scan_dir_for_audio(samples_path, "Custom", metadata)
 
-	# 2. Scan user://library/ stems
-	var lib_path: String = OS.get_user_data_dir() + "/library"
+	# 2. Scan library stems
+	var lib_path: String = AppPaths.get_default_library_dir()
 	var dir: DirAccess = DirAccess.open(lib_path)
 	if dir:
 		dir.list_dir_begin()
 		var entry: String = dir.get_next()
 		while not entry.is_empty():
 			if dir.current_is_dir() and not entry.begins_with("."):
-				_scan_dir_for_audio(lib_path + "/" + entry, entry.capitalize(), metadata)
+				_scan_dir_for_audio(lib_path.path_join(entry), entry.capitalize(), metadata)
 			entry = dir.get_next()
 		dir.list_dir_end()
 

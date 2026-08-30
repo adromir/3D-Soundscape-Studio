@@ -4,6 +4,8 @@ extends PanelContainer
 # Author: Adromir
 # Repository: https://github.com/adromir/3D-Soundscape-Studio
 
+const AppPaths = preload("res://src/core/app_paths.gd")
+
 signal soundscape_loaded(project: SoundscapeData.SoundscapeProject)
 
 var _client: AmbientMixerClient = null
@@ -13,7 +15,9 @@ var _current_category: String = "ALL"
 var _categories: Array[String] = ["ALL", "Nature", "Weather", "Ambient", "Relaxation", "Fantasy", "Sci-Fi", "Custom"]
 
 const DEFAULT_CATEGORIES: Array[String] = ["ALL", "Nature", "Weather", "Ambient", "Relaxation", "Fantasy", "Sci-Fi", "Custom"]
-const CATEGORIES_FILE: String = "user://soundscape_categories.json"
+
+static func get_categories_file() -> String:
+	return AppPaths.get_soundscape_categories_file()
 
 @onready var search_input: LineEdit = $VBox/TopBar/SearchBox/SearchInput if has_node("VBox/TopBar/SearchBox/SearchInput") else null
 @onready var url_input: LineEdit = $VBox/TopBar/UrlInput if has_node("VBox/TopBar/UrlInput") else null
@@ -47,9 +51,9 @@ func _ready() -> void:
 
 	_load_categories()
 	_setup_category_filters()
-	apply_theme(ThemeManager.current_theme)
 	refresh_library()
 	update_localization()
+	apply_theme(ThemeManager.current_theme)
 
 func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 	ThemeManager.apply_theme(self, mode)
@@ -64,8 +68,8 @@ func update_localization() -> void:
 
 func _load_categories() -> void:
 	_categories = DEFAULT_CATEGORIES.duplicate()
-	if FileAccess.file_exists(CATEGORIES_FILE):
-		var f: FileAccess = FileAccess.open(CATEGORIES_FILE, FileAccess.READ)
+	if FileAccess.file_exists(get_categories_file()):
+		var f: FileAccess = FileAccess.open(get_categories_file(), FileAccess.READ)
 		if f:
 			var json: JSON = JSON.new()
 			if json.parse(f.get_as_text()) == OK and json.data is Array:
@@ -80,7 +84,7 @@ func _save_categories() -> void:
 	for c in _categories:
 		if not DEFAULT_CATEGORIES.has(c):
 			custom_only.append(c)
-	var f: FileAccess = FileAccess.open(CATEGORIES_FILE, FileAccess.WRITE)
+	var f: FileAccess = FileAccess.open(get_categories_file(), FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify(custom_only, "\t"))
 		f.close()
