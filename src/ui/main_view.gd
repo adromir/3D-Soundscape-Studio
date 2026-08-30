@@ -1074,7 +1074,6 @@ func _show_themed_about_dialog() -> void:
 	link_btn.uri = "https://github.com/adromir/3D-Soundscape-Studio"
 	link_btn.add_theme_font_size_override("font_size", 11)
 	link_btn.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
-	link_btn.pressed.connect(func(): OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio"))
 	links_row.add_child(link_btn)
 
 	var link_sep: Label = Label.new()
@@ -1088,7 +1087,6 @@ func _show_themed_about_dialog() -> void:
 	wiki_btn.uri = "https://github.com/adromir/3D-Soundscape-Studio/wiki"
 	wiki_btn.add_theme_font_size_override("font_size", 11)
 	wiki_btn.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
-	wiki_btn.pressed.connect(func(): OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio/wiki"))
 	links_row.add_child(wiki_btn)
 
 	var desc_lbl: Label = Label.new()
