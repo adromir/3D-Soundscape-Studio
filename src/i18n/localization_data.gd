@@ -564,11 +564,11 @@ const TRANSLATIONS: Dictionary = {
 		Language.IT: "Avvia esportazione"
 	},
 	"SETTINGS_TITLE": {
-		Language.EN: "⚙️ Preferences & Settings",
-		Language.DE: "⚙️ Einstellungen & Optionen",
-		Language.FR: "⚙️ Préférences et Paramètres",
-		Language.ES: "⚙️ Preferencias y Ajustes",
-		Language.IT: "⚙️ Preferenze e Impostazioni"
+		Language.EN: "Studio Preferences & Settings",
+		Language.DE: "Studio-Einstellungen & Optionen",
+		Language.FR: "Préférences et paramètres du studio",
+		Language.ES: "Preferencias y ajustes de estudio",
+		Language.IT: "Preferenze e impostazioni dello studio"
 	},
 	"BTN_RESET_STEM": {
 		Language.EN: "🔄 Reset Stem",
@@ -611,6 +611,111 @@ const TRANSLATIONS: Dictionary = {
 		Language.FR: "Bibliothèque de Soundscapes",
 		Language.ES: "Biblioteca de Soundscapes",
 		Language.IT: "Libreria Soundscape"
+	},
+	"MENU_HELP_WIKI": {
+		Language.EN: "Wiki & Documentation...",
+		Language.DE: "Wiki & Dokumentation...",
+		Language.FR: "Wiki & Documentation...",
+		Language.ES: "Wiki y Documentación...",
+		Language.IT: "Wiki e Documentazione..."
+	},
+	"MENU_HELP_GITHUB": {
+		Language.EN: "GitHub Repository...",
+		Language.DE: "GitHub-Repository...",
+		Language.FR: "Dépôt GitHub...",
+		Language.ES: "Repositorio GitHub...",
+		Language.IT: "Repository GitHub..."
+	},
+	"MENU_HELP_ABOUT": {
+		Language.EN: "About 3D Soundscape Studio...",
+		Language.DE: "Über 3D Soundscape Studio...",
+		Language.FR: "À propos de 3D Soundscape Studio...",
+		Language.ES: "Acerca de 3D Soundscape Studio...",
+		Language.IT: "Informazioni su 3D Soundscape Studio..."
+	},
+	"MENU_VIEW_LANGUAGE": {
+		Language.EN: "Language",
+		Language.DE: "Sprache",
+		Language.FR: "Langue",
+		Language.ES: "Idioma",
+		Language.IT: "Lingua"
+	},
+	"MENU_VIEW_THEME": {
+		Language.EN: "Thematic Style",
+		Language.DE: "Design-Stil",
+		Language.FR: "Style visuel",
+		Language.ES: "Estilo visual",
+		Language.IT: "Stile visivo"
+	},
+	"SETTINGS_TAB_AUDIO": {
+		Language.EN: "Audio",
+		Language.DE: "Audio",
+		Language.FR: "Audio",
+		Language.ES: "Audio",
+		Language.IT: "Audio"
+	},
+	"SETTINGS_TAB_DIRECTORIES": {
+		Language.EN: "Directories",
+		Language.DE: "Verzeichnisse",
+		Language.FR: "Répertoires",
+		Language.ES: "Directorios",
+		Language.IT: "Cartelle"
+	},
+	"SETTINGS_TAB_FFMPEG": {
+		Language.EN: "FFmpeg",
+		Language.DE: "FFmpeg",
+		Language.FR: "FFmpeg",
+		Language.ES: "FFmpeg",
+		Language.IT: "FFmpeg"
+	},
+	"SETTINGS_TAB_DISPLAY": {
+		Language.EN: "Display & Language",
+		Language.DE: "Darstellung & Sprache",
+		Language.FR: "Affichage & Langue",
+		Language.ES: "Pantalla e Idioma",
+		Language.IT: "Visualizzazione e Lingua"
+	},
+	"SETTINGS_LANGUAGE_LABEL": {
+		Language.EN: "Interface Language:",
+		Language.DE: "Benutzeroberflächen-Sprache:",
+		Language.FR: "Langue de l'interface :",
+		Language.ES: "Idioma de la interfaz:",
+		Language.IT: "Lingua dell'interfaccia:"
+	},
+	"SETTINGS_THEME_LABEL": {
+		Language.EN: "Thematic UI Style:",
+		Language.DE: "Design-Stil der Oberfläche:",
+		Language.FR: "Style visuel :",
+		Language.ES: "Estilo del tema:",
+		Language.IT: "Stile del tema:"
+	},
+	"SETTINGS_RADAR_ANIM_LABEL": {
+		Language.EN: "3D Spatial Radar Visual Effects:",
+		Language.DE: "3D-Spatial-Radar Grafikeffekte:",
+		Language.FR: "Effets visuels du radar spatial 3D :",
+		Language.ES: "Efectos visuales del radar 3D:",
+		Language.IT: "Effetti visivi del radar spaziale 3D:"
+	},
+	"SETTINGS_RADAR_BEAM_CHK": {
+		Language.EN: "Enable Rotating Radar Sweep Beam",
+		Language.DE: "Rotierenden Radar-Suchstrahl aktivieren",
+		Language.FR: "Activer le balayage rotatif du radar",
+		Language.ES: "Activar barrido de haz del radar",
+		Language.IT: "Attiva fascio di scansione del radar"
+	},
+	"SETTINGS_SAVE": {
+		Language.EN: "Save Settings",
+		Language.DE: "Einstellungen speichern",
+		Language.FR: "Sauvegarder",
+		Language.ES: "Guardar ajustes",
+		Language.IT: "Salva impostazioni"
+	},
+	"SETTINGS_CANCEL": {
+		Language.EN: "Cancel",
+		Language.DE: "Abbrechen",
+		Language.FR: "Annuler",
+		Language.ES: "Cancelar",
+		Language.IT: "Annulla"
 	}
 }
 

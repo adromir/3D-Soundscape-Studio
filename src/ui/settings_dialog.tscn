@@ -231,6 +231,24 @@ layout_mode = 2
 theme_override_constants/separation = 10
 metadata/_tab_index = 3
 
+[node name="LanguageLabel" type="Label" parent="Margin/VBox/Tabs/DisplayTab"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Interface Language:"
+
+[node name="LanguageOption" type="OptionButton" parent="Margin/VBox/Tabs/DisplayTab"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+
+[node name="ThemeLabel" type="Label" parent="Margin/VBox/Tabs/DisplayTab"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Thematic UI Style:"
+
+[node name="ThemeOption" type="OptionButton" parent="Margin/VBox/Tabs/DisplayTab"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+
 [node name="RadarAnimationLabel" type="Label" parent="Margin/VBox/Tabs/DisplayTab"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11

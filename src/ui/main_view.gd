@@ -232,7 +232,10 @@ func _setup_menu_bar() -> void:
 	# 5. HELP POPUP
 	if popup_help:
 		popup_help.clear()
-		popup_help.add_item("About 3D Soundscape Studio...", MenuHelpAction.ABOUT)
+		popup_help.add_item(LocalizationData.tr_key("MENU_HELP_WIKI"), MenuHelpAction.DOCS)
+		popup_help.add_item(LocalizationData.tr_key("MENU_HELP_GITHUB"), MenuHelpAction.GITHUB)
+		popup_help.add_separator()
+		popup_help.add_item(LocalizationData.tr_key("MENU_HELP_ABOUT"), MenuHelpAction.ABOUT)
 		if not popup_help.id_pressed.is_connected(_on_help_menu_id_pressed):
 			popup_help.id_pressed.connect(_on_help_menu_id_pressed)
 
@@ -303,10 +306,12 @@ func _on_playback_menu_id_pressed(id: int) -> void:
 
 func _on_help_menu_id_pressed(id: int) -> void:
 	match id:
-		MenuHelpAction.ABOUT:
-			_show_themed_about_dialog()
+		MenuHelpAction.DOCS:
+			OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio/wiki")
 		MenuHelpAction.GITHUB:
 			OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio")
+		MenuHelpAction.ABOUT:
+			_show_themed_about_dialog()
 
 func _on_theme_menu_id_pressed(id: int) -> void:
 	_apply_theme(id as ThemeManager.ThemeMode)
@@ -767,12 +772,7 @@ func _on_sample_added(sample_name: String, path: String) -> void:
 	_switch_tab(0)
 
 func update_localization() -> void:
-	if top_menu_bar:
-		top_menu_bar.set_menu_title(0, LocalizationData.tr_key("MENU_FILE"))
-		top_menu_bar.set_menu_title(1, LocalizationData.tr_key("MENU_EDIT"))
-		top_menu_bar.set_menu_title(2, LocalizationData.tr_key("MENU_VIEW"))
-		top_menu_bar.set_menu_title(3, LocalizationData.tr_key("MENU_PLAYBACK"))
-		top_menu_bar.set_menu_title(4, LocalizationData.tr_key("MENU_HELP"))
+	_setup_menu_bar()
 
 	if btn_set_cover:
 		if current_project == null or current_project.cover_image_path.is_empty():
@@ -1072,7 +1072,11 @@ func _on_settings_saved_sync() -> void:
 		spatial_canvas.set_radar_sweep_enabled(bool(data["radar_animation"]))
 	if data.has("language"):
 		var lang_val = data["language"]
-		var lang_enum: LocalizationData.Language = LocalizationData.Language.DE if str(lang_val) in ["DE", "1"] else LocalizationData.Language.EN
+		var lang_enum: LocalizationData.Language = LocalizationData.Language.EN
+		if str(lang_val) in ["DE", "1"]: lang_enum = LocalizationData.Language.DE
+		elif str(lang_val) in ["FR", "2"]: lang_enum = LocalizationData.Language.FR
+		elif str(lang_val) in ["ES", "3"]: lang_enum = LocalizationData.Language.ES
+		elif str(lang_val) in ["IT", "4"]: lang_enum = LocalizationData.Language.IT
 		LocalizationData.set_language(lang_enum)
 		_sync_lang_menu_checks()
 		update_localization()
@@ -1311,7 +1315,14 @@ func _load_workspace_settings() -> void:
 	else:
 		_apply_theme(ThemeManager.current_theme)
 	if data.has("language"):
-		LocalizationData.set_language(int(data["language"]) as LocalizationData.Language)
+		var l_val = data["language"]
+		var l_enum: LocalizationData.Language = LocalizationData.Language.EN
+		if str(l_val) in ["DE", "1"]: l_enum = LocalizationData.Language.DE
+		elif str(l_val) in ["FR", "2"]: l_enum = LocalizationData.Language.FR
+		elif str(l_val) in ["ES", "3"]: l_enum = LocalizationData.Language.ES
+		elif str(l_val) in ["IT", "4"]: l_enum = LocalizationData.Language.IT
+		elif str(l_val) in ["EN", "0"]: l_enum = LocalizationData.Language.EN
+		LocalizationData.set_language(l_enum)
 	if data.has("speaker_layout") and spatial_engine:
 		spatial_engine.set_speaker_layout(int(data["speaker_layout"]) as SpeakerLayouts.LayoutType)
 		if layout_option: layout_option.select(int(data["speaker_layout"]))

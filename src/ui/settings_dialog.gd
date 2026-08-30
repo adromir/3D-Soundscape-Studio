@@ -36,6 +36,11 @@ const SETTINGS_FILE: String = "user://settings.json"
 @onready var ffmpeg_status_lbl: Label = $Margin/VBox/Tabs/FFmpegTab/FFmpegStatusLabel
 
 @onready var chk_radar_animation: CheckBox = $Margin/VBox/Tabs/DisplayTab/ChkRadarAnimation
+@onready var language_label: Label = $Margin/VBox/Tabs/DisplayTab/LanguageLabel if has_node("Margin/VBox/Tabs/DisplayTab/LanguageLabel") else null
+@onready var language_option: OptionButton = $Margin/VBox/Tabs/DisplayTab/LanguageOption if has_node("Margin/VBox/Tabs/DisplayTab/LanguageOption") else null
+@onready var theme_label: Label = $Margin/VBox/Tabs/DisplayTab/ThemeLabel if has_node("Margin/VBox/Tabs/DisplayTab/ThemeLabel") else null
+@onready var theme_option: OptionButton = $Margin/VBox/Tabs/DisplayTab/ThemeOption if has_node("Margin/VBox/Tabs/DisplayTab/ThemeOption") else null
+@onready var radar_anim_label: Label = $Margin/VBox/Tabs/DisplayTab/RadarAnimationLabel if has_node("Margin/VBox/Tabs/DisplayTab/RadarAnimationLabel") else null
 
 @onready var btn_save: Button = $Margin/VBox/BottomHBox/BtnSaveSettings
 @onready var btn_cancel: Button = $Margin/VBox/BottomHBox/BtnCancelSettings
@@ -59,8 +64,11 @@ func _ready() -> void:
 	_setup_browse_buttons()
 	_populate_devices()
 	_populate_layouts()
+	_populate_languages()
+	_populate_themes()
 	load_settings()
 	_setup_realtime_sync()
+	update_localization()
 	apply_theme(ThemeManager.current_theme)
 
 func apply_theme(mode: ThemeManager.ThemeMode) -> void:
@@ -151,6 +159,20 @@ func _populate_layouts() -> void:
 	for key: int in SpeakerLayouts.LAYOUT_NAMES.keys():
 		layout_option.add_item(SpeakerLayouts.LAYOUT_NAMES[key], key)
 
+func _populate_languages() -> void:
+	if language_option == null:
+		return
+	language_option.clear()
+	for key: int in LocalizationData.LANGUAGE_NAMES.keys():
+		language_option.add_item(LocalizationData.LANGUAGE_NAMES[key], key)
+
+func _populate_themes() -> void:
+	if theme_option == null:
+		return
+	theme_option.clear()
+	for key: int in ThemeManager.THEME_NAMES.keys():
+		theme_option.add_item(ThemeManager.THEME_NAMES[key], key)
+
 func load_settings() -> Dictionary:
 	var data: Dictionary = {
 		"output_device": AudioServer.get_output_device(),
@@ -161,7 +183,7 @@ func load_settings() -> Dictionary:
 		"sofa_path": "",
 		"ffmpeg_path": FfmpegExporter.get_ffmpeg_binary_path(),
 		"language": "EN",
-		"theme": "DARK",
+		"theme": "ZEN",
 		"dock_tracks": true,
 		"dock_radar": true,
 		"dock_inspector": true,
@@ -184,6 +206,25 @@ func load_settings() -> Dictionary:
 	if ffmpeg_path_edit: ffmpeg_path_edit.text = data.get("ffmpeg_path", "")
 	if layout_option: layout_option.select(int(data.get("speaker_layout", 0)))
 	if chk_radar_animation: chk_radar_animation.button_pressed = bool(data.get("radar_animation", true))
+
+	if language_option:
+		var lang_code = data.get("language", "EN")
+		var lang_enum: LocalizationData.Language = LocalizationData.Language.EN
+		if str(lang_code) in ["DE", "1"]: lang_enum = LocalizationData.Language.DE
+		elif str(lang_code) in ["FR", "2"]: lang_enum = LocalizationData.Language.FR
+		elif str(lang_code) in ["ES", "3"]: lang_enum = LocalizationData.Language.ES
+		elif str(lang_code) in ["IT", "4"]: lang_enum = LocalizationData.Language.IT
+		language_option.select(lang_enum as int)
+
+	if theme_option:
+		var th_val = data.get("theme", "ZEN")
+		var th_mode: ThemeManager.ThemeMode = ThemeManager.ThemeMode.ZEN
+		if str(th_val) in ["0", "DARK"]: th_mode = ThemeManager.ThemeMode.DARK
+		elif str(th_val) in ["1", "LIGHT"]: th_mode = ThemeManager.ThemeMode.LIGHT
+		elif str(th_val) in ["2", "CYBERPUNK"]: th_mode = ThemeManager.ThemeMode.CYBERPUNK
+		elif str(th_val) in ["3", "ZEN"]: th_mode = ThemeManager.ThemeMode.ZEN
+		theme_option.select(th_mode as int)
+
 	return data
 
 func _setup_realtime_sync() -> void:
@@ -199,6 +240,17 @@ func _setup_realtime_sync() -> void:
 		)
 	if chk_radar_animation:
 		chk_radar_animation.toggled.connect(func(_val: bool):
+			_save_current_settings(false)
+		)
+	if language_option:
+		language_option.item_selected.connect(func(idx: int):
+			LocalizationData.set_language(idx as LocalizationData.Language)
+			update_localization()
+			_save_current_settings(false)
+		)
+	if theme_option:
+		theme_option.item_selected.connect(func(idx: int):
+			apply_theme(idx as ThemeManager.ThemeMode)
 			_save_current_settings(false)
 		)
 	for edit in [lib_path_edit, samples_path_edit, export_path_edit, sofa_path_edit, ffmpeg_path_edit]:
@@ -228,6 +280,12 @@ func _save_current_settings(should_hide: bool = false) -> void:
 	existing_data["sofa_path"] = sofa_path_edit.text.strip_edges() if sofa_path_edit else ""
 	existing_data["ffmpeg_path"] = ffmpeg_path_edit.text.strip_edges() if ffmpeg_path_edit else ""
 	existing_data["radar_animation"] = chk_radar_animation.button_pressed if chk_radar_animation else true
+
+	if language_option:
+		existing_data["language"] = LocalizationData.LANGUAGE_CODES.get(language_option.selected as LocalizationData.Language, "EN")
+	if theme_option:
+		var th_enum: ThemeManager.ThemeMode = theme_option.selected as ThemeManager.ThemeMode
+		existing_data["theme"] = "DARK" if th_enum == ThemeManager.ThemeMode.DARK else ("LIGHT" if th_enum == ThemeManager.ThemeMode.LIGHT else ("CYBERPUNK" if th_enum == ThemeManager.ThemeMode.CYBERPUNK else "ZEN"))
 
 	if not existing_data["output_device"].is_empty():
 		AudioServer.set_output_device(existing_data["output_device"])
@@ -260,3 +318,15 @@ func _test_ffmpeg_path() -> void:
 
 func update_localization() -> void:
 	title = LocalizationData.tr_key("SETTINGS_TITLE")
+	if title_label: title_label.text = LocalizationData.tr_key("SETTINGS_TITLE")
+	if tabs:
+		tabs.set_tab_title(0, LocalizationData.tr_key("SETTINGS_TAB_AUDIO"))
+		tabs.set_tab_title(1, LocalizationData.tr_key("SETTINGS_TAB_DIRECTORIES"))
+		tabs.set_tab_title(2, LocalizationData.tr_key("SETTINGS_TAB_FFMPEG"))
+		tabs.set_tab_title(3, LocalizationData.tr_key("SETTINGS_TAB_DISPLAY"))
+	if language_label: language_label.text = LocalizationData.tr_key("SETTINGS_LANGUAGE_LABEL")
+	if theme_label: theme_label.text = LocalizationData.tr_key("SETTINGS_THEME_LABEL")
+	if radar_anim_label: radar_anim_label.text = LocalizationData.tr_key("SETTINGS_RADAR_ANIM_LABEL")
+	if chk_radar_animation: chk_radar_animation.text = LocalizationData.tr_key("SETTINGS_RADAR_BEAM_CHK")
+	if btn_save: btn_save.text = LocalizationData.tr_key("SETTINGS_SAVE")
+	if btn_cancel: btn_cancel.text = LocalizationData.tr_key("SETTINGS_CANCEL")
