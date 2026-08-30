@@ -27,24 +27,23 @@ const PRESET_ICONS: Array[String] = [
 ]
 
 const ICON_LABELS: Dictionary = {
-	"volume": "🔊 Volume / Default",
-	"fire": "🔥 Fire / Flame",
-	"water": "💧 Water / Stream",
-	"birds": "🐦 Birds / Wildlife",
-	"wind": "💨 Wind / Breeze",
-	"rain": "🌧️ Rain / Storm",
-	"bell": "🔔 Bell / Chime",
-	"steps": "👣 Footsteps",
-	"music": "🎵 Music / Melody",
-	"fx": "✨ Sound FX",
-	"voice": "🗣️ Voice / Speech"
+	"volume": "Default / Volume",
+	"fire": "Fire / Flame",
+	"water": "Water / Stream",
+	"birds": "Birds / Wildlife",
+	"wind": "Wind / Breeze",
+	"rain": "Rain / Storm",
+	"bell": "Bell / Chime",
+	"steps": "Footsteps",
+	"music": "Music / Melody",
+	"fx": "Sound FX",
+	"voice": "Voice / Speech"
 }
 
 @onready var empty_state_label: Label = $EmptyStateLabel
 @onready var scroll_container: ScrollContainer = $ScrollContainer
 @onready var content_container: VBoxContainer = $ScrollContainer/Content
 @onready var btn_reset_track: Button = $ScrollContainer/Content/ToolbarHBox/BtnResetTrack
-@onready var btn_reset_all_tracks: Button = $ScrollContainer/Content/ToolbarHBox/BtnResetAllTracks
 @onready var name_edit: LineEdit = $ScrollContainer/Content/NameEdit
 
 # Audio Source
@@ -115,7 +114,7 @@ const RATE_PRESETS: Array[Dictionary] = [
 	{"label": "1x /10m", "count": 1, "window": 600.0},
 	{"label": "5x /10m", "count": 5, "window": 600.0},
 	{"label": "1x /1h", "count": 1, "window": 3600.0},
-	{"label": "🎚️ Custom", "count": -1, "window": -1.0}
+	{"label": "Custom", "count": -1, "window": -1.0}
 ]
 
 var _color_buttons: Array[Button] = []
@@ -288,16 +287,11 @@ func _update_icon_selection() -> void:
 
 func _connect_controls() -> void:
 	if btn_reset_track:
+		btn_reset_track.icon = load("res://assets/icons/reset.svg")
 		btn_reset_track.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_reset_track.pressed.connect(func():
 			if current_track:
 				track_reset_requested.emit(current_track.id)
-		)
-
-	if btn_reset_all_tracks:
-		btn_reset_all_tracks.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn_reset_all_tracks.pressed.connect(func():
-			all_tracks_reset_requested.emit()
 		)
 
 	if check_crossfade:
@@ -492,19 +486,16 @@ func update_localization() -> void:
 	if trigger_mode_option:
 		var sel_id: int = trigger_mode_option.get_selected_id()
 		trigger_mode_option.clear()
-		trigger_mode_option.add_item("🔄 " + LocalizationData.tr_key("TRIG_CONTINUOUS"), SoundscapeData.TriggerMode.CONTINUOUS_LOOP)
-		trigger_mode_option.add_item("⏱️ " + LocalizationData.tr_key("TRIG_FIXED"), SoundscapeData.TriggerMode.FIXED_INTERVAL)
-		trigger_mode_option.add_item("🔀 " + LocalizationData.tr_key("TRIG_RANDOM"), SoundscapeData.TriggerMode.RANDOM_INTERVAL)
+		trigger_mode_option.add_item(LocalizationData.tr_key("TRIG_CONTINUOUS"), SoundscapeData.TriggerMode.CONTINUOUS_LOOP)
+		trigger_mode_option.add_item(LocalizationData.tr_key("TRIG_FIXED"), SoundscapeData.TriggerMode.FIXED_INTERVAL)
+		trigger_mode_option.add_item(LocalizationData.tr_key("TRIG_RANDOM"), SoundscapeData.TriggerMode.RANDOM_INTERVAL)
 		if sel_id >= 0:
 			_select_option_by_id(trigger_mode_option, sel_id)
 
-	if btn_load_audio: btn_load_audio.text = "📂 " + LocalizationData.tr_key("BTN_LOAD")
+	if btn_load_audio: btn_load_audio.text = LocalizationData.tr_key("BTN_LOAD")
 	if btn_reset_track:
 		btn_reset_track.text = LocalizationData.tr_key("BTN_RESET_STEM")
 		btn_reset_track.tooltip_text = LocalizationData.tr_key("TOOLTIP_RESET_STEM")
-	if btn_reset_all_tracks:
-		btn_reset_all_tracks.text = LocalizationData.tr_key("BTN_RESET_ALL_STEMS")
-		btn_reset_all_tracks.tooltip_text = LocalizationData.tr_key("TOOLTIP_RESET_ALL")
 	if check_crossfade:
 		check_crossfade.text = LocalizationData.tr_key("CROSSFADE_LOOP")
 	if density_count_slider: density_count_slider.tooltip_text = LocalizationData.tr_key("TOOLTIP_DENSITY_COUNT")

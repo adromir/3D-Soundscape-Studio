@@ -5,6 +5,6 @@
       <stop offset="100%" stop-color="#FDA085"/>
     </linearGradient>
   </defs>
-  <rect x="10.75" y="3.5" width="2.5" height="17" rx="1.25" fill="url(#amberGrad)"/>
-  <rect x="3.5" y="10.75" width="17" height="2.5" rx="1.25" fill="url(#amberGrad)"/>
+  <circle cx="10.5" cy="10.5" r="7" fill="none" stroke="url(#amberGrad)" stroke-width="2.2"/>
+  <path d="M15.5 15.5 L21 21" fill="none" stroke="url(#amberGrad)" stroke-width="2.5" stroke-linecap="round"/>
 </svg>

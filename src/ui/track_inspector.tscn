@@ -43,20 +43,12 @@ layout_mode = 2
 theme_override_constants/separation = 4
 
 [node name="BtnResetTrack" type="Button" parent="ScrollContainer/Content/ToolbarHBox"]
-custom_minimum_size = Vector2(0, 22)
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 10
-text = "🔄 Reset Stem"
+text = "Reset Stem"
 tooltip_text = "Reset this audio stem's volume, position, routing, and trigger settings to original defaults."
-
-[node name="BtnResetAllTracks" type="Button" parent="ScrollContainer/Content/ToolbarHBox"]
-custom_minimum_size = Vector2(0, 22)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 10
-text = "⏪ Reset All"
-tooltip_text = "Reset all audio stems in this soundscape to their original defaults."
 
 [node name="NameLabel" type="Label" parent="ScrollContainer/Content"]
 layout_mode = 2

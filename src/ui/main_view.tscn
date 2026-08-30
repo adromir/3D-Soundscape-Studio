@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c9hm1a7c3w4k2"]
+[gd_scene load_steps=28 format=3 uid="uid://c9hm1a7c3w4k2"]
 
 [ext_resource type="Script" path="res://src/ui/main_view.gd" id="1_main_view"]
 [ext_resource type="Shader" path="res://src/ui/ambient_backdrop.gdshader" id="2_shader"]
@@ -20,6 +20,17 @@
 [ext_resource type="Texture2D" path="res://assets/icons/export.svg" id="19_icon_export"]
 [ext_resource type="Texture2D" path="res://assets/icons/library.svg" id="20_icon_lib"]
 [ext_resource type="Texture2D" path="res://assets/icons/save.svg" id="21_icon_save"]
+[ext_resource type="Texture2D" path="res://assets/icons/image.svg" id="22_icon_image"]
+[ext_resource type="Texture2D" path="res://assets/icons/volume.svg" id="23_icon_volume"]
+[ext_resource type="Texture2D" path="res://assets/icons/studio.svg" id="24_icon_studio"]
+[ext_resource type="Texture2D" path="res://assets/icons/automation.svg" id="25_icon_auto"]
+[ext_resource type="Texture2D" path="res://assets/icons/samples.svg" id="26_icon_samples"]
+[ext_resource type="Texture2D" path="res://assets/icons/stems.svg" id="27_icon_stems"]
+[ext_resource type="Texture2D" path="res://assets/icons/radar.svg" id="28_icon_radar"]
+[ext_resource type="Texture2D" path="res://assets/icons/inspector.svg" id="29_icon_insp"]
+[ext_resource type="Texture2D" path="res://assets/icons/popout.svg" id="30_icon_popout"]
+[ext_resource type="Texture2D" path="res://assets/icons/reset.svg" id="31_icon_reset"]
+[ext_resource type="Texture2D" path="res://assets/icons/trash.svg" id="32_icon_trash"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
 shader = ExtResource("2_shader")
@@ -124,7 +135,9 @@ layout_mode = 2
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
-text = "🖼️ Cover"
+icon = ExtResource("22_icon_image")
+expand_icon = true
+text = "Cover"
 tooltip_text = "Select Cover Image for Soundscape"
 
 [node name="BtnSaveQuick" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
@@ -168,10 +181,13 @@ tooltip_text = "Stop All Playback"
 icon = ExtResource("18_icon_stop")
 expand_icon = true
 
-[node name="MasterVolLabel" type="Label" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
+[node name="MasterVolIcon" type="TextureRect" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
+custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-text = "🔊"
+size_flags_vertical = 4
+texture = ExtResource("23_icon_volume")
+expand_mode = 1
+stretch_mode = 5
 tooltip_text = "Master Volume"
 
 [node name="MasterSlider" type="HSlider" parent="Margin/RootVBox/TopTransportBar/CenterTransport"]
@@ -203,21 +219,27 @@ custom_minimum_size = Vector2(95, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
-text = "🎛️ Studio"
+icon = ExtResource("24_icon_studio")
+expand_icon = true
+text = "Studio"
 
 [node name="BtnTabStory" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
 custom_minimum_size = Vector2(115, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
-text = "📈 Automation"
+icon = ExtResource("25_icon_auto")
+expand_icon = true
+text = "Automation"
 
 [node name="BtnTabSamples" type="Button" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
 custom_minimum_size = Vector2(95, 32)
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_font_sizes/font_size = 11
-text = "🎵 Samples"
+icon = ExtResource("26_icon_samples")
+expand_icon = true
+text = "Samples"
 
 [node name="VSepNav" type="VSeparator" parent="Margin/RootVBox/TopTransportBar/NavTabsRow"]
 layout_mode = 2
@@ -255,18 +277,39 @@ theme_override_constants/separation = 6
 
 [node name="HeaderLeft" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft"]
 layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="IconStems" type="TextureRect" parent="Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("27_icon_stems")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="LblStems" type="Label" parent="Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
-text = "🎚️ Stems / Audio Tracks"
+text = "Stems / Audio Tracks"
+
+[node name="BtnResetAllTracks" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft"]
+custom_minimum_size = Vector2(85, 24)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+icon = ExtResource("31_icon_reset")
+expand_icon = true
+text = "Reset All"
+tooltip_text = "Reset all audio stems in this soundscape to their default spatial positions and volumes."
 
 [node name="BtnPopoutTracks" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft"]
-custom_minimum_size = Vector2(26, 22)
+custom_minimum_size = Vector2(26, 24)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "🗖"
+mouse_default_cursor_shape = 2
+icon = ExtResource("30_icon_popout")
+expand_icon = true
+tooltip_text = "Pop out Stems into separate window"
 
 [node name="TrackListSlot" type="MarginContainer" parent="Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft"]
 layout_mode = 2
@@ -291,19 +334,29 @@ theme_override_constants/separation = 6
 
 [node name="HeaderCenter" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
+
+[node name="IconRadar" type="TextureRect" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("28_icon_radar")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="LblRadar" type="Label" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
-text = "📡 3D Spatial Radar Canvas"
+text = "3D Spatial Radar Canvas"
 
 [node name="BtnPopoutRadar" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
-custom_minimum_size = Vector2(26, 22)
+custom_minimum_size = Vector2(26, 24)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "🗖"
+mouse_default_cursor_shape = 2
+icon = ExtResource("30_icon_popout")
+expand_icon = true
+tooltip_text = "Pop out 3D Radar into separate window"
 
 [node name="SpatialCanvasSlot" type="MarginContainer" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter"]
 layout_mode = 2
@@ -326,18 +379,29 @@ theme_override_constants/separation = 6
 
 [node name="HeaderRight" type="HBoxContainer" parent="Margin/RootVBox/ViewsStack/StudioView/RightDock/VBoxRight"]
 layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="IconInspector" type="TextureRect" parent="Margin/RootVBox/ViewsStack/StudioView/RightDock/VBoxRight/HeaderRight"]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("29_icon_insp")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="LblInspector" type="Label" parent="Margin/RootVBox/ViewsStack/StudioView/RightDock/VBoxRight/HeaderRight"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
-text = "⚙️ Track Inspector"
+text = "Track Inspector"
 
 [node name="BtnPopoutInspector" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/RightDock/VBoxRight/HeaderRight"]
-custom_minimum_size = Vector2(26, 22)
+custom_minimum_size = Vector2(26, 24)
 layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "🗖"
+mouse_default_cursor_shape = 2
+icon = ExtResource("30_icon_popout")
+expand_icon = true
+tooltip_text = "Pop out Track Inspector into separate window"
 
 [node name="TrackInspectorSlot" type="MarginContainer" parent="Margin/RootVBox/ViewsStack/StudioView/RightDock/VBoxRight"]
 layout_mode = 2
@@ -364,7 +428,7 @@ theme_override_constants/separation = 10
 [node name="StoryHeader" type="Label" parent="Margin/RootVBox/ViewsStack/StoryView/StoryVBox/StoryTopBar"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "🎭 Listener Path Automation"
+text = "Listener Path Automation"
 
 [node name="VSep1" type="VSeparator" parent="Margin/RootVBox/ViewsStack/StoryView/StoryVBox/StoryTopBar"]
 layout_mode = 2
@@ -375,7 +439,7 @@ layout_mode = 2
 toggle_mode = true
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
-text = "⚪ Path: Disabled (Center)"
+text = "Path: Disabled (Center)"
 tooltip_text = "Toggle active listener traversal along waypoint path during audio playback."
 
 [node name="BtnLoopPath" type="Button" parent="Margin/RootVBox/ViewsStack/StoryView/StoryVBox/StoryTopBar"]
@@ -385,7 +449,7 @@ toggle_mode = true
 button_pressed = true
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
-text = "🔁 Mode: Closed Loop"
+text = "Mode: Closed Loop"
 tooltip_text = "Switch between closed loop traversal and open start-to-end path."
 
 [node name="VSep2" type="VSeparator" parent="Margin/RootVBox/ViewsStack/StoryView/StoryVBox/StoryTopBar"]
@@ -398,7 +462,7 @@ theme_override_constants/separation = 4
 [node name="SpeedLabel" type="Label" parent="Margin/RootVBox/ViewsStack/StoryView/StoryVBox/StoryTopBar/SpeedBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
-text = "🚶 Speed:"
+text = "Speed:"
 
 [node name="BtnSpeedDec" type="Button" parent="Margin/RootVBox/ViewsStack/StoryView/StoryVBox/StoryTopBar/SpeedBox"]
 custom_minimum_size = Vector2(24, 22)
@@ -444,7 +508,9 @@ custom_minimum_size = Vector2(80, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_override_font_sizes/font_size = 11
-text = "🗑️ Clear"
+icon = ExtResource("32_icon_trash")
+expand_icon = true
+text = "Clear"
 tooltip_text = "Clear all path waypoints and reset listener to center."
 
 [node name="StorySpacer" type="Control" parent="Margin/RootVBox/ViewsStack/StoryView/StoryVBox/StoryTopBar"]
@@ -456,7 +522,7 @@ mouse_filter = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.5, 0.8, 1.0, 0.85)
-text = "📍 0 Waypoints | 📏 0.0m | ⏱️ 0.0s"
+text = "0 Waypoints | 0.0m | 0.0s"
 
 [node name="AutomationCanvas" type="Control" parent="Margin/RootVBox/ViewsStack/StoryView/StoryVBox"]
 layout_mode = 2

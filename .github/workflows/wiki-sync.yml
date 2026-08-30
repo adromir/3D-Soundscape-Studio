@@ -1,0 +1,61 @@
+name: Sync Wiki Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'wiki/**'
+      - 'docs/images/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    name: Sync to GitHub Wiki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Git Configuration
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Clone Wiki Repository & Sync Content
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          WIKI_REPO_URL="https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+          
+          echo "Cloning GitHub Wiki repository..."
+          if ! git clone "$WIKI_REPO_URL" wiki_repo; then
+            echo "::error ::Failed to clone wiki repository. Please ensure that 'Wikis' is enabled in your repository Settings and that you have clicked 'Create the first page' once to initialize the wiki repository."
+            exit 1
+          fi
+          
+          echo "Syncing wiki files..."
+          # Copy markdown pages
+          cp -rf wiki/*.md wiki_repo/
+          
+          # Copy images to wiki repository
+          mkdir -p wiki_repo/docs/images
+          mkdir -p wiki_repo/images
+          cp -rf docs/images/* wiki_repo/docs/images/ 2>/dev/null || true
+          cp -rf docs/images/* wiki_repo/images/ 2>/dev/null || true
+          
+          cd wiki_repo
+          
+          # Check for changes
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to sync to Wiki. Everything is up to date."
+            exit 0
+          fi
+          
+          git add -A
+          git commit -m "Automated sync from main repository [skip ci]"
+          git push origin HEAD
+          echo "Successfully published documentation to GitHub Wiki!"

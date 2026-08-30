@@ -24,10 +24,6 @@ on:
         default: ''
         type: string
 
-  push:
-    tags:
-      - 'v*'
-
 permissions:
   contents: write
 
@@ -46,8 +42,7 @@ jobs:
         id: vars
         shell: pwsh
         run: |
-          $ver = if ("${{ github.event.inputs.version_tag }}" -ne "") { "${{ github.event.inputs.version_tag }}" } else { "${{ github.ref_name }}" }
-          if (-not $ver -or $ver -eq "") { $ver = "v2.0.0" }
+          $ver = if ("${{ github.event.inputs.version_tag }}" -ne "") { "${{ github.event.inputs.version_tag }}" } else { "v2.0.0" }
           $cleanVer = $ver.TrimStart('v')
           $parts = $cleanVer.Split('.')
           while ($parts.Count -lt 3) { $parts += "0" }
@@ -59,6 +54,7 @@ jobs:
           Write-Output "VERSION_NAME=$ver" >> $env:GITHUB_ENV
           Write-Output "MSI_VERSION=$msiVer" >> $env:GITHUB_ENV
           Write-Output "GODOT_VERSION=$godotVer" >> $env:GITHUB_ENV
+          Set-Content -Path "version.txt" -Value $ver -Encoding UTF8
           Write-Output "Version: $ver (MSI: $msiVer), Godot: $godotVer"
 
       - name: Setup Godot Engine & Export Templates
@@ -115,56 +111,48 @@ jobs:
           $thumb.Dispose()
 
           $msiVersion = $env:MSI_VERSION
-          $wxsContent = @"
-<?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="3D Soundscape Studio" Language="1033" Version="$msiVersion" Manufacturer="Adromir" UpgradeCode="7C23A4D6-952F-4A99-8D92-56D9BA773C30">
-    <Package InstallerVersion="300" Compressed="yes" InstallScope="perMachine" />
-    <MajorUpgrade DowngradeErrorMessage="A newer version of 3D Soundscape Studio is already installed." />
-    <MediaTemplate EmbedCab="yes" />
-
-    <Icon Id="AppIcon" SourceFile="icon.ico" />
-    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
-    <Property Id="ARPHELPLINK" Value="https://github.com/adromir/3D-Soundscape-Studio" />
-
-    <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFiles64Folder">
-        <Directory Id="INSTALLFOLDER" Name="3D Soundscape Studio" />
-      </Directory>
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="ApplicationProgramsFolder" Name="3D Soundscape Studio" />
-      </Directory>
-      <Directory Id="DesktopFolder" Name="Desktop" />
-    </Directory>
-
-    <DirectoryRef Id="INSTALLFOLDER">
-      <Component Id="MainExecutable" Guid="A38E6FE2-5401-4467-A964-D72D6D3A0A21" Win64="yes">
-        <File Id="StudioExe" Source="build\windows\3D-Soundscape-Studio.exe" KeyPath="yes">
-          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="3D Soundscape Studio"
-                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />
-          <Shortcut Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Name="3D Soundscape Studio"
-                    WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />
-        </File>
-      </Component>
-    </DirectoryRef>
-
-    <DirectoryRef Id="ApplicationProgramsFolder">
-      <Component Id="ApplicationShortcut" Guid="B8138DE5-4F77-4C0A-B31F-725F70659C99">
-        <RemoveFolder Id="CleanUpShortCut" On="uninstall" />
-        <RegistryValue Root="HKCU" Key="Software\Adromir\3DSoundscapeStudio" Name="installed" Type="integer" Value="1" KeyPath="yes" />
-      </Component>
-    </DirectoryRef>
-
-    <Feature Id="ProductFeature" Title="3D Soundscape Studio" Level="1">
-      <ComponentRef Id="MainExecutable" />
-      <ComponentRef Id="ApplicationShortcut" />
-    </Feature>
-    
-    <UIRef Id="WixUI_Minimal" />
-  </Product>
-</Wix>
-"@
-          Set-Content -Path "installer.wxs" -Value $wxsContent -Encoding UTF8
+          $wxsLines = @(
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">',
+            "  <Product Id=`"*`" Name=`"3D Soundscape Studio`" Language=`"1033`" Version=`"$msiVersion`" Manufacturer=`"Adromir`" UpgradeCode=`"7C23A4D6-952F-4A99-8D92-56D9BA773C30`">",
+            '    <Package InstallerVersion="300" Compressed="yes" InstallScope="perMachine" />',
+            '    <MajorUpgrade DowngradeErrorMessage="A newer version of 3D Soundscape Studio is already installed." />',
+            '    <MediaTemplate EmbedCab="yes" />',
+            '    <Icon Id="AppIcon" SourceFile="icon.ico" />',
+            '    <Property Id="ARPPRODUCTICON" Value="AppIcon" />',
+            '    <Property Id="ARPHELPLINK" Value="https://github.com/adromir/3D-Soundscape-Studio" />',
+            '    <Directory Id="TARGETDIR" Name="SourceDir">',
+            '      <Directory Id="ProgramFiles64Folder">',
+            '        <Directory Id="INSTALLFOLDER" Name="3D Soundscape Studio" />',
+            '      </Directory>',
+            '      <Directory Id="ProgramMenuFolder">',
+            '        <Directory Id="ApplicationProgramsFolder" Name="3D Soundscape Studio" />',
+            '      </Directory>',
+            '      <Directory Id="DesktopFolder" Name="Desktop" />',
+            '    </Directory>',
+            '    <DirectoryRef Id="INSTALLFOLDER">',
+            '      <Component Id="MainExecutable" Guid="A38E6FE2-5401-4467-A964-D72D6D3A0A21" Win64="yes">',
+            '        <File Id="StudioExe" Source="build\windows\3D-Soundscape-Studio.exe" KeyPath="yes">',
+            '          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="3D Soundscape Studio" WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />',
+            '          <Shortcut Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Name="3D Soundscape Studio" WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />',
+            '        </File>',
+            '      </Component>',
+            '    </DirectoryRef>',
+            '    <DirectoryRef Id="ApplicationProgramsFolder">',
+            '      <Component Id="ApplicationShortcut" Guid="B8138DE5-4F77-4C0A-B31F-725F70659C99">',
+            '        <RemoveFolder Id="CleanUpShortCut" On="uninstall" />',
+            '        <RegistryValue Root="HKCU" Key="Software\Adromir\3DSoundscapeStudio" Name="installed" Type="integer" Value="1" KeyPath="yes" />',
+            '      </Component>',
+            '    </DirectoryRef>',
+            '    <Feature Id="ProductFeature" Title="3D Soundscape Studio" Level="1">',
+            '      <ComponentRef Id="MainExecutable" />',
+            '      <ComponentRef Id="ApplicationShortcut" />',
+            '    </Feature>',
+            '    <UIRef Id="WixUI_Minimal" />',
+            '  </Product>',
+            '</Wix>'
+          )
+          $wxsLines | Set-Content -Path "installer.wxs" -Encoding UTF8
           
           $wixBin = if (Test-Path "$env:WIX\bin\candle.exe") { "$env:WIX\bin" } else { "C:\Program Files (x86)\WiX Toolset v3.11\bin" }
           $msiName = "3D-Soundscape-Studio-$env:VERSION_NAME-Windows-Setup.msi"
@@ -214,7 +202,6 @@ jobs:
         id: vars
         run: |
           VER="${{ github.event.inputs.version_tag }}"
-          if [ -z "$VER" ]; then VER="${{ github.ref_name }}"; fi
           if [ -z "$VER" ] || [ "$VER" = "main" ]; then VER="v2.0.0"; fi
           CLEAN_VER="${VER#v}"
           
@@ -225,6 +212,7 @@ jobs:
           echo "VERSION_NAME=$VER" >> $GITHUB_ENV
           echo "CLEAN_VERSION=$CLEAN_VER" >> $GITHUB_ENV
           echo "GODOT_VERSION=$GODOT_VER" >> $GITHUB_ENV
+          echo "$VER" > version.txt
           echo "Building Linux for Version: $VER, Godot: $GODOT_VER"
 
       - name: Setup Godot Engine & Export Templates
@@ -280,17 +268,17 @@ jobs:
           cp icon.png "$PKG_ROOT/usr/share/icons/hicolor/1024x1024/apps/com.adromir.SoundscapeStudio.png"
           cp packaging/linux/com.adromir.SoundscapeStudio.desktop "$PKG_ROOT/usr/share/applications/"
           
-          cat << EOF > "$PKG_ROOT/DEBIAN/control"
-Package: 3d-soundscape-studio
-Version: ${CLEAN_VERSION}
-Section: sound
-Priority: optional
-Architecture: amd64
-Maintainer: Adromir <https://github.com/adromir>
-Description: 3D Spatial Ambient Soundscape Studio & Binaural Player
- A professional DAW and 3D spatial soundscape generator featuring real-time
- polar positioning, HRTF binaural audio rendering, and organic sound textures.
-EOF
+          {
+            echo "Package: 3d-soundscape-studio"
+            echo "Version: ${CLEAN_VERSION}"
+            echo "Section: sound"
+            echo "Priority: optional"
+            echo "Architecture: amd64"
+            echo "Maintainer: Adromir <https://github.com/adromir>"
+            echo "Description: 3D Spatial Ambient Soundscape Studio & Binaural Player"
+            echo " A professional DAW and 3D spatial soundscape generator featuring real-time"
+            echo " polar positioning, HRTF binaural audio rendering, and organic sound textures."
+          } > "$PKG_ROOT/DEBIAN/control"
           
           dpkg-deb --build --root-owner-group "$PKG_ROOT" "$DEB_NAME"
           echo "Successfully created Debian package: $DEB_NAME"
@@ -309,12 +297,11 @@ EOF
           cp icon.png "$APP_DIR/com.adromir.SoundscapeStudio.png"
           cp packaging/linux/com.adromir.SoundscapeStudio.desktop "$APP_DIR/"
           
-          # Standard AppRun entry script
-          cat << 'EOF' > "$APP_DIR/AppRun"
-#!/bin/sh
-HERE="$(dirname "$(readlink -f "${0}")")"
-exec "${HERE}/usr/bin/3d-soundscape-studio" "$@"
-EOF
+          {
+            echo '#!/bin/sh'
+            echo 'HERE="$(dirname "$(readlink -f "${0}")")"'
+            echo 'exec "${HERE}/usr/bin/3d-soundscape-studio" "$@"'
+          } > "$APP_DIR/AppRun"
           chmod +x "$APP_DIR/AppRun"
           
           # Download official appimagetool
@@ -359,7 +346,6 @@ EOF
         id: vars
         run: |
           VER="${{ github.event.inputs.version_tag }}"
-          if [ -z "$VER" ]; then VER="${{ github.ref_name }}"; fi
           if [ -z "$VER" ] || [ "$VER" = "main" ]; then VER="v2.0.0"; fi
           
           GODOT_VER="${{ github.event.inputs.godot_version }}"
@@ -368,6 +354,7 @@ EOF
           echo "VERSION_TAG=$VER" >> $GITHUB_ENV
           echo "VERSION_NAME=$VER" >> $GITHUB_ENV
           echo "GODOT_VERSION=$GODOT_VER" >> $GITHUB_ENV
+          echo "$VER" > version.txt
           echo "Building macOS for Version: $VER, Godot: $GODOT_VER"
 
       - name: Setup Godot Engine & Export Templates
@@ -460,7 +447,6 @@ EOF
           cat SHA256SUMS.txt
           
           VER="${{ github.event.inputs.version_tag }}"
-          if [ -z "$VER" ]; then VER="${{ github.ref_name }}"; fi
           if [ -z "$VER" ] || [ "$VER" = "main" ]; then VER="v2.0.0"; fi
           
           TITLE="3D Soundscape Studio ${VER}"
@@ -482,30 +468,30 @@ EOF
           CUSTOM_NOTES="${{ github.event.inputs.custom_notes }}"
           if [ -z "$CUSTOM_NOTES" ]; then
             NOTES=$(cat << 'EOF'
-## 3D Soundscape Studio
+          ## 3D Soundscape Studio
 
-A 3D spatial ambient soundscape studio and binaural player with real-time polar positioning, multi-channel HRTF rendering, and organic sound textures.
+          A 3D spatial ambient soundscape studio and binaural player with real-time polar positioning, multi-channel HRTF rendering, and organic sound textures.
 
-### 📦 Available Downloads
+          ### 📦 Available Downloads
 
-#### 🪟 Windows (x64)
-- **Interactive Setup Installer**: `3D-Soundscape-Studio-*-Windows-Setup.msi`
-- **Portable Standalone**: `3D-Soundscape-Studio-*-Windows-Portable.zip`
+          #### 🪟 Windows (x64)
+          - **Interactive Setup Installer**: `3D-Soundscape-Studio-*-Windows-Setup.msi`
+          - **Portable Standalone**: `3D-Soundscape-Studio-*-Windows-Portable.zip`
 
-#### 🐧 Linux (x86_64)
-- **Universal AppImage**: `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
-- **Flatpak Bundle**: `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
-- **Debian / Ubuntu Package**: `3D-Soundscape-Studio-*-Linux-amd64.deb`
-- **Portable Standalone**: `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
+          #### 🐧 Linux (x86_64)
+          - **Universal AppImage**: `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
+          - **Flatpak Bundle**: `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
+          - **Debian / Ubuntu Package**: `3D-Soundscape-Studio-*-Linux-amd64.deb`
+          - **Portable Standalone**: `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
 
-#### 🍎 macOS (Universal / Apple Silicon & Intel)
-- **Drag-and-Drop Disk Image**: `3D-Soundscape-Studio-*-macOS.dmg`
-- **Portable App Archive**: `3D-Soundscape-Studio-*-macOS-Universal.zip`
+          #### 🍎 macOS (Universal / Apple Silicon & Intel)
+          - **Drag-and-Drop Disk Image**: `3D-Soundscape-Studio-*-macOS.dmg`
+          - **Portable App Archive**: `3D-Soundscape-Studio-*-macOS-Universal.zip`
 
----
-*All packages are signed with cryptographic SHA256 checksums in `SHA256SUMS.txt`.*
-EOF
-)
+          ---
+          *All packages are signed with cryptographic SHA256 checksums in `SHA256SUMS.txt`.*
+          EOF
+          )
           else
             NOTES="$CUSTOM_NOTES"
           fi

@@ -23,7 +23,7 @@ var spatial_engine: SpatialEngine = null
 
 @onready var btn_play: Button = $Margin/RootVBox/TopTransportBar/CenterTransport/BtnPlay
 @onready var btn_stop: Button = $Margin/RootVBox/TopTransportBar/CenterTransport/BtnStop
-@onready var master_vol_label: Label = $Margin/RootVBox/TopTransportBar/CenterTransport/MasterVolLabel
+@onready var master_vol_icon: TextureRect = $Margin/RootVBox/TopTransportBar/CenterTransport/MasterVolIcon if has_node("Margin/RootVBox/TopTransportBar/CenterTransport/MasterVolIcon") else null
 @onready var master_slider: HSlider = $Margin/RootVBox/TopTransportBar/CenterTransport/MasterSlider
 @onready var layout_option: OptionButton = $Margin/RootVBox/TopTransportBar/CenterTransport/LayoutOption
 
@@ -40,6 +40,7 @@ var spatial_engine: SpatialEngine = null
 
 # Studio Docks
 @onready var left_dock: PanelContainer = $Margin/RootVBox/ViewsStack/StudioView/LeftDock
+@onready var btn_reset_all_tracks: Button = $Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft/BtnResetAllTracks if has_node("Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft/BtnResetAllTracks") else null
 @onready var btn_popout_tracks: Button = $Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft/BtnPopoutTracks
 @onready var track_list_slot: MarginContainer = $Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/TrackListSlot
 @onready var track_list: TrackList = $Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/TrackListSlot/TrackList
@@ -166,11 +167,11 @@ func _setup_menu_bar() -> void:
 	# 3. VIEW POPUP
 	if popup_view:
 		popup_view.clear()
-		popup_view.add_item("🎛️ Studio Radar View", MenuViewAction.TAB_STUDIO, KEY_F1)
-		popup_view.add_item("📈 Listener Automation", MenuViewAction.TAB_STORY, KEY_F2)
-		popup_view.add_item("🎵 Audio Samples", MenuViewAction.TAB_SAMPLES, KEY_F3)
+		popup_view.add_item("Studio Radar View", MenuViewAction.TAB_STUDIO, KEY_F1)
+		popup_view.add_item("Listener Automation", MenuViewAction.TAB_STORY, KEY_F2)
+		popup_view.add_item("Audio Samples", MenuViewAction.TAB_SAMPLES, KEY_F3)
 		popup_view.add_separator()
-		popup_view.add_item("📚 Soundscape Library...", MenuViewAction.OPEN_LIBRARY, KEY_F4)
+		popup_view.add_item("Soundscape Library...", MenuViewAction.OPEN_LIBRARY, KEY_F4)
 		popup_view.add_separator()
 
 		# Submenu Themes
@@ -226,7 +227,6 @@ func _setup_menu_bar() -> void:
 	if popup_help:
 		popup_help.clear()
 		popup_help.add_item("About 3D Soundscape Studio...", MenuHelpAction.ABOUT)
-		popup_help.add_item("GitHub Project Repository...", MenuHelpAction.GITHUB)
 		if not popup_help.id_pressed.is_connected(_on_help_menu_id_pressed):
 			popup_help.id_pressed.connect(_on_help_menu_id_pressed)
 
@@ -372,7 +372,11 @@ func _connect_signals() -> void:
 			if spatial_engine: spatial_engine.set_master_volume(val)
 		)
 
-	# Popout Windows
+	# Popout Windows & Reset All
+	if btn_reset_all_tracks:
+		btn_reset_all_tracks.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_reset_all_tracks.pressed.connect(_on_all_tracks_reset_requested)
+
 	if btn_popout_tracks:
 		btn_popout_tracks.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_popout_tracks.pressed.connect(_undock_tracks)
@@ -756,11 +760,11 @@ func _update_path_controls_ui() -> void:
 	
 	if btn_toggle_path:
 		btn_toggle_path.button_pressed = path.enabled
-		btn_toggle_path.text = "🟢 Path: Active (Moving)" if path.enabled else "⚪ Path: Disabled (Center)"
+		btn_toggle_path.text = "Path: Active (Moving)" if path.enabled else "Path: Disabled (Center)"
 	
 	if btn_loop_path:
 		btn_loop_path.button_pressed = path.loop
-		btn_loop_path.text = "🔁 Mode: Closed Loop" if path.loop else "➡️ Mode: Open Path"
+		btn_loop_path.text = "Mode: Closed Loop" if path.loop else "Mode: Open Path"
 	
 	if speed_spin_box:
 		speed_spin_box.set_value_no_signal(path.speed)
@@ -784,7 +788,7 @@ func _update_path_stats() -> void:
 		total_len += pts[pt_count - 1].distance_to(pts[0])
 	
 	var duration_sec: float = total_len / maxf(path.speed, 0.05) if pt_count >= 2 else 0.0
-	lbl_path_stats.text = "📍 %d Waypoints | 📏 %.1fm | ⏱️ %.1fs" % [pt_count, total_len, duration_sec]
+	lbl_path_stats.text = "%d Waypoints | %.1fm | %.1fs" % [pt_count, total_len, duration_sec]
 
 func _on_track_selected(track_id: String) -> void:
 	if track_list: track_list.select_track(track_id)
@@ -1014,10 +1018,22 @@ func _on_settings_saved_sync() -> void:
 		_sync_theme_menu_checks()
 	_sync_speaker_menu_checks()
 
+static func get_app_version() -> String:
+	if FileAccess.file_exists("res://version.txt"):
+		var f: FileAccess = FileAccess.open("res://version.txt", FileAccess.READ)
+		if f:
+			var v: String = f.get_as_text().strip_edges()
+			if not v.is_empty():
+				return v
+	var proj_ver: String = str(ProjectSettings.get_setting("application/config/version", ""))
+	if not proj_ver.is_empty():
+		return proj_ver
+	return "v2.0.0"
+
 func _show_themed_about_dialog() -> void:
 	var win: Window = Window.new()
-	win.title = "ℹ️ About 3D Soundscape Studio"
-	win.size = Vector2i(520, 330)
+	win.title = "About 3D Soundscape Studio"
+	win.size = Vector2i(540, 500)
 	win.exclusive = true
 	win.transient = true
 	win.close_requested.connect(win.queue_free)
@@ -1034,33 +1050,64 @@ func _show_themed_about_dialog() -> void:
 	panel.add_child(margin)
 
 	var vbox: VBoxContainer = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 12)
+	vbox.add_theme_constant_override("separation", 10)
 	margin.add_child(vbox)
 
 	var title_lbl: Label = Label.new()
-	title_lbl.text = "🎧 3D Soundscape Studio"
+	title_lbl.text = "3D Soundscape Studio"
 	title_lbl.add_theme_font_size_override("font_size", 16)
+	title_lbl.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
 	vbox.add_child(title_lbl)
 
 	var ver_lbl: Label = Label.new()
-	ver_lbl.text = "Version 2.0.0  •  Author: Adromir"
+	ver_lbl.text = "Version %s  •  Author: Adromir" % get_app_version()
 	ver_lbl.add_theme_font_size_override("font_size", 11)
-	ver_lbl.add_theme_color_override("font_color", ThemeManager.get_palette()["text_dim"])
+	ver_lbl.add_theme_color_override("font_color", ThemeManager.get_palette().get("text_dim", Color(0.7, 0.75, 0.8)))
 	vbox.add_child(ver_lbl)
 
 	var link_btn: LinkButton = LinkButton.new()
-	link_btn.text = "🔗 https://github.com/adromir/3D-Soundscape-Studio"
+	link_btn.text = "https://github.com/adromir/3D-Soundscape-Studio"
 	link_btn.uri = "https://github.com/adromir/3D-Soundscape-Studio"
 	link_btn.add_theme_font_size_override("font_size", 11)
-	link_btn.add_theme_color_override("font_color", ThemeManager.get_palette()["primary"])
+	link_btn.add_theme_color_override("font_color", ThemeManager.get_palette().get("primary", Color(0.96, 0.82, 0.48)))
 	link_btn.pressed.connect(func(): OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio"))
 	vbox.add_child(link_btn)
 
 	var desc_lbl: Label = Label.new()
 	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc_lbl.text = "An advanced Spatial & Multi-Channel Audio Workstation featuring 3D HRTF simulation, interval schedulers, dynamic listener motion paths, organic tactile UI themes, and native offline FFmpeg surround export.\n\nLicense: MIT License"
+	desc_lbl.text = "An advanced Spatial & Multi-Channel Audio Workstation featuring 3D HRTF simulation, interval schedulers, dynamic listener motion paths, organic tactile UI themes, and native offline FFmpeg surround export."
 	desc_lbl.add_theme_font_size_override("font_size", 11)
 	vbox.add_child(desc_lbl)
+
+	var lic_box: VBoxContainer = VBoxContainer.new()
+	lic_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	lic_box.add_theme_constant_override("separation", 4)
+	vbox.add_child(lic_box)
+
+	var lic_title: Label = Label.new()
+	lic_title.text = "MIT License"
+	lic_title.add_theme_font_size_override("font_size", 12)
+	lic_box.add_child(lic_title)
+
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.custom_minimum_size = Vector2(0, 150)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	lic_box.add_child(scroll)
+
+	var lic_text: Label = Label.new()
+	lic_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lic_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lic_text.add_theme_font_size_override("font_size", 10)
+	lic_text.add_theme_color_override("font_color", ThemeManager.get_palette().get("text_dim", Color(0.65, 0.7, 0.78)))
+	lic_text.text = """Copyright (c) 2026 Adromir (https://github.com/adromir)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
+	scroll.add_child(lic_text)
 
 	var btn_row: HBoxContainer = HBoxContainer.new()
 	btn_row.alignment = BoxContainer.ALIGNMENT_END

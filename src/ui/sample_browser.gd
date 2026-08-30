@@ -28,17 +28,17 @@ const AVAILABLE_ICONS: Array[String] = [
 ]
 
 const ICON_LABELS: Dictionary = {
-	"volume": "🔊 Default / Volume",
-	"fire": "🔥 Fire / Campfire",
-	"water": "💧 Water / Stream",
-	"birds": "🐦 Birds / Wildlife",
-	"wind": "💨 Wind / Breeze",
-	"rain": "🌧️ Rain / Storm",
-	"bell": "🔔 Bell / Chime",
-	"steps": "👣 Footsteps",
-	"music": "🎵 Music / Melody",
-	"fx": "✨ Sound FX",
-	"voice": "🗣️ Voice / Speech"
+	"volume": "Default / Volume",
+	"fire": "Fire / Campfire",
+	"water": "Water / Stream",
+	"birds": "Birds / Wildlife",
+	"wind": "Wind / Breeze",
+	"rain": "Rain / Storm",
+	"bell": "Bell / Chime",
+	"steps": "Footsteps",
+	"music": "Music / Melody",
+	"fx": "Sound FX",
+	"voice": "Voice / Speech"
 }
 
 const PRESET_COLORS: Array[String] = [
@@ -57,10 +57,14 @@ func _ready() -> void:
 		preview_player.finished.connect(_on_preview_finished)
 
 	if btn_refresh:
+		btn_refresh.icon = load("res://assets/icons/reset.svg")
+		btn_refresh.expand_icon = true
 		btn_refresh.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_refresh.pressed.connect(scan_samples)
 
 	if btn_import:
+		btn_import.icon = load("res://assets/icons/plus.svg")
+		btn_import.expand_icon = true
 		btn_import.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_import.pressed.connect(_on_import_pressed)
 
@@ -68,7 +72,7 @@ func _ready() -> void:
 		import_dialog.files_selected.connect(_on_files_imported)
 
 	if search_edit:
-		search_edit.placeholder_text = "🔍 Search samples by name, category, or sound icon..."
+		search_edit.placeholder_text = "Search samples by name, category, or sound icon..."
 		search_edit.text_changed.connect(func(_t: String): _filter_items())
 
 	_load_categories()
@@ -134,7 +138,9 @@ func _setup_category_filters() -> void:
 
 	# + Add Category Button
 	var btn_add_cat: Button = Button.new()
-	btn_add_cat.text = "➕ Add Category"
+	btn_add_cat.text = "Add Category"
+	btn_add_cat.icon = load("res://assets/icons/plus.svg")
+	btn_add_cat.expand_icon = true
 	btn_add_cat.tooltip_text = "Create a new custom category"
 	btn_add_cat.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_add_cat.add_theme_font_size_override("font_size", 10)
@@ -148,7 +154,7 @@ func _prompt_add_category() -> void:
 		_add_cat_dialog.queue_free()
 
 	_add_cat_dialog = Window.new()
-	_add_cat_dialog.title = "➕ Add Custom Category"
+	_add_cat_dialog.title = "Add Custom Category"
 	_add_cat_dialog.size = Vector2i(380, 160)
 	_add_cat_dialog.exclusive = true
 	_add_cat_dialog.wrap_controls = true
@@ -388,9 +394,11 @@ func _create_sample_row(s: Dictionary) -> PanelContainer:
 	lbl_cat.add_theme_color_override("font_color", ThemeManager.get_palette()["text_dim"])
 	hbox.add_child(lbl_cat)
 
-	# Edit button (✏️)
+	# Edit button (with vector edit icon)
 	var btn_edit: Button = Button.new()
-	btn_edit.text = "✏️ Edit"
+	btn_edit.text = "Edit"
+	btn_edit.icon = load("res://assets/icons/edit.svg")
+	btn_edit.expand_icon = true
 	btn_edit.tooltip_text = "Edit sound name, icon, category, and accent color"
 	btn_edit.custom_minimum_size = Vector2(65, 26)
 	btn_edit.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -398,23 +406,25 @@ func _create_sample_row(s: Dictionary) -> PanelContainer:
 	btn_edit.pressed.connect(func(): _open_sample_editor(s))
 	hbox.add_child(btn_edit)
 
-	# Audition Play / Stop button (Icon only, no "Audition" text)
+	# Audition Play / Stop button (Vector icon only)
 	var btn_play: Button = Button.new()
 	var is_playing: bool = (_currently_playing_path == s["path"] and preview_player and preview_player.playing)
-	btn_play.text = "⏹" if is_playing else "▶"
+	btn_play.icon = load("res://assets/icons/stop.svg") if is_playing else load("res://assets/icons/play.svg")
+	btn_play.expand_icon = true
 	btn_play.tooltip_text = "Stop Preview" if is_playing else "Play Audio Preview"
 	btn_play.custom_minimum_size = Vector2(36, 26)
 	btn_play.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	btn_play.add_theme_font_size_override("font_size", 12)
 	btn_play.pressed.connect(func():
 		_toggle_audition(s["path"])
 	)
 	hbox.add_child(btn_play)
 
-	# Add to Soundscape button
+	# Add to Soundscape button (with vector plus icon)
 	var btn_add: Button = Button.new()
-	btn_add.text = "➕ Add to Studio"
-	btn_add.custom_minimum_size = Vector2(105, 26)
+	btn_add.text = "Add to Studio"
+	btn_add.icon = load("res://assets/icons/plus.svg")
+	btn_add.expand_icon = true
+	btn_add.custom_minimum_size = Vector2(110, 26)
 	btn_add.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_add.add_theme_font_size_override("font_size", 10)
 	btn_add.pressed.connect(func():
@@ -453,8 +463,17 @@ func _get_drag_data_for_sample(s: Dictionary) -> Variant:
 	var hbox: HBoxContainer = HBoxContainer.new()
 	preview.add_child(hbox)
 
+	var icon_tex: Texture2D = ThemeManager.get_sound_icon(s.get("icon", "volume"))
+	if icon_tex:
+		var tr: TextureRect = TextureRect.new()
+		tr.texture = icon_tex
+		tr.custom_minimum_size = Vector2(16, 16)
+		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tr.modulate = Color.from_string(s.get("color_hex", "#00e5ff"), Color.CYAN)
+		hbox.add_child(tr)
+
 	var lbl: Label = Label.new()
-	lbl.text = "🎵 " + s["name"]
+	lbl.text = s["name"]
 	lbl.add_theme_font_size_override("font_size", 11)
 	hbox.add_child(lbl)
 
@@ -466,7 +485,7 @@ func _open_sample_editor(s: Dictionary) -> void:
 		_edit_dialog.queue_free()
 
 	_edit_dialog = Window.new()
-	_edit_dialog.title = "✏️ Edit Sound: " + s["name"]
+	_edit_dialog.title = "Edit Sound: " + s["name"]
 	_edit_dialog.size = Vector2i(440, 360)
 	_edit_dialog.exclusive = true
 	_edit_dialog.wrap_controls = true
@@ -581,7 +600,10 @@ func _open_sample_editor(s: Dictionary) -> void:
 	btn_row.add_child(btn_cancel)
 
 	var btn_save: Button = Button.new()
-	btn_save.text = "💾 Save Changes"
+	btn_save.text = "Save Changes"
+	btn_save.icon = load("res://assets/icons/save.svg")
+	btn_save.expand_icon = true
+	btn_save.custom_minimum_size = Vector2(120, 30)
 	btn_save.pressed.connect(func():
 		var new_name: String = name_edit.text.strip_edges()
 		if new_name.is_empty(): new_name = s["name"]

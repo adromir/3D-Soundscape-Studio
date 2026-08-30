@@ -126,7 +126,16 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	)
 	hbox.add_child(btn_select)
 
-	# Volume readout
+	# Volume icon & readout
+	var vol_icon: TextureRect = TextureRect.new()
+	vol_icon.texture = load("res://assets/icons/volume.svg")
+	vol_icon.custom_minimum_size = Vector2(14, 14)
+	vol_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	vol_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	vol_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vol_icon.modulate = pal["text_dim"]
+	hbox.add_child(vol_icon)
+
 	var vol_label: Label = Label.new()
 	vol_label.text = "%d%%" % int(track.volume * 100.0)
 	vol_label.custom_minimum_size = Vector2(28, 0)
@@ -152,13 +161,13 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 		track_volume_changed.emit(track.id, val)
 	)
 
-	# Mute Button (with audio icon)
+	# Mute Button (with vector audio icon)
 	var btn_mute: Button = Button.new()
 	btn_mute.toggle_mode = true
 	btn_mute.button_pressed = track.muted
-	btn_mute.text = "🔇" if track.muted else "🔊"
+	btn_mute.icon = load("res://assets/icons/volume_mute.svg") if track.muted else load("res://assets/icons/volume.svg")
+	btn_mute.expand_icon = true
 	btn_mute.custom_minimum_size = Vector2(24, 22)
-	btn_mute.add_theme_font_size_override("font_size", 11)
 	btn_mute.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_mute.tooltip_text = "Unmute Track (Currently Muted)" if track.muted else "Mute Track (Click to silence)"
 	if track.muted:
@@ -167,7 +176,7 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 		btn_mute.modulate = Color(1.0, 1.0, 1.0)
 	btn_mute.toggled.connect(func(toggled: bool):
 		track.muted = toggled
-		btn_mute.text = "🔇" if toggled else "🔊"
+		btn_mute.icon = load("res://assets/icons/volume_mute.svg") if toggled else load("res://assets/icons/volume.svg")
 		btn_mute.modulate = Color(1.4, 0.4, 0.4) if toggled else Color(1.0, 1.0, 1.0)
 		btn_mute.tooltip_text = "Unmute Track (Currently Muted)" if toggled else "Mute Track (Click to silence)"
 		indicator.color = pal["text_dim"] if toggled else pal["primary"]
@@ -197,11 +206,11 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	)
 	hbox.add_child(btn_solo)
 
-	# Crossfade (Continuous Loop) Button
+	# Continuous Loop Button (with vector loop icon)
 	var btn_crossfade: Button = Button.new()
-	btn_crossfade.text = "∞"
+	btn_crossfade.icon = load("res://assets/icons/loop.svg")
+	btn_crossfade.expand_icon = true
 	btn_crossfade.custom_minimum_size = Vector2(22, 22)
-	btn_crossfade.add_theme_font_size_override("font_size", 11)
 	btn_crossfade.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_crossfade.tooltip_text = "Continuous Loop (Crossfade: %s)" % ("On" if track.crossfade else "Off")
 	var is_continuous: bool = (track.trigger.mode == SoundscapeData.TriggerMode.CONTINUOUS_LOOP)
@@ -218,11 +227,11 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	)
 	hbox.add_child(btn_crossfade)
 
-	# Random Interval Button
+	# Random Interval Button (with vector random icon)
 	var btn_random: Button = Button.new()
-	btn_random.text = "⇌"
+	btn_random.icon = load("res://assets/icons/random.svg")
+	btn_random.expand_icon = true
 	btn_random.custom_minimum_size = Vector2(22, 22)
-	btn_random.add_theme_font_size_override("font_size", 10)
 	btn_random.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_random.tooltip_text = LocalizationData.tr_key("TOOLTIP_RANDOM")
 	var is_random: bool = (track.trigger.mode == SoundscapeData.TriggerMode.RANDOM_INTERVAL)
@@ -257,11 +266,11 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 		)
 		hbox.add_child(btn_rate)
 
-	# Delete Button
+	# Delete Button (with vector trash icon)
 	var btn_del: Button = Button.new()
-	btn_del.text = "✕"
-	btn_del.custom_minimum_size = Vector2(20, 20)
-	btn_del.add_theme_font_size_override("font_size", 10)
+	btn_del.icon = load("res://assets/icons/trash.svg")
+	btn_del.expand_icon = true
+	btn_del.custom_minimum_size = Vector2(22, 22)
 	btn_del.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_del.tooltip_text = LocalizationData.tr_key("TOOLTIP_DELETE")
 	btn_del.pressed.connect(func():

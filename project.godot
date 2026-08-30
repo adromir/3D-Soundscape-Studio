@@ -27,7 +27,6 @@ _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
 
 window/size/viewport_width=1600
 window/size/viewport_height=900
-window/subwindows/embed_subwindows=true
 window/stretch/aspect="ignore"
 window/per_pixel_transparency/allowed=true
 window/size/min_width=1280

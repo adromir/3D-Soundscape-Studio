@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <defs>
+    <linearGradient id="amberGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24">
+      <stop offset="0%" stop-color="#F6D365"/>
+      <stop offset="100%" stop-color="#FDA085"/>
+    </linearGradient>
+  </defs>
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" fill="none" stroke="url(#amberGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="15 3 21 3 21 9" fill="none" stroke="url(#amberGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M10 14 L21 3" fill="none" stroke="url(#amberGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
