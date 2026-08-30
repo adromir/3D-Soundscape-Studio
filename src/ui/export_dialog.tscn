@@ -21,6 +21,8 @@ transient = false
 exclusive = false
 unresizable = false
 borderless = true
+transparent = true
+transparent_bg = true
 min_size = Vector2i(520, 400)
 script = ExtResource("1_exp_dlg")
 

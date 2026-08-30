@@ -612,6 +612,27 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Biblioteca de Soundscapes",
 		Language.IT: "Libreria Soundscape"
 	},
+	"MENU_FILE_RECENT": {
+		Language.EN: "Open Recent",
+		Language.DE: "Zuletzt geöffnet",
+		Language.FR: "Ouvrir récents",
+		Language.ES: "Abrir recientes",
+		Language.IT: "Apri recenti"
+	},
+	"MENU_FILE_CLEAR_RECENT": {
+		Language.EN: "Clear Recent Projects",
+		Language.DE: "Zuletzt geöffnete löschen",
+		Language.FR: "Effacer les projets récents",
+		Language.ES: "Borrar proyectos recientes",
+		Language.IT: "Cancella progetti recenti"
+	},
+	"MENU_FILE_NO_RECENT": {
+		Language.EN: "No Recent Soundscapes",
+		Language.DE: "Keine zuletzt geöffneten Soundscapes",
+		Language.FR: "Aucun soundscape récent",
+		Language.ES: "No hay soundscapes recientes",
+		Language.IT: "Nessun soundscape recente"
+	},
 	"MENU_HELP_WIKI": {
 		Language.EN: "Wiki & Documentation...",
 		Language.DE: "Wiki & Dokumentation...",

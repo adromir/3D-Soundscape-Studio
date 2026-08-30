@@ -536,11 +536,21 @@ func _open_sample_editor(s: Dictionary) -> void:
 	_edit_dialog.wrap_controls = true
 	_edit_dialog.transient = true
 	_edit_dialog.borderless = true
+	_edit_dialog.transparent = true
+	_edit_dialog.transparent_bg = true
 	_edit_dialog.close_requested.connect(_edit_dialog.queue_free)
 
 	var pal: Dictionary = ThemeManager.get_palette()
 	var panel: PanelContainer = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.clip_contents = true
+
+	var outer_sb: StyleBoxFlat = StyleBoxFlat.new()
+	outer_sb.bg_color = pal["panel_bg"]
+	outer_sb.border_color = pal["panel_border_glow"]
+	outer_sb.set_border_width_all(1)
+	outer_sb.set_corner_radius_all(12)
+	panel.add_theme_stylebox_override("panel", outer_sb)
 	_edit_dialog.add_child(panel)
 
 	var main_vbox: VBoxContainer = VBoxContainer.new()
@@ -552,6 +562,10 @@ func _open_sample_editor(s: Dictionary) -> void:
 	header_sb.bg_color = pal["btn_normal"]
 	header_sb.border_color = pal["panel_border"]
 	header_sb.border_width_bottom = 1
+	header_sb.corner_radius_top_left = 12
+	header_sb.corner_radius_top_right = 12
+	header_sb.corner_radius_bottom_left = 0
+	header_sb.corner_radius_bottom_right = 0
 	header_sb.content_margin_left = 16
 	header_sb.content_margin_right = 12
 	header_sb.content_margin_top = 8
@@ -710,6 +724,8 @@ func _open_sample_editor(s: Dictionary) -> void:
 	btn_row.add_child(btn_save)
 
 	ThemeManager.apply_theme(_edit_dialog, ThemeManager.current_theme)
+	panel.add_theme_stylebox_override("panel", outer_sb)
+	header_panel.add_theme_stylebox_override("panel", header_sb)
 	add_child(_edit_dialog)
 	_edit_dialog.popup_centered()
 

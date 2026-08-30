@@ -141,11 +141,21 @@ func _prompt_add_category() -> void:
 	_add_cat_dialog.wrap_controls = true
 	_add_cat_dialog.transient = true
 	_add_cat_dialog.borderless = true
+	_add_cat_dialog.transparent = true
+	_add_cat_dialog.transparent_bg = true
 	_add_cat_dialog.close_requested.connect(_add_cat_dialog.queue_free)
 
 	var pal: Dictionary = ThemeManager.get_palette()
 	var panel: PanelContainer = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.clip_contents = true
+
+	var outer_sb: StyleBoxFlat = StyleBoxFlat.new()
+	outer_sb.bg_color = pal["panel_bg"]
+	outer_sb.border_color = pal["panel_border_glow"]
+	outer_sb.set_border_width_all(1)
+	outer_sb.set_corner_radius_all(12)
+	panel.add_theme_stylebox_override("panel", outer_sb)
 	_add_cat_dialog.add_child(panel)
 
 	var main_vbox: VBoxContainer = VBoxContainer.new()
@@ -157,6 +167,10 @@ func _prompt_add_category() -> void:
 	header_sb.bg_color = pal["btn_normal"]
 	header_sb.border_color = pal["panel_border"]
 	header_sb.border_width_bottom = 1
+	header_sb.corner_radius_top_left = 12
+	header_sb.corner_radius_top_right = 12
+	header_sb.corner_radius_bottom_left = 0
+	header_sb.corner_radius_bottom_right = 0
 	header_sb.content_margin_left = 16
 	header_sb.content_margin_right = 12
 	header_sb.content_margin_top = 8
@@ -229,6 +243,8 @@ func _prompt_add_category() -> void:
 	btn_row.add_child(btn_ok)
 
 	ThemeManager.apply_theme(_add_cat_dialog, ThemeManager.current_theme)
+	panel.add_theme_stylebox_override("panel", outer_sb)
+	header_panel.add_theme_stylebox_override("panel", header_sb)
 	add_child(_add_cat_dialog)
 	_add_cat_dialog.popup_centered()
 

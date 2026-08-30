@@ -9,6 +9,8 @@ size = Vector2i(220, 310)
 visible = false
 unresizable = true
 borderless = true
+transparent = true
+transparent_bg = true
 min_size = Vector2i(200, 280)
 script = ExtResource("1_rate_picker")
 

@@ -12,6 +12,8 @@ transient = false
 exclusive = false
 unresizable = false
 borderless = true
+transparent = true
+transparent_bg = true
 min_size = Vector2i(280, 400)
 script = ExtResource("1_insp_win")
 
@@ -44,16 +46,17 @@ layout_mode = 2
 [node name="TitleLabel" type="Label" parent="Margin/VBox/TopHBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "⚙️ Track Inspector"
+text = "Track Inspector"
 
 [node name="Spacer" type="Control" parent="Margin/VBox/TopHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="BtnDock" type="Button" parent="Margin/VBox/TopHBox"]
-custom_minimum_size = Vector2(80, 22)
+custom_minimum_size = Vector2(85, 24)
 layout_mode = 2
-text = "⤶ Dock"
+mouse_default_cursor_shape = 2
+text = "Dock"
 
 [node name="Slot" type="PanelContainer" parent="Margin/VBox"]
 layout_mode = 2

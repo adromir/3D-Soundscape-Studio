@@ -12,6 +12,8 @@ transient = false
 exclusive = false
 unresizable = false
 borderless = true
+transparent = true
+transparent_bg = true
 min_size = Vector2i(500, 500)
 script = ExtResource("1_radar_win")
 
@@ -44,16 +46,17 @@ layout_mode = 2
 [node name="TitleLabel" type="Label" parent="Margin/VBox/TopHBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "📡 3D Spatial Radar Monitor (Detached)"
+text = "3D Spatial Radar Monitor (Detached)"
 
 [node name="Spacer" type="Control" parent="Margin/VBox/TopHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="BtnDock" type="Button" parent="Margin/VBox/TopHBox"]
-custom_minimum_size = Vector2(110, 28)
+custom_minimum_size = Vector2(120, 28)
 layout_mode = 2
-text = "⤶ Dock to Studio"
+mouse_default_cursor_shape = 2
+text = "Dock to Studio"
 
 [node name="CanvasSlot" type="PanelContainer" parent="Margin/VBox"]
 layout_mode = 2

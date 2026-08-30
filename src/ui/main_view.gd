@@ -91,6 +91,10 @@ var _active_tab: int = 0
 var _theme_popup: PopupMenu = null
 var _lang_popup: PopupMenu = null
 var _speaker_popup: PopupMenu = null
+var _recent_popup: PopupMenu = null
+var _recent_projects: Array[Dictionary] = []
+const RECENT_PROJECTS_FILE: String = "user://recent_projects.json"
+const CLEAR_RECENT_ID: int = 9999
 
 # Menu Action IDs
 enum MenuFileAction { NEW, OPEN, SAVE, SAVE_AS, EXPORT, IMPORT, PREFERENCES, EXIT }
@@ -116,6 +120,7 @@ func _ready() -> void:
 
 	DisplayServer.window_set_title("3D Soundscape Studio")
 	get_window().files_dropped.connect(_on_window_files_dropped)
+	_load_recent_projects()
 	_setup_menu_bar()
 	_populate_speaker_layouts()
 	_connect_signals()
@@ -145,6 +150,17 @@ func _setup_menu_bar() -> void:
 		popup_file.clear()
 		popup_file.add_item("New Soundscape", MenuFileAction.NEW, KEY_MASK_CTRL | KEY_N)
 		popup_file.add_item("Open Soundscape...", MenuFileAction.OPEN, KEY_MASK_CTRL | KEY_O)
+
+		# Submenu Recent Projects
+		if _recent_popup == null:
+			_recent_popup = PopupMenu.new()
+			_recent_popup.name = "RecentSubmenu"
+			_recent_popup.id_pressed.connect(_on_recent_menu_id_pressed)
+			popup_file.add_child(_recent_popup)
+		_rebuild_recent_menu()
+		popup_file.add_submenu_node_item(LocalizationData.tr_key("MENU_FILE_RECENT"), _recent_popup)
+
+		popup_file.add_separator()
 		popup_file.add_item("Save Soundscape", MenuFileAction.SAVE, KEY_MASK_CTRL | KEY_S)
 		popup_file.add_item("Save Soundscape As...", MenuFileAction.SAVE_AS, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_S)
 		popup_file.add_separator()
@@ -253,6 +269,90 @@ func _sync_speaker_menu_checks() -> void:
 	if _speaker_popup == null or spatial_engine == null: return
 	for i in range(_speaker_popup.item_count):
 		_speaker_popup.set_item_checked(i, i == spatial_engine.speaker_layout)
+
+# ==================== RECENT PROJECTS MANAGEMENT ====================
+
+func _load_recent_projects() -> void:
+	_recent_projects.clear()
+	if not FileAccess.file_exists(RECENT_PROJECTS_FILE):
+		return
+	var f: FileAccess = FileAccess.open(RECENT_PROJECTS_FILE, FileAccess.READ)
+	if f:
+		var json: JSON = JSON.new()
+		if json.parse(f.get_as_text()) == OK and json.data is Array:
+			for item in json.data:
+				if item is Dictionary:
+					_recent_projects.append(item)
+		f.close()
+
+func _save_recent_projects() -> void:
+	var f: FileAccess = FileAccess.open(RECENT_PROJECTS_FILE, FileAccess.WRITE)
+	if f:
+		f.store_string(JSON.stringify(_recent_projects, "\t"))
+		f.close()
+
+func _add_recent_project(p_title: String, p_path: String = "", p_folder: String = "") -> void:
+	if p_title.is_empty():
+		return
+	var clean_title: String = p_title.strip_edges()
+	var new_entry: Dictionary = {
+		"title": clean_title,
+		"path": p_path,
+		"folder_name": p_folder,
+		"timestamp": int(Time.get_unix_time_from_system())
+	}
+	for i in range(_recent_projects.size() - 1, -1, -1):
+		var p: Dictionary = _recent_projects[i]
+		var match_title: bool = (p.get("title", "") == clean_title)
+		var match_path: bool = (not p_path.is_empty() and p.get("path", "") == p_path)
+		var match_folder: bool = (not p_folder.is_empty() and p.get("folder_name", "") == p_folder)
+		if match_title or match_path or match_folder:
+			_recent_projects.remove_at(i)
+	_recent_projects.insert(0, new_entry)
+	if _recent_projects.size() > 10:
+		_recent_projects.resize(10)
+	_save_recent_projects()
+	_rebuild_recent_menu()
+
+func _rebuild_recent_menu() -> void:
+	if _recent_popup == null:
+		return
+	_recent_popup.clear()
+	if _recent_projects.is_empty():
+		_recent_popup.add_item(LocalizationData.tr_key("MENU_FILE_NO_RECENT"), -1)
+		_recent_popup.set_item_disabled(0, true)
+	else:
+		for i in range(_recent_projects.size()):
+			var p: Dictionary = _recent_projects[i]
+			var t: String = p.get("title", "Untitled")
+			_recent_popup.add_item("%d. %s" % [i + 1, t], i)
+		_recent_popup.add_separator()
+		_recent_popup.add_item(LocalizationData.tr_key("MENU_FILE_CLEAR_RECENT"), CLEAR_RECENT_ID)
+
+func _on_recent_menu_id_pressed(id: int) -> void:
+	if id == CLEAR_RECENT_ID:
+		_recent_projects.clear()
+		_save_recent_projects()
+		_rebuild_recent_menu()
+		return
+	if id >= 0 and id < _recent_projects.size():
+		var entry: Dictionary = _recent_projects[id]
+		var folder_name: String = entry.get("folder_name", "")
+		var p_path: String = entry.get("path", "")
+		var loaded_proj: SoundscapeData.SoundscapeProject = null
+		if not p_path.is_empty() and FileAccess.file_exists(ProjectSettings.globalize_path(p_path)):
+			loaded_proj = LibraryManager.load_project_file(p_path)
+		elif not folder_name.is_empty():
+			var full_path: String = "user://library/" + folder_name + "/project.ambmix"
+			loaded_proj = LibraryManager.load_project_file(full_path)
+		else:
+			var slug: String = AmbientMixerClient.sanitize_filename(entry.get("title", ""))
+			var full_path: String = "user://library/" + slug + "/project.ambmix"
+			if FileAccess.file_exists(ProjectSettings.globalize_path(full_path)):
+				loaded_proj = LibraryManager.load_project_file(full_path)
+		if loaded_proj:
+			load_project(loaded_proj)
+			_switch_tab(0)
 
 func _on_file_menu_id_pressed(id: int) -> void:
 	match id:
@@ -402,18 +502,21 @@ func _connect_signals() -> void:
 		btn_popout_tracks.pressed.connect(_undock_tracks)
 	if tracks_window:
 		tracks_window.redock_requested.connect(_dock_tracks_back)
+		tracks_window.size_changed.connect(_save_workspace_settings)
 
 	if btn_popout_radar:
 		btn_popout_radar.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_popout_radar.pressed.connect(_undock_radar)
 	if radar_window:
 		radar_window.redock_requested.connect(_dock_radar_back)
+		radar_window.size_changed.connect(_save_workspace_settings)
 
 	if btn_popout_inspector:
 		btn_popout_inspector.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_popout_inspector.pressed.connect(_undock_inspector)
 	if inspector_window:
 		inspector_window.redock_requested.connect(_dock_inspector_back)
+		inspector_window.size_changed.connect(_save_workspace_settings)
 
 	if title_edit:
 		title_edit.text_changed.connect(func(new_title: String):
@@ -804,6 +907,9 @@ func _create_new_project(title: String) -> void:
 
 func load_project(proj: SoundscapeData.SoundscapeProject) -> void:
 	current_project = proj
+	if current_project and not current_project.title.is_empty():
+		_add_recent_project(current_project.title, current_project.source_path)
+
 	if title_edit:
 		title_edit.text = current_project.title
 
@@ -1110,6 +1216,8 @@ func _show_themed_about_dialog() -> void:
 	win.exclusive = true
 	win.transient = true
 	win.borderless = true
+	win.transparent = true
+	win.transparent_bg = true
 	win.close_requested.connect(win.queue_free)
 	add_child(win)
 	win.popup_centered()
@@ -1117,6 +1225,14 @@ func _show_themed_about_dialog() -> void:
 	var pal: Dictionary = ThemeManager.get_palette()
 	var panel: PanelContainer = PanelContainer.new()
 	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	panel.clip_contents = true
+
+	var outer_sb: StyleBoxFlat = StyleBoxFlat.new()
+	outer_sb.bg_color = pal["panel_bg"]
+	outer_sb.border_color = pal["panel_border_glow"]
+	outer_sb.set_border_width_all(1)
+	outer_sb.set_corner_radius_all(12)
+	panel.add_theme_stylebox_override("panel", outer_sb)
 	win.add_child(panel)
 
 	var main_vbox: VBoxContainer = VBoxContainer.new()
@@ -1129,6 +1245,10 @@ func _show_themed_about_dialog() -> void:
 	header_sb.bg_color = pal["btn_normal"]
 	header_sb.border_color = pal["panel_border"]
 	header_sb.border_width_bottom = 1
+	header_sb.corner_radius_top_left = 12
+	header_sb.corner_radius_top_right = 12
+	header_sb.corner_radius_bottom_left = 0
+	header_sb.corner_radius_bottom_right = 0
 	header_sb.content_margin_left = 16
 	header_sb.content_margin_right = 12
 	header_sb.content_margin_top = 10
@@ -1251,6 +1371,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 	btn_row.add_child(close_btn)
 
 	ThemeManager.apply_theme(win, ThemeManager.current_theme)
+	panel.add_theme_stylebox_override("panel", outer_sb)
+	header_panel.add_theme_stylebox_override("panel", header_sb)
 
 func _on_save_pressed() -> void:
 	if current_project == null: return
@@ -1259,6 +1381,7 @@ func _on_save_pressed() -> void:
 	current_project.title = title
 	var saved_path: String = LibraryManager.save_soundscape(current_project)
 	print("✔ Project saved to Library: ", saved_path)
+	_add_recent_project(title, saved_path)
 	if soundscape_browser: soundscape_browser.refresh_library()
 
 func _on_save_as_pressed() -> void:
@@ -1269,6 +1392,7 @@ func _on_save_as_pressed() -> void:
 	var new_folder: String = AmbientMixerClient.sanitize_filename(title)
 	var saved_path: String = LibraryManager.save_soundscape(current_project, new_folder)
 	print("✔ Project saved as: ", saved_path)
+	_add_recent_project(title, saved_path, new_folder)
 	if soundscape_browser: soundscape_browser.refresh_library()
 
 func _save_workspace_settings() -> void:
@@ -1287,6 +1411,16 @@ func _save_workspace_settings() -> void:
 	existing_data["tracks_undocked"] = tracks_window.visible if tracks_window else false
 	existing_data["radar_undocked"] = radar_window.visible if radar_window else false
 	existing_data["inspector_undocked"] = inspector_window.visible if inspector_window else false
+
+	if tracks_window:
+		existing_data["tracks_pos"] = [tracks_window.position.x, tracks_window.position.y]
+		existing_data["tracks_size"] = [tracks_window.size.x, tracks_window.size.y]
+	if radar_window:
+		existing_data["radar_pos"] = [radar_window.position.x, radar_window.position.y]
+		existing_data["radar_size"] = [radar_window.size.x, radar_window.size.y]
+	if inspector_window:
+		existing_data["inspector_pos"] = [inspector_window.position.x, inspector_window.position.y]
+		existing_data["inspector_size"] = [inspector_window.size.x, inspector_window.size.y]
 
 	var f: FileAccess = FileAccess.open("user://settings.json", FileAccess.WRITE)
 	if f:
@@ -1334,6 +1468,23 @@ func _load_workspace_settings() -> void:
 	_sync_lang_menu_checks()
 	_sync_speaker_menu_checks()
 
-	if data.get("tracks_undocked", false): _undock_tracks()
-	if data.get("radar_undocked", false): _undock_radar()
-	if data.get("inspector_undocked", false): _undock_inspector()
+	if data.get("tracks_undocked", false):
+		_undock_tracks()
+		if data.has("tracks_pos") and data["tracks_pos"] is Array and data["tracks_pos"].size() == 2:
+			tracks_window.position = Vector2i(int(data["tracks_pos"][0]), int(data["tracks_pos"][1]))
+		if data.has("tracks_size") and data["tracks_size"] is Array and data["tracks_size"].size() == 2:
+			tracks_window.size = Vector2i(int(data["tracks_size"][0]), int(data["tracks_size"][1]))
+
+	if data.get("radar_undocked", false):
+		_undock_radar()
+		if data.has("radar_pos") and data["radar_pos"] is Array and data["radar_pos"].size() == 2:
+			radar_window.position = Vector2i(int(data["radar_pos"][0]), int(data["radar_pos"][1]))
+		if data.has("radar_size") and data["radar_size"] is Array and data["radar_size"].size() == 2:
+			radar_window.size = Vector2i(int(data["radar_size"][0]), int(data["radar_size"][1]))
+
+	if data.get("inspector_undocked", false):
+		_undock_inspector()
+		if data.has("inspector_pos") and data["inspector_pos"] is Array and data["inspector_pos"].size() == 2:
+			inspector_window.position = Vector2i(int(data["inspector_pos"][0]), int(data["inspector_pos"][1]))
+		if data.has("inspector_size") and data["inspector_size"] is Array and data["inspector_size"].size() == 2:
+			inspector_window.size = Vector2i(int(data["inspector_size"][0]), int(data["inspector_size"][1]))

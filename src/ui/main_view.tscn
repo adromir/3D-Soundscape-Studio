@@ -311,10 +311,12 @@ text = "Reset All"
 tooltip_text = "Reset all audio stems in this soundscape to their default spatial positions and volumes."
 
 [node name="BtnPopoutTracks" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft"]
-custom_minimum_size = Vector2(26, 24)
+custom_minimum_size = Vector2(30, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_constants/icon_max_width = 18
 icon = ExtResource("30_icon_popout")
+icon_alignment = 1
 expand_icon = true
 tooltip_text = "Pop out Stems into separate window"
 
@@ -358,10 +360,12 @@ theme_override_font_sizes/font_size = 12
 text = "3D Spatial Radar Canvas"
 
 [node name="BtnPopoutRadar" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
-custom_minimum_size = Vector2(26, 24)
+custom_minimum_size = Vector2(30, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_constants/icon_max_width = 18
 icon = ExtResource("30_icon_popout")
+icon_alignment = 1
 expand_icon = true
 tooltip_text = "Pop out 3D Radar into separate window"
 
@@ -403,10 +407,12 @@ theme_override_font_sizes/font_size = 12
 text = "Track Inspector"
 
 [node name="BtnPopoutInspector" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/RightDock/VBoxRight/HeaderRight"]
-custom_minimum_size = Vector2(26, 24)
+custom_minimum_size = Vector2(30, 26)
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_constants/icon_max_width = 18
 icon = ExtResource("30_icon_popout")
+icon_alignment = 1
 expand_icon = true
 tooltip_text = "Pop out Track Inspector into separate window"
 
