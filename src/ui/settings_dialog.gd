@@ -39,6 +39,7 @@ static func get_settings_file() -> String:
 @onready var ffmpeg_status_lbl: Label = $Margin/VBox/Tabs/FFmpegTab/FFmpegStatusLabel
 
 @onready var chk_radar_animation: CheckBox = $Margin/VBox/Tabs/DisplayTab/ChkRadarAnimation
+@onready var chk_check_updates: CheckBox = $Margin/VBox/Tabs/DisplayTab/ChkCheckUpdates if has_node("Margin/VBox/Tabs/DisplayTab/ChkCheckUpdates") else null
 @onready var language_label: Label = $Margin/VBox/Tabs/DisplayTab/LanguageLabel if has_node("Margin/VBox/Tabs/DisplayTab/LanguageLabel") else null
 @onready var language_option: OptionButton = $Margin/VBox/Tabs/DisplayTab/LanguageOption if has_node("Margin/VBox/Tabs/DisplayTab/LanguageOption") else null
 @onready var theme_label: Label = $Margin/VBox/Tabs/DisplayTab/ThemeLabel if has_node("Margin/VBox/Tabs/DisplayTab/ThemeLabel") else null
@@ -209,6 +210,7 @@ func load_settings() -> Dictionary:
 	if ffmpeg_path_edit: ffmpeg_path_edit.text = data.get("ffmpeg_path", "")
 	if layout_option: layout_option.select(int(data.get("speaker_layout", 0)))
 	if chk_radar_animation: chk_radar_animation.button_pressed = bool(data.get("radar_animation", true))
+	if chk_check_updates: chk_check_updates.button_pressed = bool(data.get("check_updates_on_startup", true))
 
 	if language_option:
 		var lang_code = data.get("language", "EN")
@@ -243,6 +245,10 @@ func _setup_realtime_sync() -> void:
 		)
 	if chk_radar_animation:
 		chk_radar_animation.toggled.connect(func(_val: bool):
+			_save_current_settings(false)
+		)
+	if chk_check_updates:
+		chk_check_updates.toggled.connect(func(_val: bool):
 			_save_current_settings(false)
 		)
 	if language_option:
@@ -283,6 +289,7 @@ func _save_current_settings(should_hide: bool = false) -> void:
 	existing_data["sofa_path"] = sofa_path_edit.text.strip_edges() if sofa_path_edit else ""
 	existing_data["ffmpeg_path"] = ffmpeg_path_edit.text.strip_edges() if ffmpeg_path_edit else ""
 	existing_data["radar_animation"] = chk_radar_animation.button_pressed if chk_radar_animation else true
+	existing_data["check_updates_on_startup"] = chk_check_updates.button_pressed if chk_check_updates else true
 
 	if language_option:
 		existing_data["language"] = LocalizationData.LANGUAGE_CODES.get(language_option.selected as LocalizationData.Language, "EN")
@@ -353,5 +360,8 @@ func update_localization() -> void:
 	if theme_label: theme_label.text = LocalizationData.tr_key("SETTINGS_THEME_LABEL")
 	if radar_anim_label: radar_anim_label.text = LocalizationData.tr_key("SETTINGS_RADAR_ANIM_LABEL")
 	if chk_radar_animation: chk_radar_animation.text = LocalizationData.tr_key("SETTINGS_RADAR_BEAM_CHK")
+	var upd_lbl = get_node_or_null("Margin/VBox/Tabs/DisplayTab/UpdatesLabel")
+	if upd_lbl: upd_lbl.text = LocalizationData.tr_key("DLG_UPDATE_TITLE")
+	if chk_check_updates: chk_check_updates.text = LocalizationData.tr_key("SETTINGS_CHECK_UPDATES_STARTUP")
 	if btn_save: btn_save.text = LocalizationData.tr_key("SETTINGS_SAVE")
 	if btn_cancel: btn_cancel.text = LocalizationData.tr_key("SETTINGS_CANCEL")

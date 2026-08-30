@@ -1,0 +1,183 @@
+[gd_scene load_steps=5 format=3 uid="uid://bv8v7n9m3k2q"]
+
+[ext_resource type="Script" path="res://src/ui/update_dialog.gd" id="1_upd_dlg"]
+[ext_resource type="Shader" path="res://src/ui/ambient_backdrop.gdshader" id="2_shader"]
+[ext_resource type="Texture2D" path="res://assets/icons/update.svg" id="3_icon"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
+shader = ExtResource("2_shader")
+shader_parameter/bg_color = Color(0.035, 0.048, 0.082, 1)
+shader_parameter/orb1_color = Color(0, 0.55, 0.95, 0.35)
+shader_parameter/orb2_color = Color(0.45, 0.15, 0.85, 0.28)
+shader_parameter/orb3_color = Color(0, 0.85, 0.8, 0.22)
+
+[node name="UpdateDialog" type="Window"]
+title = "3D Soundscape Studio Update"
+initial_position = 2
+size = Vector2i(620, 520)
+visible = false
+wrap_controls = true
+transient = true
+exclusive = true
+unresizable = false
+borderless = true
+transparent = true
+transparent_bg = true
+min_size = Vector2i(540, 420)
+script = ExtResource("1_upd_dlg")
+
+[node name="Background" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_backdrop")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.035, 0.048, 0.082, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderPanel" type="PanelContainer" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="HeaderMargin" type="MarginContainer" parent="Margin/VBox/HeaderPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="HeaderHBox" type="HBoxContainer" parent="Margin/VBox/HeaderPanel/HeaderMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Icon" type="TextureRect" parent="Margin/VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("3_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="Margin/VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "3D Soundscape Studio Update"
+
+[node name="BtnClose" type="Button" parent="Margin/VBox/HeaderPanel/HeaderMargin/HeaderHBox"]
+custom_minimum_size = Vector2(28, 24)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "✕"
+
+[node name="ContentPanel" type="PanelContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentMargin" type="MarginContainer" parent="Margin/VBox/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="FormVBox" type="VBoxContainer" parent="Margin/VBox/ContentPanel/ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatusBanner" type="PanelContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+
+[node name="BannerMargin" type="MarginContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/StatusBanner"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="BannerHBox" type="HBoxContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/StatusBanner/BannerMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VersionInfoVBox" type="VBoxContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/StatusBanner/BannerMargin/BannerHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="HeadlineLabel" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/StatusBanner/BannerMargin/BannerHBox/VersionInfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Checking for updates..."
+
+[node name="VersionCompareLabel" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/StatusBanner/BannerMargin/BannerHBox/VersionInfoVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Current: v2.0.0"
+
+[node name="ChangelogHeaderLabel" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Release Notes & Changelog:"
+
+[node name="ChangelogScroll" type="ScrollContainer" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="ChangelogText" type="RichTextLabel" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox/ChangelogScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 2
+theme_override_font_sizes/normal_font_size = 11
+bbcode_enabled = true
+text = "Fetching release details..."
+selection_enabled = true
+
+[node name="ProgressBar" type="ProgressBar" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+visible = false
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+show_percentage = false
+
+[node name="StatusLabel" type="Label" parent="Margin/VBox/ContentPanel/ContentMargin/FormVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Ready."
+
+[node name="ButtonHBox" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="BtnViewGithub" type="Button" parent="Margin/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(140, 30)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "🌐 View on GitHub"
+
+[node name="BtnCancel" type="Button" parent="Margin/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Remind Me Later"
+
+[node name="BtnAction" type="Button" parent="Margin/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(180, 30)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "🚀 Download & Install Update"

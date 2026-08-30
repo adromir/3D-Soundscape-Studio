@@ -20,6 +20,7 @@ static func get_categories_file() -> String:
 	return AppPaths.get_soundscape_categories_file()
 
 @onready var search_input: LineEdit = $VBox/TopBar/SearchBox/SearchInput if has_node("VBox/TopBar/SearchBox/SearchInput") else null
+@onready var btn_import_package: Button = $VBox/TopBar/BtnImportPackage if has_node("VBox/TopBar/BtnImportPackage") else null
 @onready var btn_download: Button = $VBox/TopBar/BtnDownload if has_node("VBox/TopBar/BtnDownload") else null
 @onready var category_hbox: HBoxContainer = $VBox/CategoryHBox if has_node("VBox/CategoryHBox") else null
 @onready var items_container: GridContainer = $VBox/LibraryScroll/ItemsContainer if has_node("VBox/LibraryScroll/ItemsContainer") else null
@@ -28,6 +29,8 @@ static func get_categories_file() -> String:
 var _add_cat_dialog: Window = null
 var _download_dialog: Window = null
 var _edit_dialog: Window = null
+var _file_dialog: FileDialog = null
+var _package_file_dialog: FileDialog = null
 var _category_buttons: Array[Button] = []
 
 # References for live download dialog updates
@@ -41,6 +44,10 @@ func _ready() -> void:
 	_client.progress_changed.connect(_on_client_progress)
 	_client.download_completed.connect(_on_client_completed)
 	_client.download_failed.connect(_on_client_failed)
+
+	if btn_import_package:
+		btn_import_package.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_import_package.pressed.connect(_prompt_import_package)
 
 	if btn_download:
 		btn_download.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -64,6 +71,9 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 	refresh_library()
 
 func update_localization() -> void:
+	if btn_import_package:
+		btn_import_package.text = LocalizationData.tr_key("BTN_IMPORT_LOCAL")
+		btn_import_package.tooltip_text = LocalizationData.tr_key("TOOLTIP_IMPORT_PACKAGE")
 	if btn_download:
 		btn_download.text = LocalizationData.tr_key("BTN_DOWNLOAD_IMPORT")
 		btn_download.tooltip_text = LocalizationData.tr_key("TOOLTIP_DOWNLOAD_IMPORT")
@@ -137,10 +147,12 @@ func _update_category_buttons() -> void:
 		btn.button_pressed = active
 		btn.modulate = Color.WHITE
 		if active:
-			btn.add_theme_color_override("font_color", pal.get("primary", Color.WHITE) if not is_light else Color(0.0, 0.35, 0.65))
-			btn.add_theme_color_override("font_pressed_color", pal.get("primary", Color.WHITE) if not is_light else Color(0.0, 0.35, 0.65))
+			var act_col: Color = Color.WHITE if is_light else pal.get("primary", Color.WHITE)
+			btn.add_theme_color_override("font_color", act_col)
+			btn.add_theme_color_override("font_pressed_color", act_col)
 		else:
-			btn.add_theme_color_override("font_color", pal.get("text_dim", Color(0.6, 0.6, 0.6)))
+			var inact_col: Color = Color(0.2, 0.25, 0.35) if is_light else pal.get("text_dim", Color(0.6, 0.6, 0.6))
+			btn.add_theme_color_override("font_color", inact_col)
 
 # ==================== DEDICATED DOWNLOAD & IMPORT DIALOG ====================
 
@@ -261,7 +273,7 @@ func _open_download_import_dialog() -> void:
 
 	# Progress & Status
 	_dlg_progress_bar = ProgressBar.new()
-	_dlg_progress_bar.custom_minimum_size = Vector2(0, 14)
+	_dlg_progress_bar.custom_minimum_size = Vector2(0, 16)
 	_dlg_progress_bar.visible = false
 	vbox.add_child(_dlg_progress_bar)
 
@@ -277,16 +289,31 @@ func _open_download_import_dialog() -> void:
 	btn_row.add_theme_constant_override("separation", 10)
 	vbox.add_child(btn_row)
 
+	var btn_import_pkg_dlg: Button = Button.new()
+	btn_import_pkg_dlg.text = LocalizationData.tr_key("BTN_IMPORT_LOCAL")
+	btn_import_pkg_dlg.icon = load("res://assets/icons/package.svg")
+	btn_import_pkg_dlg.tooltip_text = LocalizationData.tr_key("TOOLTIP_IMPORT_PACKAGE")
+	btn_import_pkg_dlg.add_theme_constant_override("h_separation", 6)
+	btn_import_pkg_dlg.custom_minimum_size = Vector2(150, 32)
+	btn_import_pkg_dlg.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn_import_pkg_dlg.pressed.connect(func():
+		_download_dialog.queue_free()
+		_prompt_import_package()
+	)
+	btn_row.add_child(btn_import_pkg_dlg)
+
 	var btn_cancel: Button = Button.new()
 	btn_cancel.text = LocalizationData.tr_key("SETTINGS_CANCEL")
-	btn_cancel.custom_minimum_size = Vector2(80, 30)
+	btn_cancel.custom_minimum_size = Vector2(90, 32)
 	btn_cancel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_cancel.pressed.connect(_download_dialog.queue_free)
 	btn_row.add_child(btn_cancel)
 
 	_dlg_download_btn = Button.new()
 	_dlg_download_btn.text = LocalizationData.tr_key("BTN_DOWNLOAD_IMPORT")
-	_dlg_download_btn.custom_minimum_size = Vector2(150, 30)
+	_dlg_download_btn.icon = load("res://assets/icons/download.svg")
+	_dlg_download_btn.add_theme_constant_override("h_separation", 8)
+	_dlg_download_btn.custom_minimum_size = Vector2(180, 32)
 	_dlg_download_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_dlg_download_btn.pressed.connect(func():
 		var u_text: String = url_edit.text.strip_edges()
@@ -316,10 +343,11 @@ func _prompt_edit_soundscape(item: Dictionary) -> void:
 	var curr_title: String = item.get("title", "")
 	var curr_author: String = item.get("author", "Unknown")
 	var curr_cat: String = item.get("category", "Nature")
+	var selected_cover_path: String = ""
 
 	_edit_dialog = Window.new()
 	_edit_dialog.title = ""
-	_edit_dialog.size = Vector2i(480, 280)
+	_edit_dialog.size = Vector2i(500, 390)
 	_edit_dialog.exclusive = true
 	_edit_dialog.wrap_controls = true
 	_edit_dialog.transient = true
@@ -394,7 +422,7 @@ func _prompt_edit_soundscape(item: Dictionary) -> void:
 	main_vbox.add_child(margin)
 
 	var vbox: VBoxContainer = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
+	vbox.add_theme_constant_override("separation", 10)
 	margin.add_child(vbox)
 
 	var name_lbl: Label = Label.new()
@@ -407,20 +435,34 @@ func _prompt_edit_soundscape(item: Dictionary) -> void:
 	name_edit.custom_minimum_size = Vector2(0, 30)
 	vbox.add_child(name_edit)
 
+	var author_and_cat: HBoxContainer = HBoxContainer.new()
+	author_and_cat.add_theme_constant_override("separation", 12)
+	vbox.add_child(author_and_cat)
+
+	var author_box: VBoxContainer = VBoxContainer.new()
+	author_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	author_box.add_theme_constant_override("separation", 4)
+	author_and_cat.add_child(author_box)
+
 	var author_lbl: Label = Label.new()
 	author_lbl.text = LocalizationData.tr_key("LBL_AUTHOR")
 	author_lbl.add_theme_font_size_override("font_size", 11)
-	vbox.add_child(author_lbl)
+	author_box.add_child(author_lbl)
 
 	var author_edit: LineEdit = LineEdit.new()
 	author_edit.text = curr_author
 	author_edit.custom_minimum_size = Vector2(0, 30)
-	vbox.add_child(author_edit)
+	author_box.add_child(author_edit)
+
+	var cat_box: VBoxContainer = VBoxContainer.new()
+	cat_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cat_box.add_theme_constant_override("separation", 4)
+	author_and_cat.add_child(cat_box)
 
 	var cat_lbl: Label = Label.new()
 	cat_lbl.text = LocalizationData.tr_key("LBL_CATEGORY")
 	cat_lbl.add_theme_font_size_override("font_size", 11)
-	vbox.add_child(cat_lbl)
+	cat_box.add_child(cat_lbl)
 
 	var cat_opt: OptionButton = OptionButton.new()
 	cat_opt.custom_minimum_size = Vector2(0, 30)
@@ -434,7 +476,80 @@ func _prompt_edit_soundscape(item: Dictionary) -> void:
 			c_idx += 1
 	if cat_opt.item_count > 0:
 		cat_opt.select(sel_cat_idx)
-	vbox.add_child(cat_opt)
+	cat_box.add_child(cat_opt)
+
+	# --- Cover Artwork Section ---
+	var cover_lbl: Label = Label.new()
+	cover_lbl.text = LocalizationData.tr_key("LBL_COVER_PREVIEW")
+	cover_lbl.add_theme_font_size_override("font_size", 11)
+	vbox.add_child(cover_lbl)
+
+	var cover_row: HBoxContainer = HBoxContainer.new()
+	cover_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(cover_row)
+
+	var cover_preview_panel: PanelContainer = PanelContainer.new()
+	cover_preview_panel.custom_minimum_size = Vector2(100, 60)
+	var cov_sb: StyleBoxFlat = StyleBoxFlat.new()
+	cov_sb.bg_color = pal["btn_normal"]
+	cov_sb.border_color = pal["panel_border"]
+	cov_sb.set_border_width_all(1)
+	cov_sb.set_corner_radius_all(6)
+	cover_preview_panel.add_theme_stylebox_override("panel", cov_sb)
+	cover_row.add_child(cover_preview_panel)
+
+	var cover_tex_rect: TextureRect = TextureRect.new()
+	cover_tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	cover_tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	cover_tex_rect.custom_minimum_size = Vector2(98, 58)
+	var existing_tex: Texture2D = LibraryManager.load_soundscape_cover_texture(folder_name)
+	if existing_tex:
+		cover_tex_rect.texture = existing_tex
+	else:
+		cover_tex_rect.texture = load("res://assets/icons/library.svg")
+		cover_tex_rect.modulate = pal["primary"]
+	cover_preview_panel.add_child(cover_tex_rect)
+
+	var cover_btn_box: VBoxContainer = VBoxContainer.new()
+	cover_btn_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cover_btn_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	cover_btn_box.add_theme_constant_override("separation", 4)
+	cover_row.add_child(cover_btn_box)
+
+	var btn_pick_cover: Button = Button.new()
+	btn_pick_cover.text = LocalizationData.tr_key("BTN_CHANGE_COVER")
+	btn_pick_cover.icon = load("res://assets/icons/image.svg")
+	btn_pick_cover.add_theme_constant_override("h_separation", 6)
+	btn_pick_cover.custom_minimum_size = Vector2(160, 30)
+	btn_pick_cover.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	cover_btn_box.add_child(btn_pick_cover)
+
+	var cover_file_lbl: Label = Label.new()
+	cover_file_lbl.text = ""
+	cover_file_lbl.add_theme_font_size_override("font_size", 10)
+	cover_file_lbl.add_theme_color_override("font_color", pal["text_dim"])
+	cover_btn_box.add_child(cover_file_lbl)
+
+	btn_pick_cover.pressed.connect(func():
+		if _file_dialog and is_instance_valid(_file_dialog):
+			_file_dialog.queue_free()
+		_file_dialog = FileDialog.new()
+		_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+		_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+		_file_dialog.filters = ["*.png, *.jpg, *.jpeg, *.webp ; Image Files"]
+		_file_dialog.size = Vector2i(700, 480)
+		_file_dialog.file_selected.connect(func(path: String):
+			selected_cover_path = path
+			var img: Image = Image.new()
+			if img.load(path) == OK:
+				cover_tex_rect.texture = ImageTexture.create_from_image(img)
+				cover_tex_rect.modulate = Color.WHITE
+			cover_file_lbl.text = path.get_file()
+		)
+		ThemeManager.apply_theme(_file_dialog, ThemeManager.current_theme)
+		add_child(_file_dialog)
+		_file_dialog.popup_centered()
+	)
 
 	# Button Row
 	var btn_row: HBoxContainer = HBoxContainer.new()
@@ -442,21 +557,34 @@ func _prompt_edit_soundscape(item: Dictionary) -> void:
 	btn_row.add_theme_constant_override("separation", 10)
 	vbox.add_child(btn_row)
 
+	var btn_export_pkg: Button = Button.new()
+	btn_export_pkg.text = LocalizationData.tr_key("BTN_EXPORT_PACKAGE")
+	btn_export_pkg.icon = load("res://assets/icons/package.svg")
+	btn_export_pkg.tooltip_text = LocalizationData.tr_key("TOOLTIP_EXPORT_PACKAGE")
+	btn_export_pkg.custom_minimum_size = Vector2(130, 32)
+	btn_export_pkg.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	btn_export_pkg.pressed.connect(func():
+		_prompt_export_package(folder_name)
+	)
+	btn_row.add_child(btn_export_pkg)
+
 	var btn_cancel: Button = Button.new()
 	btn_cancel.text = LocalizationData.tr_key("SETTINGS_CANCEL")
-	btn_cancel.custom_minimum_size = Vector2(80, 30)
+	btn_cancel.custom_minimum_size = Vector2(90, 32)
 	btn_cancel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_cancel.pressed.connect(_edit_dialog.queue_free)
 	btn_row.add_child(btn_cancel)
 
 	var btn_save: Button = Button.new()
 	btn_save.text = LocalizationData.tr_key("BTN_SAVE_CHANGES")
-	btn_save.custom_minimum_size = Vector2(120, 30)
+	btn_save.custom_minimum_size = Vector2(140, 32)
 	btn_save.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_save.pressed.connect(func():
 		var new_title: String = name_edit.text.strip_edges()
 		var new_author: String = author_edit.text.strip_edges()
 		var new_cat: String = cat_opt.get_item_text(cat_opt.selected) if cat_opt.item_count > 0 else "Nature"
+		if not selected_cover_path.is_empty():
+			LibraryManager.set_soundscape_cover(folder_name, selected_cover_path)
 		LibraryManager.update_soundscape_info(folder_name, new_title, new_cat, new_author)
 		refresh_library()
 		_edit_dialog.queue_free()
@@ -727,7 +855,7 @@ func refresh_library() -> void:
 		btn_load.pressed.connect(func(): _load_soundscape(item))
 		btn_row.add_child(btn_load)
 
-		# 2. Edit Soundscape Button (Title / Category / Author)
+		# 2. Edit Soundscape Button (Title / Category / Author / Cover)
 		var btn_edit: Button = Button.new()
 		btn_edit.tooltip_text = LocalizationData.tr_key("TOOLTIP_EDIT_SOUNDSCAPE")
 		btn_edit.icon = load("res://assets/icons/edit.svg")
@@ -737,15 +865,15 @@ func refresh_library() -> void:
 		btn_edit.pressed.connect(func(): _prompt_edit_soundscape(item))
 		btn_row.add_child(btn_edit)
 
-		# 3. Change Cover Button
-		var btn_cov: Button = Button.new()
-		btn_cov.tooltip_text = LocalizationData.tr_key("TOOLTIP_CHANGE_COVER")
-		btn_cov.icon = load("res://assets/icons/image.svg")
-		btn_cov.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		btn_cov.custom_minimum_size = Vector2(32, 32)
-		btn_cov.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn_cov.pressed.connect(func(): _prompt_change_cover(slug))
-		btn_row.add_child(btn_cov)
+		# 3. Export Package Button (.3dscape)
+		var btn_pkg: Button = Button.new()
+		btn_pkg.tooltip_text = LocalizationData.tr_key("TOOLTIP_EXPORT_PACKAGE")
+		btn_pkg.icon = load("res://assets/icons/package.svg")
+		btn_pkg.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_pkg.custom_minimum_size = Vector2(32, 32)
+		btn_pkg.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_pkg.pressed.connect(func(): _prompt_export_package(slug))
+		btn_row.add_child(btn_pkg)
 
 		# 4. Delete Button
 		var btn_del: Button = Button.new()
@@ -796,3 +924,53 @@ func _delete_soundscape(item: Dictionary) -> void:
 
 	LibraryManager.delete_soundscape(folder_name)
 	refresh_library()
+
+# ==================== PACKAGE IMPORT & EXPORT ====================
+
+func _prompt_import_package() -> void:
+	if _package_file_dialog and is_instance_valid(_package_file_dialog):
+		_package_file_dialog.queue_free()
+
+	_package_file_dialog = FileDialog.new()
+	_package_file_dialog.title = LocalizationData.tr_key("DLG_IMPORT_PKG_TITLE")
+	_package_file_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	_package_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_package_file_dialog.filters = PackedStringArray(["*.3dscape, *.soundscape, *.zip ; 3D Soundscape Packages (*.3dscape, *.zip)"])
+	_package_file_dialog.size = Vector2i(720, 480)
+	_package_file_dialog.use_native_dialog = false
+	_package_file_dialog.file_selected.connect(func(path: String):
+		var imported_proj: SoundscapeData.SoundscapeProject = LibraryManager.import_soundscape_package(path)
+		if imported_proj:
+			_load_categories()
+			_setup_category_filters()
+			refresh_library()
+			print("✔ Imported soundscape package: ", imported_proj.title)
+			soundscape_loaded.emit(imported_proj)
+	)
+	ThemeManager.apply_theme(_package_file_dialog, ThemeManager.current_theme)
+	add_child(_package_file_dialog)
+	_package_file_dialog.popup_centered()
+
+func _prompt_export_package(folder_or_slug: String) -> void:
+	if _package_file_dialog and is_instance_valid(_package_file_dialog):
+		_package_file_dialog.queue_free()
+
+	_package_file_dialog = FileDialog.new()
+	_package_file_dialog.title = LocalizationData.tr_key("DLG_EXPORT_PKG_TITLE")
+	_package_file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+	_package_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_package_file_dialog.filters = PackedStringArray(["*.3dscape ; 3D Soundscape Package (*.3dscape)", "*.zip ; ZIP Archive (*.zip)"])
+	_package_file_dialog.current_file = folder_or_slug + ".3dscape"
+	_package_file_dialog.size = Vector2i(720, 480)
+	_package_file_dialog.use_native_dialog = false
+	_package_file_dialog.file_selected.connect(func(out_path: String):
+		var final_out: String = out_path
+		if not final_out.ends_with(".3dscape") and not final_out.ends_with(".zip") and not final_out.ends_with(".soundscape"):
+			final_out += ".3dscape"
+		var success: bool = LibraryManager.export_soundscape_by_folder(folder_or_slug, final_out)
+		if success:
+			print("✔ Exported soundscape package to: ", final_out)
+	)
+	ThemeManager.apply_theme(_package_file_dialog, ThemeManager.current_theme)
+	add_child(_package_file_dialog)
+	_package_file_dialog.popup_centered()

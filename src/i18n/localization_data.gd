@@ -45,12 +45,138 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Archivo",
 		Language.IT: "File"
 	},
+	"MENU_FILE_NEW": {
+		Language.EN: "New Soundscape",
+		Language.DE: "Neues Soundscape",
+		Language.FR: "Nouveau soundscape",
+		Language.ES: "Nuevo soundscape",
+		Language.IT: "Nuovo soundscape"
+	},
+	"MENU_FILE_OPEN": {
+		Language.EN: "Open Soundscape...",
+		Language.DE: "Soundscape öffnen...",
+		Language.FR: "Ouvrir un soundscape...",
+		Language.ES: "Abrir soundscape...",
+		Language.IT: "Apri soundscape..."
+	},
+	"MENU_FILE_RECENT": {
+		Language.EN: "Recent Projects",
+		Language.DE: "Zuletzt geöffnet",
+		Language.FR: "Projets récents",
+		Language.ES: "Proyectos recientes",
+		Language.IT: "Progetti recenti"
+	},
+	"MENU_FILE_RECENT_EMPTY": {
+		Language.EN: "No Recent Projects",
+		Language.DE: "Keine zuletzt geöffneten Projekte",
+		Language.FR: "Aucun projet récent",
+		Language.ES: "Sin proyectos recientes",
+		Language.IT: "Nessun progetto recente"
+	},
+	"MENU_FILE_RECENT_CLEAR": {
+		Language.EN: "Clear Recent Projects",
+		Language.DE: "Verlauf leeren",
+		Language.FR: "Effacer l'historique",
+		Language.ES: "Borrar historial",
+		Language.IT: "Cancella cronologia"
+	},
+	"MENU_FILE_SAVE": {
+		Language.EN: "Save Soundscape",
+		Language.DE: "Soundscape speichern",
+		Language.FR: "Sauvegarder le soundscape",
+		Language.ES: "Guardar soundscape",
+		Language.IT: "Salva soundscape"
+	},
+	"MENU_FILE_SAVE_AS": {
+		Language.EN: "Save Soundscape As...",
+		Language.DE: "Soundscape speichern unter...",
+		Language.FR: "Sauvegarder sous...",
+		Language.ES: "Guardar como...",
+		Language.IT: "Salva come..."
+	},
+	"MENU_FILE_EXPORT": {
+		Language.EN: "Export Audio Mix...",
+		Language.DE: "Audiomix exportieren...",
+		Language.FR: "Exporter le mix audio...",
+		Language.ES: "Exportar mezcla de audio...",
+		Language.IT: "Esporta mix audio..."
+	},
+	"MENU_FILE_EXPORT_PACKAGE": {
+		Language.EN: "Export Soundscape Package (.3dscape)...",
+		Language.DE: "Soundscape-Paket exportieren (.3dscape)...",
+		Language.FR: "Exporter le paquet de soundscape (.3dscape)...",
+		Language.ES: "Exportar paquete de soundscape (.3dscape)...",
+		Language.IT: "Esporta pacchetto soundscape (.3dscape)..."
+	},
+	"MENU_FILE_IMPORT_PACKAGE": {
+		Language.EN: "Import Soundscape Package (.3dscape)...",
+		Language.DE: "Soundscape-Paket importieren (.3dscape)...",
+		Language.FR: "Importer un paquet de soundscape (.3dscape)...",
+		Language.ES: "Importar paquete de soundscape (.3dscape)...",
+		Language.IT: "Importa pacchetto soundscape (.3dscape)..."
+	},
+	"MENU_FILE_IMPORT": {
+		Language.EN: "Download & Import Soundscape...",
+		Language.DE: "Soundscape herunterladen & importieren...",
+		Language.FR: "Télécharger & importer un soundscape...",
+		Language.ES: "Descargar e importar soundscape...",
+		Language.IT: "Scarica e importa soundscape..."
+	},
+	"MENU_FILE_PREFERENCES": {
+		Language.EN: "Preferences...",
+		Language.DE: "Einstellungen...",
+		Language.FR: "Préférences...",
+		Language.ES: "Preferencias...",
+		Language.IT: "Preferenze..."
+	},
+	"MENU_FILE_EXIT": {
+		Language.EN: "Exit",
+		Language.DE: "Beenden",
+		Language.FR: "Quitter",
+		Language.ES: "Salir",
+		Language.IT: "Esci"
+	},
 	"MENU_EDIT": {
 		Language.EN: "Edit",
 		Language.DE: "Bearbeiten",
 		Language.FR: "Édition",
 		Language.ES: "Editar",
 		Language.IT: "Modifica"
+	},
+	"MENU_EDIT_ADD_TRACK": {
+		Language.EN: "Add Audio Track...",
+		Language.DE: "Audiospur hinzufügen...",
+		Language.FR: "Ajouter une piste audio...",
+		Language.ES: "Añadir pista de audio...",
+		Language.IT: "Aggiungi traccia audio..."
+	},
+	"MENU_EDIT_CLEAR_TRACKS": {
+		Language.EN: "Clear All Audio Tracks",
+		Language.DE: "Alle Audiospuren löschen",
+		Language.FR: "Effacer toutes les pistes",
+		Language.ES: "Borrar todas las pistas",
+		Language.IT: "Cancella tutte le tracce"
+	},
+	"MENU_EDIT_RESET_STEM": {
+		Language.EN: "Reset Selected Stem",
+		Language.DE: "Ausgewählte Spur zurücksetzen",
+		Language.FR: "Réinitialiser la piste sélectionnée",
+		Language.ES: "Restablecer pista seleccionada",
+		Language.IT: "Ripristina traccia selezionata"
+	},
+	"MENU_EDIT_RESET_ALL": {
+		Language.EN: "Reset All Stems",
+		Language.DE: "Alle Spuren zurücksetzen",
+		Language.FR: "Réinitialiser toutes les pistes",
+		Language.ES: "Restablecer todas las pistas",
+		Language.IT: "Ripristina tutte le tracce"
+	},
+	"MENU_EDIT_RESET_PATH": {
+		Language.EN: "Reset Listener Path",
+		Language.DE: "Hörer-Pfad zurücksetzen",
+		Language.FR: "Réinitialiser la trajectoire",
+		Language.ES: "Restablecer trayectoria",
+		Language.IT: "Ripristina percorso"
 	},
 	"MENU_VIEW": {
 		Language.EN: "View",
@@ -59,6 +185,55 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Ver",
 		Language.IT: "Visualizza"
 	},
+	"MENU_VIEW_STUDIO": {
+		Language.EN: "Studio Radar View",
+		Language.DE: "Studio-Radar-Ansicht",
+		Language.FR: "Vue radar du studio",
+		Language.ES: "Vista de radar de estudio",
+		Language.IT: "Vista radar studio"
+	},
+	"MENU_VIEW_AUTOMATION": {
+		Language.EN: "Listener Automation",
+		Language.DE: "Hörer-Automation",
+		Language.FR: "Automatisation de trajectoire",
+		Language.ES: "Automatización de trayectoria",
+		Language.IT: "Automazione percorso"
+	},
+	"MENU_VIEW_LIBRARY_SOUNDSCAPES": {
+		Language.EN: "Soundscape Library",
+		Language.DE: "Soundscape-Bibliothek",
+		Language.FR: "Bibliothèque de soundscapes",
+		Language.ES: "Biblioteca de soundscapes",
+		Language.IT: "Libreria soundscape"
+	},
+	"MENU_VIEW_LIBRARY_SAMPLES": {
+		Language.EN: "Sounds Library",
+		Language.DE: "Sound-Bibliothek",
+		Language.FR: "Bibliothèque de sons",
+		Language.ES: "Biblioteca de sonidos",
+		Language.IT: "Libreria suoni"
+	},
+	"MENU_VIEW_THEMES": {
+		Language.EN: "Thematic Style",
+		Language.DE: "Design-Stil",
+		Language.FR: "Style visuel",
+		Language.ES: "Estilo visual",
+		Language.IT: "Stile visivo"
+	},
+	"MENU_VIEW_LANGUAGE": {
+		Language.EN: "Language",
+		Language.DE: "Sprache",
+		Language.FR: "Langue",
+		Language.ES: "Idioma",
+		Language.IT: "Lingua"
+	},
+	"MENU_VIEW_FULLSCREEN": {
+		Language.EN: "Toggle Fullscreen",
+		Language.DE: "Vollbild umschalten",
+		Language.FR: "Plein écran",
+		Language.ES: "Pantalla completa",
+		Language.IT: "Schermo intero"
+	},
 	"MENU_PLAYBACK": {
 		Language.EN: "Playback",
 		Language.DE: "Wiedergabe",
@@ -66,12 +241,194 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Reproducción",
 		Language.IT: "Riproduzione"
 	},
+	"MENU_PLAYBACK_PLAY_ALL": {
+		Language.EN: "Play / Pause",
+		Language.DE: "Wiedergabe / Pause",
+		Language.FR: "Lecture / Pause",
+		Language.ES: "Reproducir / Pausa",
+		Language.IT: "Riproduci / Pausa"
+	},
+	"MENU_PLAYBACK_PAUSE": {
+		Language.EN: "Pause Playback",
+		Language.DE: "Wiedergabe pausieren",
+		Language.FR: "Pause lecture",
+		Language.ES: "Pausar reproducción",
+		Language.IT: "Metti in pausa"
+	},
+	"MENU_PLAYBACK_STOP": {
+		Language.EN: "Stop All Playback",
+		Language.DE: "Wiedergabe stoppen",
+		Language.FR: "Arrêter la lecture",
+		Language.ES: "Detener reproducción",
+		Language.IT: "Interrompi riproduzione"
+	},
+	"MENU_PLAYBACK_SPEAKER_SETUP": {
+		Language.EN: "Speaker Setup",
+		Language.DE: "Lautsprecher-Setup",
+		Language.FR: "Configuration des haut-parleurs",
+		Language.ES: "Configuración de altavoces",
+		Language.IT: "Configurazione altoparlanti"
+	},
 	"MENU_HELP": {
 		Language.EN: "Help",
 		Language.DE: "Hilfe",
 		Language.FR: "Aide",
 		Language.ES: "Ayuda",
 		Language.IT: "Aiuto"
+	},
+	"MENU_HELP_WIKI": {
+		Language.EN: "Documentation / Wiki",
+		Language.DE: "Dokumentation / Wiki",
+		Language.FR: "Documentation / Wiki",
+		Language.ES: "Documentación / Wiki",
+		Language.IT: "Documentazione / Wiki"
+	},
+	"MENU_HELP_CHECK_UPDATES": {
+		Language.EN: "Check for Updates...",
+		Language.DE: "Nach Updates suchen...",
+		Language.FR: "Vérifier les mises à jour...",
+		Language.ES: "Buscar actualizaciones...",
+		Language.IT: "Controlla aggiornamenti..."
+	},
+	"MENU_HELP_GITHUB": {
+		Language.EN: "GitHub Repository",
+		Language.DE: "GitHub-Repository",
+		Language.FR: "Dépôt GitHub",
+		Language.ES: "Repositorio de GitHub",
+		Language.IT: "Repository GitHub"
+	},
+	"MENU_HELP_ABOUT": {
+		Language.EN: "About 3D Soundscape Studio",
+		Language.DE: "Über 3D Soundscape Studio",
+		Language.FR: "À propos de 3D Soundscape Studio",
+		Language.ES: "Acerca de 3D Soundscape Studio",
+		Language.IT: "Informazioni su 3D Soundscape Studio"
+	},
+	"DLG_UPDATE_TITLE": {
+		Language.EN: "3D Soundscape Studio Update",
+		Language.DE: "3D Soundscape Studio Aktualisierung",
+		Language.FR: "Mise à jour de 3D Soundscape Studio",
+		Language.ES: "Actualización de 3D Soundscape Studio",
+		Language.IT: "Aggiornamento 3D Soundscape Studio"
+	},
+	"UPDATE_CHECKING": {
+		Language.EN: "Checking for updates on GitHub...",
+		Language.DE: "Suche nach Updates auf GitHub...",
+		Language.FR: "Recherche de mises à jour sur GitHub...",
+		Language.ES: "Buscando actualizaciones en GitHub...",
+		Language.IT: "Ricerca di aggiornamenti su GitHub..."
+	},
+	"UPDATE_AVAILABLE_TITLE": {
+		Language.EN: "New Update Available!",
+		Language.DE: "Neues Update verfügbar!",
+		Language.FR: "Nouvelle mise à jour disponible !",
+		Language.ES: "¡Nueva actualización disponible!",
+		Language.IT: "Nuovo aggiornamento disponibile!"
+	},
+	"UPDATE_UP_TO_DATE_TITLE": {
+		Language.EN: "You're up to date!",
+		Language.DE: "Sie sind auf dem neuesten Stand!",
+		Language.FR: "Vous êtes à jour !",
+		Language.ES: "¡Estás actualizado!",
+		Language.IT: "Sei aggiornato!"
+	},
+	"UPDATE_UP_TO_DATE_DESC": {
+		Language.EN: "You are using the latest version of 3D Soundscape Studio (%s).",
+		Language.DE: "Sie verwenden die neueste Version von 3D Soundscape Studio (%s).",
+		Language.FR: "Vous utilisez la dernière version de 3D Soundscape Studio (%s).",
+		Language.ES: "Estás utilizando la última versión de 3D Soundscape Studio (%s).",
+		Language.IT: "Stai utilizzando l'ultima versione di 3D Soundscape Studio (%s)."
+	},
+	"UPDATE_CURRENT_VERSION": {
+		Language.EN: "Installed Version:",
+		Language.DE: "Installierte Version:",
+		Language.FR: "Version installée :",
+		Language.ES: "Versión instalada:",
+		Language.IT: "Versione installata:"
+	},
+	"UPDATE_LATEST_VERSION": {
+		Language.EN: "Latest Version:",
+		Language.DE: "Neueste Version:",
+		Language.FR: "Dernière version :",
+		Language.ES: "Última versión:",
+		Language.IT: "Ultima versione:"
+	},
+	"UPDATE_CHANGELOG": {
+		Language.EN: "Release Notes & Changelog:",
+		Language.DE: "Versionshinweise & Änderungen:",
+		Language.FR: "Notes de version & changements :",
+		Language.ES: "Notas de la versión y cambios:",
+		Language.IT: "Note di rilascio e modifiche:"
+	},
+	"BTN_DOWNLOAD_UPDATE": {
+		Language.EN: "🚀 Download & Install Update",
+		Language.DE: "🚀 Update herunterladen & installieren",
+		Language.FR: "🚀 Télécharger et installer la mise à jour",
+		Language.ES: "🚀 Descargar e instalar actualización",
+		Language.IT: "🚀 Scarica e installa aggiornamento"
+	},
+	"BTN_INSTALL_RESTART": {
+		Language.EN: "🔄 Restart & Apply Update",
+		Language.DE: "🔄 Neu starten & Update anwenden",
+		Language.FR: "🔄 Redémarrer et appliquer la mise à jour",
+		Language.ES: "🔄 Reiniciar y aplicar actualización",
+		Language.IT: "🔄 Riavvia e applica aggiornamento"
+	},
+	"BTN_VIEW_GITHUB": {
+		Language.EN: "🌐 View on GitHub",
+		Language.DE: "🌐 Auf GitHub ansehen",
+		Language.FR: "🌐 Voir sur GitHub",
+		Language.ES: "🌐 Ver en GitHub",
+		Language.IT: "🌐 Visualizza su GitHub"
+	},
+	"BTN_REMIND_LATER": {
+		Language.EN: "Remind Me Later",
+		Language.DE: "Später erinnern",
+		Language.FR: "Me rappeler plus tard",
+		Language.ES: "Recordármelo más tarde",
+		Language.IT: "Ricordamelo più tardi"
+	},
+	"UPDATE_DOWNLOADING": {
+		Language.EN: "Downloading update: %s...",
+		Language.DE: "Update wird heruntergeladen: %s...",
+		Language.FR: "Téléchargement de la mise à jour : %s...",
+		Language.ES: "Descargando actualización: %s...",
+		Language.IT: "Download dell'aggiornamento: %s..."
+	},
+	"UPDATE_DOWNLOAD_COMPLETED": {
+		Language.EN: "✅ Update downloaded successfully. Ready to restart and apply.",
+		Language.DE: "✅ Update erfolgreich heruntergeladen. Bereit zum Neustart.",
+		Language.FR: "✅ Mise à jour téléchargée avec succès. Prêt à redémarrer.",
+		Language.ES: "✅ Actualización descargada con éxito. Listo para reiniciar.",
+		Language.IT: "✅ Aggiornamento scaricato con successo. Pronto al riavvio."
+	},
+	"UPDATE_FAILED": {
+		Language.EN: "Update check/download failed: %s",
+		Language.DE: "Update-Prüfung/Download fehlgeschlagen: %s",
+		Language.FR: "Échec de la vérification/du téléchargement de la mise à jour : %s",
+		Language.ES: "Error al comprobar/descargar la actualización: %s",
+		Language.IT: "Controllo/download dell'aggiornamento non riuscito: %s"
+	},
+	"SETTINGS_CHECK_UPDATES_STARTUP": {
+		Language.EN: "Check for updates automatically on startup",
+		Language.DE: "Beim Start automatisch nach Updates suchen",
+		Language.FR: "Vérifier automatiquement les mises à jour au démarrage",
+		Language.ES: "Comprobar actualizaciones automáticamente al iniciar",
+		Language.IT: "Controlla automaticamente gli aggiornamenti all'avvio"
+	},
+	"BTN_CHANGE_COVER": {
+		Language.EN: "Change Cover Image...",
+		Language.DE: "Titelbild ändern...",
+		Language.FR: "Changer la pochette...",
+		Language.ES: "Cambiar imagen de portada...",
+		Language.IT: "Cambia immagine di copertina..."
+	},
+	"LBL_COVER_PREVIEW": {
+		Language.EN: "Cover Artwork:",
+		Language.DE: "Titelbild-Vorschau:",
+		Language.FR: "Aperçu de la pochette :",
+		Language.ES: "Vista previa de la portada:",
+		Language.IT: "Anteprima copertina:"
 	},
 	"BTN_PLAY": {
 		Language.EN: "Play",
@@ -612,62 +969,6 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Biblioteca de Soundscapes",
 		Language.IT: "Libreria Soundscape"
 	},
-	"MENU_FILE_RECENT": {
-		Language.EN: "Open Recent",
-		Language.DE: "Zuletzt geöffnet",
-		Language.FR: "Ouvrir récents",
-		Language.ES: "Abrir recientes",
-		Language.IT: "Apri recenti"
-	},
-	"MENU_FILE_CLEAR_RECENT": {
-		Language.EN: "Clear Recent Projects",
-		Language.DE: "Zuletzt geöffnete löschen",
-		Language.FR: "Effacer les projets récents",
-		Language.ES: "Borrar proyectos recientes",
-		Language.IT: "Cancella progetti recenti"
-	},
-	"MENU_FILE_NO_RECENT": {
-		Language.EN: "No Recent Soundscapes",
-		Language.DE: "Keine zuletzt geöffneten Soundscapes",
-		Language.FR: "Aucun soundscape récent",
-		Language.ES: "No hay soundscapes recientes",
-		Language.IT: "Nessun soundscape recente"
-	},
-	"MENU_HELP_WIKI": {
-		Language.EN: "Wiki & Documentation...",
-		Language.DE: "Wiki & Dokumentation...",
-		Language.FR: "Wiki & Documentation...",
-		Language.ES: "Wiki y Documentación...",
-		Language.IT: "Wiki e Documentazione..."
-	},
-	"MENU_HELP_GITHUB": {
-		Language.EN: "GitHub Repository...",
-		Language.DE: "GitHub-Repository...",
-		Language.FR: "Dépôt GitHub...",
-		Language.ES: "Repositorio GitHub...",
-		Language.IT: "Repository GitHub..."
-	},
-	"MENU_HELP_ABOUT": {
-		Language.EN: "About 3D Soundscape Studio...",
-		Language.DE: "Über 3D Soundscape Studio...",
-		Language.FR: "À propos de 3D Soundscape Studio...",
-		Language.ES: "Acerca de 3D Soundscape Studio...",
-		Language.IT: "Informazioni su 3D Soundscape Studio..."
-	},
-	"MENU_VIEW_LANGUAGE": {
-		Language.EN: "Language",
-		Language.DE: "Sprache",
-		Language.FR: "Langue",
-		Language.ES: "Idioma",
-		Language.IT: "Lingua"
-	},
-	"MENU_VIEW_THEME": {
-		Language.EN: "Thematic Style",
-		Language.DE: "Design-Stil",
-		Language.FR: "Style visuel",
-		Language.ES: "Estilo visual",
-		Language.IT: "Stile visivo"
-	},
 	"SETTINGS_TAB_AUDIO": {
 		Language.EN: "Audio",
 		Language.DE: "Audio",
@@ -1157,6 +1458,76 @@ const TRANSLATIONS: Dictionary = {
 		Language.FR: "🌐 Tapis sonore omniprésent (Actif sur tous les canaux sans atténuation 3D)",
 		Language.ES: "🌐 Capa sonora omnipresente (Activo en todos los canales sin atenuación 3D)",
 		Language.IT: "🌐 Tappeto sonoro onnipresente (Attivo su tutti i canali senza attenuazione 3D)"
+	},
+	"BTN_IMPORT_LOCAL": {
+		Language.EN: "Import Package...",
+		Language.DE: "Paket importieren...",
+		Language.FR: "Importer paquet...",
+		Language.ES: "Importar paquete...",
+		Language.IT: "Importa pacchetto..."
+	},
+	"TOOLTIP_IMPORT_PACKAGE": {
+		Language.EN: "Import local soundscape package (.3dscape, .zip)",
+		Language.DE: "Lokales Soundscape-Paket importieren (.3dscape, .zip)",
+		Language.FR: "Importer un paquet de soundscape local (.3dscape, .zip)",
+		Language.ES: "Importar paquete de soundscape local (.3dscape, .zip)",
+		Language.IT: "Importa pacchetto soundscape locale (.3dscape, .zip)"
+	},
+	"BTN_EXPORT_PACKAGE": {
+		Language.EN: "Export Package",
+		Language.DE: "Paket exportieren",
+		Language.FR: "Exporter paquet",
+		Language.ES: "Exportar paquete",
+		Language.IT: "Esporta pacchetto"
+	},
+	"TOOLTIP_EXPORT_PACKAGE": {
+		Language.EN: "Export soundscape project package (.3dscape) to share with others",
+		Language.DE: "Soundscape-Projektpaket (.3dscape) zum Teilen exportieren",
+		Language.FR: "Exporter le paquet de projet soundscape (.3dscape) pour le partager",
+		Language.ES: "Exportar paquete de proyecto soundscape (.3dscape) para compartir",
+		Language.IT: "Esporta il pacchetto di progetto soundscape (.3dscape) per la condivisione"
+	},
+	"DLG_IMPORT_PKG_TITLE": {
+		Language.EN: "Select Soundscape Package to Import",
+		Language.DE: "Soundscape-Paket zum Importieren auswählen",
+		Language.FR: "Sélectionner le paquet de soundscape à importer",
+		Language.ES: "Seleccionar paquete de soundscape para importar",
+		Language.IT: "Seleziona pacchetto soundscape da importare"
+	},
+	"DLG_EXPORT_PKG_TITLE": {
+		Language.EN: "Export Soundscape Package",
+		Language.DE: "Soundscape-Paket exportieren",
+		Language.FR: "Exporter le paquet de soundscape",
+		Language.ES: "Exportar paquete de soundscape",
+		Language.IT: "Esporta pacchetto soundscape"
+	},
+	"MSG_IMPORT_SUCCESS": {
+		Language.EN: "Soundscape imported successfully into library!",
+		Language.DE: "Soundscape erfolgreich in die Bibliothek importiert!",
+		Language.FR: "Soundscape importé avec succès dans la bibliothèque !",
+		Language.ES: "¡Soundscape importado con éxito en la biblioteca!",
+		Language.IT: "Soundscape importato con successo nella libreria!"
+	},
+	"MSG_EXPORT_SUCCESS": {
+		Language.EN: "Soundscape package exported successfully!",
+		Language.DE: "Soundscape-Paket erfolgreich exportiert!",
+		Language.FR: "Paquet de soundscape exporté avec succès !",
+		Language.ES: "¡Paquete de soundscape exportado con éxito!",
+		Language.IT: "Pacchetto soundscape esportato con successo!"
+	},
+	"EXPORT_TAB_PACKAGE": {
+		Language.EN: "Project Package (.3dscape)",
+		Language.DE: "Projekt-Paket (.3dscape)",
+		Language.FR: "Paquet de projet (.3dscape)",
+		Language.ES: "Paquete de proyecto (.3dscape)",
+		Language.IT: "Pacchetto di progetto (.3dscape)"
+	},
+	"EXPORT_PACKAGE_DESC": {
+		Language.EN: "Export complete portable package with project settings, metadata, and all audio stems for sharing.",
+		Language.DE: "Vollständiges portables Paket mit Projekteinstellungen, Metadaten und allen Audiospuren zum Teilen exportieren.",
+		Language.FR: "Exporter un paquet portable complet avec paramètres, métadonnées et toutes les pistes audio pour le partage.",
+		Language.ES: "Exportar paquete portátil completo con configuraciones, metadatos y todas las pistas de audio para compartir.",
+		Language.IT: "Esporta un pacchetto portatile completo con impostazioni, metadati e tutte le tracce audio da condividere."
 	}
 }
 

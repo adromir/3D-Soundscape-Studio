@@ -20,6 +20,7 @@ var _exporter: FfmpegExporter = null
 @onready var btn_out_browse: Button = $Margin/VBox/ContentPanel/ContentMargin/FormVBox/OutputHBox/BtnBrowse
 @onready var progress_bar: ProgressBar = $Margin/VBox/ContentPanel/ContentMargin/FormVBox/ProgressBar
 @onready var status_label: Label = $Margin/VBox/ContentPanel/ContentMargin/FormVBox/StatusLabel
+@onready var btn_export_pkg: Button = $Margin/VBox/ButtonHBox/BtnExportPkg if has_node("Margin/VBox/ButtonHBox/BtnExportPkg") else null
 @onready var btn_start: Button = $Margin/VBox/ButtonHBox/BtnStart
 @onready var btn_cancel: Button = $Margin/VBox/ButtonHBox/BtnCancel
 
@@ -38,6 +39,7 @@ func _ready() -> void:
 			layout_option.add_item(SpeakerLayouts.LAYOUT_NAMES[key], key)
 
 	if btn_close: btn_close.pressed.connect(hide)
+	if btn_export_pkg: btn_export_pkg.pressed.connect(_on_export_pkg_pressed)
 	if btn_start: btn_start.pressed.connect(_on_start_pressed)
 	if btn_cancel: btn_cancel.pressed.connect(hide)
 	if btn_sofa_browse: btn_sofa_browse.pressed.connect(_browse_sofa)
@@ -108,6 +110,9 @@ func _verify_ffmpeg_environment() -> void:
 func update_localization() -> void:
 	title = LocalizationData.tr_key("DLG_EXPORT_TITLE")
 	if btn_start: btn_start.text = LocalizationData.tr_key("BTN_START_EXPORT")
+	if btn_export_pkg:
+		btn_export_pkg.text = LocalizationData.tr_key("BTN_EXPORT_PACKAGE") + " (.3dscape)"
+		btn_export_pkg.tooltip_text = LocalizationData.tr_key("TOOLTIP_EXPORT_PACKAGE")
 
 func set_project(proj: SoundscapeData.SoundscapeProject) -> void:
 	project = proj
@@ -186,3 +191,29 @@ func _on_export_failed(reason: String) -> void:
 	btn_start.disabled = false
 	progress_bar.visible = false
 	status_label.text = "Export failed: " + reason
+
+func _on_export_pkg_pressed() -> void:
+	if project == null: return
+	var fd: FileDialog = FileDialog.new()
+	fd.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+	fd.access = FileDialog.ACCESS_FILESYSTEM
+	fd.filters = PackedStringArray(["*.3dscape ; 3D Soundscape Package (*.3dscape)", "*.zip ; ZIP Archive (*.zip)"])
+	var safe_title: String = AmbientMixerClient.sanitize_filename(project.title)
+	if safe_title.is_empty(): safe_title = "soundscape"
+	fd.current_file = safe_title + ".3dscape"
+	fd.size = Vector2i(700, 450)
+	fd.use_native_dialog = false
+	ThemeManager.apply_theme(fd, ThemeManager.current_theme)
+	add_child(fd)
+	fd.file_selected.connect(func(path: String):
+		var final_out: String = path
+		if not final_out.ends_with(".3dscape") and not final_out.ends_with(".zip") and not final_out.ends_with(".soundscape"):
+			final_out += ".3dscape"
+		var success: bool = LibraryManager.export_soundscape_package(project, final_out)
+		if success:
+			status_label.text = "✅ Soundscape package exported: " + final_out.get_file()
+			status_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.5))
+		fd.queue_free()
+	)
+	fd.canceled.connect(func(): fd.queue_free())
+	fd.popup_centered()

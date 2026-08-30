@@ -33,6 +33,7 @@
 [ext_resource type="Texture2D" path="res://assets/icons/trash.svg" id="32_icon_trash"]
 [ext_resource type="Texture2D" path="res://assets/icons/plus.svg" id="33_icon_plus"]
 [ext_resource type="Texture2D" path="res://assets/icons/search.svg" id="34_icon_search"]
+[ext_resource type="PackedScene" path="res://src/ui/update_dialog.tscn" id="35_update_dlg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
 shader = ExtResource("2_shader")
@@ -131,16 +132,6 @@ theme_override_font_sizes/font_size = 11
 text = "New Soundscape"
 placeholder_text = "Soundscape Title"
 
-[node name="BtnSetCover" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
-size_flags_vertical = 4
-mouse_default_cursor_shape = 2
-theme_override_constants/h_separation = 6
-theme_override_font_sizes/font_size = 11
-icon = ExtResource("22_icon_image")
-text = "Change Cover"
-tooltip_text = "Select Cover Image for Soundscape"
 
 [node name="BtnSaveQuick" type="Button" parent="Margin/RootVBox/TopTransportBar/ProjectTitleBox"]
 custom_minimum_size = Vector2(0, 32)
@@ -681,11 +672,7 @@ visible = false
 [node name="RatePickerPopup" parent="." instance=ExtResource("18_rate_picker")]
 visible = false
 
-[node name="CoverFileDialog" type="FileDialog" parent="."]
-title = "Select Soundscape Cover Image"
-size = Vector2i(700, 450)
+[node name="UpdateDialog" parent="." instance=ExtResource("35_update_dlg")]
 visible = false
-access = 2
-file_mode = 0
-filters = PackedStringArray("*.png, *.jpg, *.jpeg, *.webp ; Image Files")
-use_native_dialog = false
+
+

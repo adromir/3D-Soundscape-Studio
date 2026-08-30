@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://src/ui/soundscape_browser.gd" id="1_sc_browser"]
 [ext_resource type="Texture2D" path="res://assets/icons/search.svg" id="2_icon_search"]
 [ext_resource type="Texture2D" path="res://assets/icons/download.svg" id="3_icon_download"]
+[ext_resource type="Texture2D" path="res://assets/icons/package.svg" id="4_icon_package"]
 
 [node name="SoundscapeBrowser" type="PanelContainer"]
 anchors_preset = 15
@@ -16,7 +17,7 @@ script = ExtResource("1_sc_browser")
 
 [node name="VBox" type="VBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 14
 
 [node name="TopBar" type="HBoxContainer" parent="VBox"]
 layout_mode = 2
@@ -42,6 +43,15 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 11
 placeholder_text = "Search soundscapes by title, author, or tag..."
 clear_button_enabled = true
+
+[node name="BtnImportPackage" type="Button" parent="VBox/TopBar"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_constants/h_separation = 6
+theme_override_font_sizes/font_size = 11
+icon = ExtResource("4_icon_package")
+text = "Import Package..."
 
 [node name="BtnDownload" type="Button" parent="VBox/TopBar"]
 custom_minimum_size = Vector2(0, 30)

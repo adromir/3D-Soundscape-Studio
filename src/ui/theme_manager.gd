@@ -79,11 +79,11 @@ const PALETTE_LIGHT: Dictionary = {
 	"bg_base": Color(0.91, 0.93, 0.97, 1.0),
 	"panel_bg": Color(1.0, 1.0, 1.0, 0.70),
 	"panel_border": Color(0.65, 0.75, 0.88, 0.50),
-	"panel_border_glow": Color(0.01, 0.52, 0.78, 0.80),
-	"btn_normal": Color(0.96, 0.98, 1.0, 0.75),
+	"panel_border_glow": Color(0.01, 0.52, 0.78, 0.90),
+	"btn_normal": Color(0.96, 0.98, 1.0, 0.85),
 	"btn_hover": Color(0.85, 0.94, 1.0, 0.95),
-	"btn_pressed": Color(0.01, 0.52, 0.78, 0.25),
-	"btn_toggled": Color(0.01, 0.52, 0.78, 0.20),
+	"btn_pressed": Color(0.01, 0.52, 0.78, 1.0),
+	"btn_toggled": Color(0.01, 0.52, 0.78, 1.0),
 	"primary": Color(0.01, 0.52, 0.78, 1.0),
 	"secondary": Color(0.15, 0.38, 0.92, 1.0),
 	"tertiary": Color(0.85, 0.47, 0.02, 1.0),
@@ -388,11 +388,11 @@ static func create_theme(mode: ThemeMode) -> Theme:
 	# 6. Global Typography and Font Colors
 	var is_light: bool = (mode == ThemeMode.LIGHT)
 	var btn_hover_text: Color = Color(0.0, 0.20, 0.50) if is_light else Color.WHITE
-	var btn_pressed_text: Color = Color(0.0, 0.15, 0.38) if is_light else pal["primary"]
-	var btn_hover_pressed_text: Color = Color(0.0, 0.15, 0.38) if is_light else Color.WHITE
+	var btn_pressed_text: Color = Color.WHITE if is_light else Color.WHITE
+	var btn_hover_pressed_text: Color = Color.WHITE
 	var btn_icon_col: Color = pal["text_main"]
 	var btn_icon_hover_col: Color = Color(0.0, 0.20, 0.50) if is_light else Color.WHITE
-	var btn_icon_pressed_col: Color = Color(0.0, 0.15, 0.38) if is_light else pal["primary"]
+	var btn_icon_pressed_col: Color = Color.WHITE if is_light else Color.WHITE
 
 	theme.set_color("font_color", "Label", pal["text_main"])
 	theme.set_color("font_color", "Button", pal["text_main"])

@@ -268,16 +268,19 @@ func _prompt_add_category() -> void:
 func _update_category_buttons() -> void:
 	if category_hbox == null: return
 	var pal: Dictionary = ThemeManager.get_palette()
+	var is_light: bool = (ThemeManager.current_theme == ThemeManager.ThemeMode.LIGHT)
 	for child in category_hbox.get_children():
-		if child is Button and child.text != "➕ Add Category":
+		if child is Button and not child.text.contains("Add Category"):
 			var active: bool = (child.text == _current_category)
 			child.button_pressed = active
+			child.modulate = Color.WHITE
 			if active:
-				child.modulate = Color(1.3, 1.3, 1.3)
-				child.add_theme_color_override("font_color", pal["primary"])
+				var act_col: Color = Color.WHITE if is_light else pal.get("primary", Color.WHITE)
+				child.add_theme_color_override("font_color", act_col)
+				child.add_theme_color_override("font_pressed_color", act_col)
 			else:
-				child.modulate = Color(1.0, 1.0, 1.0)
-				child.add_theme_color_override("font_color", pal["text_dim"])
+				var inact_col: Color = Color(0.2, 0.25, 0.35) if is_light else pal.get("text_dim", Color(0.6, 0.6, 0.6))
+				child.add_theme_color_override("font_color", inact_col)
 
 func _on_import_pressed() -> void:
 	if import_dialog:

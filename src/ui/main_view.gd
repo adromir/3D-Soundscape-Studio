@@ -5,6 +5,8 @@ extends Control
 # Repository: https://github.com/adromir
 
 const AppPaths = preload("res://src/core/app_paths.gd")
+const UpdateDialog = preload("res://src/ui/update_dialog.gd")
+const UpdateManager = preload("res://src/core/update_manager.gd")
 
 var current_project: SoundscapeData.SoundscapeProject = null
 var spatial_engine: SpatialEngine = null
@@ -19,7 +21,6 @@ var spatial_engine: SpatialEngine = null
 
 # Top Transport Bar
 @onready var title_edit: LineEdit = $Margin/RootVBox/TopTransportBar/ProjectTitleBox/TitleEdit
-@onready var btn_set_cover: Button = $Margin/RootVBox/TopTransportBar/ProjectTitleBox/BtnSetCover
 @onready var btn_save_quick: Button = $Margin/RootVBox/TopTransportBar/ProjectTitleBox/BtnSaveQuick
 @onready var btn_export_quick: Button = $Margin/RootVBox/TopTransportBar/ProjectTitleBox/BtnExportQuick
 
@@ -86,8 +87,8 @@ var _active_library_subtab: int = 0
 @onready var inspector_window: InspectorWindow = $InspectorWindow
 @onready var export_dialog: ExportDialog = $ExportDialog
 @onready var settings_dialog: SettingsDialog = $SettingsDialog
+@onready var update_dialog: UpdateDialog = $UpdateDialog if has_node("UpdateDialog") else null
 @onready var rate_picker_popup: RatePickerPopup = $RatePickerPopup
-@onready var cover_file_dialog: FileDialog = $CoverFileDialog
 
 var _active_tab: int = 0
 var _theme_popup: PopupMenu = null
@@ -100,11 +101,13 @@ static func get_recent_projects_file() -> String:
 const CLEAR_RECENT_ID: int = 9999
 
 # Menu Action IDs
-enum MenuFileAction { NEW, OPEN, SAVE, SAVE_AS, EXPORT, IMPORT, PREFERENCES, EXIT }
+enum MenuFileAction { NEW, OPEN, SAVE, SAVE_AS, EXPORT, EXPORT_PACKAGE, IMPORT, IMPORT_PACKAGE, PREFERENCES, EXIT }
 enum MenuEditAction { ADD_TRACK, CLEAR_TRACKS, RESET_PATH, RESET_SELECTED_STEM, RESET_ALL_STEMS }
 enum MenuViewAction { TAB_STUDIO, TAB_STORY, TAB_SAMPLES, OPEN_LIBRARY, FULLSCREEN }
 enum MenuPlaybackAction { PLAY, PAUSE, STOP }
-enum MenuHelpAction { ABOUT, DOCS, GITHUB }
+enum MenuHelpAction { ABOUT, DOCS, GITHUB, CHECK_UPDATES }
+
+var _package_dialog: FileDialog = null
 
 func _ready() -> void:
 	position = Vector2.ZERO
@@ -131,6 +134,7 @@ func _ready() -> void:
 	_switch_tab(0)
 	_create_new_project("New Soundscape")
 	update_localization()
+	get_tree().create_timer(2.0).timeout.connect(_check_for_updates_startup)
 
 func _on_viewport_size_changed() -> void:
 	_update_dock_layout()
@@ -151,8 +155,8 @@ func _setup_menu_bar() -> void:
 	# 1. FILE POPUP
 	if popup_file:
 		popup_file.clear()
-		popup_file.add_item("New Soundscape", MenuFileAction.NEW, KEY_MASK_CTRL | KEY_N)
-		popup_file.add_item("Open Soundscape...", MenuFileAction.OPEN, KEY_MASK_CTRL | KEY_O)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_NEW"), MenuFileAction.NEW, KEY_MASK_CTRL | KEY_N)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_OPEN"), MenuFileAction.OPEN, KEY_MASK_CTRL | KEY_O)
 
 		# Submenu Recent Projects
 		if _recent_popup == null:
@@ -164,39 +168,42 @@ func _setup_menu_bar() -> void:
 		popup_file.add_submenu_node_item(LocalizationData.tr_key("MENU_FILE_RECENT"), _recent_popup)
 
 		popup_file.add_separator()
-		popup_file.add_item("Save Soundscape", MenuFileAction.SAVE, KEY_MASK_CTRL | KEY_S)
-		popup_file.add_item("Save Soundscape As...", MenuFileAction.SAVE_AS, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_S)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_SAVE"), MenuFileAction.SAVE, KEY_MASK_CTRL | KEY_S)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_SAVE_AS"), MenuFileAction.SAVE_AS, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_S)
 		popup_file.add_separator()
-		popup_file.add_item("Export Audio Mix...", MenuFileAction.EXPORT, KEY_MASK_CTRL | KEY_E)
-		popup_file.add_item("Import from Ambient-Mixer...", MenuFileAction.IMPORT, KEY_MASK_CTRL | KEY_I)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXPORT"), MenuFileAction.EXPORT, KEY_MASK_CTRL | KEY_E)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXPORT_PACKAGE"), MenuFileAction.EXPORT_PACKAGE, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_E)
 		popup_file.add_separator()
-		popup_file.add_item("Preferences...", MenuFileAction.PREFERENCES, KEY_MASK_CTRL | KEY_COMMA)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_IMPORT_PACKAGE"), MenuFileAction.IMPORT_PACKAGE, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_I)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_IMPORT"), MenuFileAction.IMPORT, KEY_MASK_CTRL | KEY_I)
 		popup_file.add_separator()
-		popup_file.add_item("Exit", MenuFileAction.EXIT, KEY_MASK_ALT | KEY_F4)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_PREFERENCES"), MenuFileAction.PREFERENCES, KEY_MASK_CTRL | KEY_COMMA)
+		popup_file.add_separator()
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXIT"), MenuFileAction.EXIT, KEY_MASK_ALT | KEY_F4)
 		if not popup_file.id_pressed.is_connected(_on_file_menu_id_pressed):
 			popup_file.id_pressed.connect(_on_file_menu_id_pressed)
 
 	# 2. EDIT POPUP
 	if popup_edit:
 		popup_edit.clear()
-		popup_edit.add_item("Add Audio Track...", MenuEditAction.ADD_TRACK, KEY_MASK_CTRL | KEY_T)
-		popup_edit.add_item("Clear All Audio Tracks", MenuEditAction.CLEAR_TRACKS)
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_ADD_TRACK"), MenuEditAction.ADD_TRACK, KEY_MASK_CTRL | KEY_T)
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_CLEAR_TRACKS"), MenuEditAction.CLEAR_TRACKS)
 		popup_edit.add_separator()
-		popup_edit.add_item("Reset Selected Stem", MenuEditAction.RESET_SELECTED_STEM, KEY_MASK_CTRL | KEY_R)
-		popup_edit.add_item("Reset All Stems", MenuEditAction.RESET_ALL_STEMS, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_R)
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_RESET_STEM"), MenuEditAction.RESET_SELECTED_STEM, KEY_MASK_CTRL | KEY_R)
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_RESET_ALL"), MenuEditAction.RESET_ALL_STEMS, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_R)
 		popup_edit.add_separator()
-		popup_edit.add_item("Reset Listener Path", MenuEditAction.RESET_PATH)
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_RESET_PATH"), MenuEditAction.RESET_PATH)
 		if not popup_edit.id_pressed.is_connected(_on_edit_menu_id_pressed):
 			popup_edit.id_pressed.connect(_on_edit_menu_id_pressed)
 
 	# 3. VIEW POPUP
 	if popup_view:
 		popup_view.clear()
-		popup_view.add_item("Studio Radar View", MenuViewAction.TAB_STUDIO, KEY_F1)
-		popup_view.add_item("Listener Automation", MenuViewAction.TAB_STORY, KEY_F2)
-		popup_view.add_item("Audio Samples", MenuViewAction.TAB_SAMPLES, KEY_F3)
+		popup_view.add_item(LocalizationData.tr_key("MENU_VIEW_STUDIO"), MenuViewAction.TAB_STUDIO, KEY_F1)
+		popup_view.add_item(LocalizationData.tr_key("MENU_VIEW_AUTOMATION"), MenuViewAction.TAB_STORY, KEY_F2)
+		popup_view.add_item(LocalizationData.tr_key("MENU_VIEW_LIBRARY_SAMPLES"), MenuViewAction.TAB_SAMPLES, KEY_F3)
 		popup_view.add_separator()
-		popup_view.add_item("Soundscape Library...", MenuViewAction.OPEN_LIBRARY, KEY_F4)
+		popup_view.add_item(LocalizationData.tr_key("MENU_VIEW_LIBRARY_SOUNDSCAPES"), MenuViewAction.OPEN_LIBRARY, KEY_F4)
 		popup_view.add_separator()
 
 		# Submenu Themes
@@ -208,7 +215,7 @@ func _setup_menu_bar() -> void:
 			_theme_popup.id_pressed.connect(_on_theme_menu_id_pressed)
 			popup_view.add_child(_theme_popup)
 		_sync_theme_menu_checks()
-		popup_view.add_submenu_node_item("Thematic Style", _theme_popup)
+		popup_view.add_submenu_node_item(LocalizationData.tr_key("MENU_VIEW_THEMES"), _theme_popup)
 
 		# Submenu Language
 		if _lang_popup == null:
@@ -219,19 +226,19 @@ func _setup_menu_bar() -> void:
 			_lang_popup.id_pressed.connect(_on_lang_menu_id_pressed)
 			popup_view.add_child(_lang_popup)
 		_sync_lang_menu_checks()
-		popup_view.add_submenu_node_item("Language", _lang_popup)
+		popup_view.add_submenu_node_item(LocalizationData.tr_key("MENU_VIEW_LANGUAGE"), _lang_popup)
 
 		popup_view.add_separator()
-		popup_view.add_item("Toggle Fullscreen", MenuViewAction.FULLSCREEN, KEY_F11)
+		popup_view.add_item(LocalizationData.tr_key("MENU_VIEW_FULLSCREEN"), MenuViewAction.FULLSCREEN, KEY_F11)
 		if not popup_view.id_pressed.is_connected(_on_view_menu_id_pressed):
 			popup_view.id_pressed.connect(_on_view_menu_id_pressed)
 
 	# 4. PLAYBACK POPUP
 	if popup_playback:
 		popup_playback.clear()
-		popup_playback.add_item("Play All Tracks", MenuPlaybackAction.PLAY, KEY_SPACE)
-		popup_playback.add_item("Pause Playback", MenuPlaybackAction.PAUSE)
-		popup_playback.add_item("Stop All Playback", MenuPlaybackAction.STOP)
+		popup_playback.add_item(LocalizationData.tr_key("MENU_PLAYBACK_PLAY_ALL"), MenuPlaybackAction.PLAY, KEY_SPACE)
+		popup_playback.add_item(LocalizationData.tr_key("MENU_PLAYBACK_PAUSE"), MenuPlaybackAction.PAUSE)
+		popup_playback.add_item(LocalizationData.tr_key("MENU_PLAYBACK_STOP"), MenuPlaybackAction.STOP)
 		popup_playback.add_separator()
 
 		# Submenu Speaker Layout
@@ -243,7 +250,7 @@ func _setup_menu_bar() -> void:
 			_speaker_popup.id_pressed.connect(_on_speaker_menu_id_pressed)
 			popup_playback.add_child(_speaker_popup)
 		_sync_speaker_menu_checks()
-		popup_playback.add_submenu_node_item("Speaker Setup", _speaker_popup)
+		popup_playback.add_submenu_node_item(LocalizationData.tr_key("MENU_PLAYBACK_SPEAKER_SETUP"), _speaker_popup)
 
 		if not popup_playback.id_pressed.is_connected(_on_playback_menu_id_pressed):
 			popup_playback.id_pressed.connect(_on_playback_menu_id_pressed)
@@ -252,6 +259,8 @@ func _setup_menu_bar() -> void:
 	if popup_help:
 		popup_help.clear()
 		popup_help.add_item(LocalizationData.tr_key("MENU_HELP_WIKI"), MenuHelpAction.DOCS)
+		popup_help.add_item(LocalizationData.tr_key("MENU_HELP_CHECK_UPDATES"), MenuHelpAction.CHECK_UPDATES)
+		popup_help.add_separator()
 		popup_help.add_item(LocalizationData.tr_key("MENU_HELP_GITHUB"), MenuHelpAction.GITHUB)
 		popup_help.add_separator()
 		popup_help.add_item(LocalizationData.tr_key("MENU_HELP_ABOUT"), MenuHelpAction.ABOUT)
@@ -322,7 +331,7 @@ func _rebuild_recent_menu() -> void:
 		return
 	_recent_popup.clear()
 	if _recent_projects.is_empty():
-		_recent_popup.add_item(LocalizationData.tr_key("MENU_FILE_NO_RECENT"), -1)
+		_recent_popup.add_item(LocalizationData.tr_key("MENU_FILE_RECENT_EMPTY"), -1)
 		_recent_popup.set_item_disabled(0, true)
 	else:
 		for i in range(_recent_projects.size()):
@@ -330,7 +339,7 @@ func _rebuild_recent_menu() -> void:
 			var t: String = p.get("title", "Untitled")
 			_recent_popup.add_item("%d. %s" % [i + 1, t], i)
 		_recent_popup.add_separator()
-		_recent_popup.add_item(LocalizationData.tr_key("MENU_FILE_CLEAR_RECENT"), CLEAR_RECENT_ID)
+		_recent_popup.add_item(LocalizationData.tr_key("MENU_FILE_RECENT_CLEAR"), CLEAR_RECENT_ID)
 
 func _on_recent_menu_id_pressed(id: int) -> void:
 	if id == CLEAR_RECENT_ID:
@@ -365,6 +374,10 @@ func _on_file_menu_id_pressed(id: int) -> void:
 		MenuFileAction.SAVE_AS: _on_save_as_pressed()
 		MenuFileAction.EXPORT:
 			if export_dialog and current_project: export_dialog.open_for_project(current_project)
+		MenuFileAction.EXPORT_PACKAGE:
+			_on_export_package_menu_selected()
+		MenuFileAction.IMPORT_PACKAGE:
+			_on_import_package_menu_selected()
 		MenuFileAction.IMPORT:
 			_on_open_pressed()
 		MenuFileAction.PREFERENCES:
@@ -411,10 +424,29 @@ func _on_help_menu_id_pressed(id: int) -> void:
 	match id:
 		MenuHelpAction.DOCS:
 			OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio/wiki")
+		MenuHelpAction.CHECK_UPDATES:
+			_check_for_updates_manual()
 		MenuHelpAction.GITHUB:
 			OS.shell_open("https://github.com/adromir/3D-Soundscape-Studio")
 		MenuHelpAction.ABOUT:
 			_show_themed_about_dialog()
+
+func _check_for_updates_manual() -> void:
+	if update_dialog:
+		update_dialog.open_and_check(false)
+
+func _check_for_updates_startup() -> void:
+	var settings: Dictionary = {}
+	if FileAccess.file_exists(AppPaths.get_settings_file()):
+		var f: FileAccess = FileAccess.open(AppPaths.get_settings_file(), FileAccess.READ)
+		if f:
+			var json: JSON = JSON.new()
+			if json.parse(f.get_as_text()) == OK and json.data is Dictionary:
+				settings = json.data as Dictionary
+			f.close()
+	var check_on_start: bool = settings.get("check_updates_on_startup", true)
+	if check_on_start and update_dialog:
+		update_dialog.open_and_check(true)
 
 func _on_theme_menu_id_pressed(id: int) -> void:
 	_apply_theme(id as ThemeManager.ThemeMode)
@@ -474,11 +506,6 @@ func _connect_signals() -> void:
 
 	for b in [btn_tab_studio, btn_tab_story, btn_tab_library, btn_save_quick, btn_export_quick, btn_play, btn_stop]:
 		if b: b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-
-	if btn_set_cover:
-		btn_set_cover.pressed.connect(_on_set_cover_pressed)
-	if cover_file_dialog:
-		cover_file_dialog.file_selected.connect(_on_cover_file_selected)
 
 	if btn_save_quick: btn_save_quick.pressed.connect(_on_save_pressed)
 	if btn_export_quick: btn_export_quick.pressed.connect(func(): if export_dialog and current_project: export_dialog.open_for_project(current_project))
@@ -687,8 +714,8 @@ func _switch_tab(idx: int, subtab_idx: int = -1) -> void:
 	# Highlight Active Nav Pill
 	var pal: Dictionary = ThemeManager.get_palette()
 	var is_light: bool = (ThemeManager.current_theme == ThemeManager.ThemeMode.LIGHT)
-	var active_col: Color = Color(0.0, 0.22, 0.48) if is_light else pal.get("primary", Color(0.96, 0.82, 0.48))
-	var inactive_col: Color = pal.get("text_main", Color(0.92, 0.94, 0.96))
+	var active_col: Color = Color.WHITE
+	var inactive_col: Color = Color(0.20, 0.26, 0.36) if is_light else pal.get("text_dim", Color(0.70, 0.74, 0.82))
 
 	var pills: Array[Button] = [btn_tab_studio, btn_tab_story, btn_tab_library]
 	for i in range(pills.size()):
@@ -723,8 +750,8 @@ func _switch_library_subtab(sub_idx: int) -> void:
 
 	var pal: Dictionary = ThemeManager.get_palette()
 	var is_light: bool = (ThemeManager.current_theme == ThemeManager.ThemeMode.LIGHT)
-	var active_col: Color = Color(0.0, 0.22, 0.48) if is_light else pal.get("primary", Color(0.96, 0.82, 0.48))
-	var inactive_col: Color = pal.get("text_main", Color(0.92, 0.94, 0.96))
+	var active_col: Color = Color.WHITE
+	var inactive_col: Color = Color(0.20, 0.26, 0.36) if is_light else pal.get("text_dim", Color(0.70, 0.74, 0.82))
 
 	if btn_subtab_soundscapes:
 		btn_subtab_soundscapes.set_pressed_no_signal(sub_idx == 0)
@@ -897,10 +924,6 @@ func update_localization() -> void:
 		prefix_lbl.text = LocalizationData.tr_key("LBL_PROJECT")
 		prefix_lbl.add_theme_color_override("font_color", pal.get("text_main", Color.WHITE))
 
-	if btn_set_cover:
-		btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
-		var cov_info: String = (" (" + current_project.cover_image_path.get_file() + ")") if current_project and not current_project.cover_image_path.is_empty() else ""
-		btn_set_cover.tooltip_text = LocalizationData.tr_key("TOOLTIP_SET_COVER") + cov_info
 
 	if btn_save_quick: btn_save_quick.text = LocalizationData.tr_key("BTN_SAVE")
 	if btn_export_quick: btn_export_quick.text = LocalizationData.tr_key("BTN_EXPORT")
@@ -946,11 +969,6 @@ func load_project(proj: SoundscapeData.SoundscapeProject, record_recent: bool = 
 
 	if title_edit:
 		title_edit.text = current_project.title
-
-	if btn_set_cover:
-		btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
-		var cov_info: String = (" (" + current_project.cover_image_path.get_file() + ")") if not current_project.cover_image_path.is_empty() else ""
-		btn_set_cover.tooltip_text = LocalizationData.tr_key("TOOLTIP_SET_COVER") + cov_info
 
 	if track_list: track_list.set_project(current_project)
 	if spatial_canvas: spatial_canvas.set_project(current_project)
@@ -1144,20 +1162,6 @@ func _on_new_pressed() -> void:
 func _on_open_pressed() -> void:
 	_switch_tab(2, 0)
 
-func _on_set_cover_pressed() -> void:
-	if cover_file_dialog:
-		cover_file_dialog.title = LocalizationData.tr_key("DLG_COVER_TITLE")
-		ThemeManager.apply_theme(cover_file_dialog, ThemeManager.current_theme)
-		cover_file_dialog.popup_centered(Vector2i(750, 500))
-
-func _on_cover_file_selected(path: String) -> void:
-	if current_project == null: return
-	current_project.cover_image_path = path
-	if btn_set_cover:
-		btn_set_cover.text = LocalizationData.tr_key("BTN_SET_COVER")
-		btn_set_cover.tooltip_text = LocalizationData.tr_key("TOOLTIP_SET_COVER") + " (" + path.get_file() + ")"
-	print("✔ Selected cover image: ", path)
-
 func _on_canvas_sample_dropped(s_name: String, s_path: String, azimuth: float, distance: float) -> void:
 	if current_project == null: return
 	var track: SoundscapeData.TrackConfig = current_project.add_track(s_name, s_path)
@@ -1173,14 +1177,82 @@ func _on_canvas_sample_dropped(s_name: String, s_path: String, azimuth: float, d
 func _on_window_files_dropped(files: PackedStringArray) -> void:
 	for file in files:
 		var lower: String = file.to_lower()
-		if lower.ends_with(".wav") or lower.ends_with(".mp3") or lower.ends_with(".ogg") or lower.ends_with(".flac"):
+		if lower.ends_with(".3dscape") or lower.ends_with(".soundscape") or (lower.ends_with(".zip") and not lower.contains("sample")):
+			_import_dropped_package(file)
+		elif lower.ends_with(".wav") or lower.ends_with(".mp3") or lower.ends_with(".ogg") or lower.ends_with(".flac"):
 			if _active_tab == 2 and _active_library_subtab == 1 and sample_browser:
 				sample_browser._on_files_imported(PackedStringArray([file]))
 			else:
 				var s_name: String = file.get_file().get_basename().replace("_", " ").capitalize()
 				_on_sample_added(s_name, file)
 		elif lower.ends_with(".png") or lower.ends_with(".jpg") or lower.ends_with(".jpeg") or lower.ends_with(".webp"):
-			_on_cover_file_selected(file)
+			if current_project:
+				current_project.cover_image_path = file
+				print("✔ Set cover image from drag & drop: ", file)
+
+func _import_dropped_package(pkg_path: String) -> void:
+	var imported_proj: SoundscapeData.SoundscapeProject = LibraryManager.import_soundscape_package(pkg_path)
+	if imported_proj:
+		load_project(imported_proj)
+		if soundscape_browser:
+			soundscape_browser._load_categories()
+			soundscape_browser._setup_category_filters()
+			soundscape_browser.refresh_library()
+		_switch_tab(0)
+		print("✔ Drag & Drop: Loaded imported soundscape: ", imported_proj.title)
+
+func _on_export_package_menu_selected() -> void:
+	if current_project == null: return
+	if _package_dialog and is_instance_valid(_package_dialog):
+		_package_dialog.queue_free()
+
+	_package_dialog = FileDialog.new()
+	_package_dialog.title = LocalizationData.tr_key("DLG_EXPORT_PKG_TITLE")
+	_package_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+	_package_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_package_dialog.filters = PackedStringArray(["*.3dscape ; 3D Soundscape Package (*.3dscape)", "*.zip ; ZIP Archive (*.zip)"])
+	var safe_title: String = AmbientMixerClient.sanitize_filename(current_project.title)
+	if safe_title.is_empty(): safe_title = "soundscape"
+	_package_dialog.current_file = safe_title + ".3dscape"
+	_package_dialog.size = Vector2i(720, 480)
+	_package_dialog.use_native_dialog = false
+	_package_dialog.file_selected.connect(func(out_path: String):
+		var final_out: String = out_path
+		if not final_out.ends_with(".3dscape") and not final_out.ends_with(".zip") and not final_out.ends_with(".soundscape"):
+			final_out += ".3dscape"
+		var success: bool = LibraryManager.export_soundscape_package(current_project, final_out)
+		if success:
+			print("✔ Exported current soundscape package to: ", final_out)
+	)
+	ThemeManager.apply_theme(_package_dialog, ThemeManager.current_theme)
+	add_child(_package_dialog)
+	_package_dialog.popup_centered()
+
+func _on_import_package_menu_selected() -> void:
+	if _package_dialog and is_instance_valid(_package_dialog):
+		_package_dialog.queue_free()
+
+	_package_dialog = FileDialog.new()
+	_package_dialog.title = LocalizationData.tr_key("DLG_IMPORT_PKG_TITLE")
+	_package_dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
+	_package_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_package_dialog.filters = PackedStringArray(["*.3dscape, *.soundscape, *.zip ; 3D Soundscape Packages (*.3dscape, *.zip)"])
+	_package_dialog.size = Vector2i(720, 480)
+	_package_dialog.use_native_dialog = false
+	_package_dialog.file_selected.connect(func(path: String):
+		var imported_proj: SoundscapeData.SoundscapeProject = LibraryManager.import_soundscape_package(path)
+		if imported_proj:
+			load_project(imported_proj)
+			if soundscape_browser:
+				soundscape_browser._load_categories()
+				soundscape_browser._setup_category_filters()
+				soundscape_browser.refresh_library()
+			_switch_tab(0)
+			print("✔ Imported and loaded soundscape: ", imported_proj.title)
+	)
+	ThemeManager.apply_theme(_package_dialog, ThemeManager.current_theme)
+	add_child(_package_dialog)
+	_package_dialog.popup_centered()
 
 func _toggle_play_pause() -> void:
 	if spatial_engine == null: return

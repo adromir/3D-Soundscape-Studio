@@ -1,6 +1,6 @@
 # 🔊 Multi-Channel Surround & Offline Export
 
-3D Soundscape Studio provides both real-time multi-speaker playback and high-precision offline surround rendering powered by FFmpeg and SOFA (Spatially Oriented Format for Acoustics) HRIR databases.
+3D Soundscape Studio provides both real-time multi-speaker playback and high-precision offline surround rendering powered by FFmpeg and SOFA (Spatially Oriented Format for Acoustics) HRIR databases, alongside portable project packaging.
 
 ![Export Surround Dialog](https://raw.githubusercontent.com/adromir/3D-Soundscape-Studio/main/docs/images/06_export_surround_dialog.png)
 
@@ -10,7 +10,7 @@
 
 | Layout Format | Channel Count | Channels Used | Recommended For |
 | :--- | :--- | :--- | :--- |
-| **Binaural (HRTF)** | 2 (Stereo) | Left, Right (Binaural Filtered) | Standard Headphones, VR, Spatial Audio |
+| **Binaural (HRTF)** | 2 (Stereo) | Left, Right (Binaural SOFA Filtered) | Standard Headphones, VR, Spatial Audio |
 | **Stereo (2.0)** | 2 | FL, FR | Desktop Stereo Monitors |
 | **Quadraphonic (4.0)** | 4 | FL, FR, BL, BR | Quad Studio Monitoring |
 | **5.1 Surround** | 6 | FL, FR, FC, LFE, SL, SR | Home Theater & Cinema Surround |
@@ -27,7 +27,7 @@ You can switch the active real-time output format on the fly:
 
 ---
 
-## 🚀 Offline FFmpeg Surround Export (`Ctrl + E`)
+## 🚀 Offline Audio Master Export (`Ctrl + E`)
 
 To render a production-ready spatial audio master:
 
@@ -37,5 +37,13 @@ To render a production-ready spatial audio master:
    - **Target Speaker Layout**: Choose from Binaural, Quad, 5.1, 7.1, or 7.1.4.
    - **Custom SOFA HRTF Profile (Optional)**: Load your personalized HRIR `.sofa` file or use the built-in generic KEMAR / MIT profile.
    - **Output File Path**: Choose destination (`.wav`, `.flac`, `.m4a`, or `.ogg`).
-3. Click **Start Export**.
-4. 3D Soundscape Studio generates complex multi-source spatial panning matrices and executes an offline render pipeline to guarantee pristine 64-bit float mixing with zero buffer underruns or frame drops.
+3. Click **🚀 Start Audio Render**.
+4. 3D Soundscape Studio generates complex multi-source spatial panning matrices and executes an offline FFmpeg render pipeline to guarantee pristine 64-bit float mixing with zero buffer underruns or frame drops.
+
+---
+
+## 📦 Portable Soundscape Package Export (`.3dscape`)
+
+If you want to share the entire interactive project—including all raw stem audio files, polar coordinates, automation waypoints, and cover art—click **`[ 📦 Export Package (.3dscape) ]`** at the bottom of the Export dialog or press `Ctrl+Shift+E`.
+
+This creates a standalone archive that can be opened on any 3D Soundscape Studio workstation.

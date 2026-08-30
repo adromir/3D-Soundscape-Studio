@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://src/ui/export_dialog.gd" id="1_exp_dlg"]
 [ext_resource type="Shader" path="res://src/ui/ambient_backdrop.gdshader" id="2_shader"]
 [ext_resource type="Texture2D" path="res://assets/icons/export.svg" id="3_icon"]
+[ext_resource type="Texture2D" path="res://assets/icons/package.svg" id="4_icon_pkg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
 shader = ExtResource("2_shader")
@@ -174,12 +175,22 @@ layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 2
 
+[node name="BtnExportPkg" type="Button" parent="Margin/VBox/ButtonHBox"]
+custom_minimum_size = Vector2(170, 28)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_constants/h_separation = 6
+icon = ExtResource("4_icon_pkg")
+text = "Export Package (.3dscape)"
+
 [node name="BtnCancel" type="Button" parent="Margin/VBox/ButtonHBox"]
 custom_minimum_size = Vector2(80, 28)
 layout_mode = 2
+mouse_default_cursor_shape = 2
 text = "Cancel"
 
 [node name="BtnStart" type="Button" parent="Margin/VBox/ButtonHBox"]
-custom_minimum_size = Vector2(130, 28)
+custom_minimum_size = Vector2(140, 28)
 layout_mode = 2
-text = "🚀 Start Export"
+mouse_default_cursor_shape = 2
+text = "🚀 Start Audio Render"

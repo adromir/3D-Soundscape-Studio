@@ -55,3 +55,10 @@ static func get_default_sofa_dir() -> String:
 	if not DirAccess.dir_exists_absolute(p):
 		DirAccess.make_dir_recursive_absolute(p)
 	return p
+
+static func get_default_updates_dir() -> String:
+	var p: String = get_data_dir().path_join("updates")
+	if not DirAccess.dir_exists_absolute(p):
+		DirAccess.make_dir_recursive_absolute(p)
+	return p
+
