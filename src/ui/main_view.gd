@@ -903,11 +903,11 @@ func _create_new_project(title: String) -> void:
 	var proj: SoundscapeData.SoundscapeProject = SoundscapeData.SoundscapeProject.new()
 	proj.title = title
 	proj.tracks = []
-	load_project(proj)
+	load_project(proj, false)
 
-func load_project(proj: SoundscapeData.SoundscapeProject) -> void:
+func load_project(proj: SoundscapeData.SoundscapeProject, record_recent: bool = true) -> void:
 	current_project = proj
-	if current_project and not current_project.title.is_empty():
+	if record_recent and current_project and not current_project.title.is_empty() and not current_project.source_path.is_empty():
 		_add_recent_project(current_project.title, current_project.source_path)
 
 	if title_edit:
