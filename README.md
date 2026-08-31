@@ -21,7 +21,8 @@ A modern, high-performance desktop Digital Audio Workstation (DAW) and spatial s
 
 - **📦 Portable Soundscape Project Packaging (`.3dscape` / `.zip`):** Export and import self-contained soundscape archives containing track coordinates, listener movement paths, trigger schedules, metadata, cover artwork, and all referenced audio stem files with zero missing-file errors.
 - **🎯 Interactive 3D Spatial Radar:** Visually position audio sources relative to a central listener with real-time azimuth, elevation, and distance attenuation (up to 30m soundspaces) with live drag & drop.
-- **🌐 Native Ambient-Mixer Downloader & Importer:** Download soundscapes directly from [ambient-mixer.com](https://www.ambient-mixer.com/) with stem extraction, magic byte verification, metadata parsing, and cover art preservation.
+- **🌐 Native Ambient-Mixer Downloader & Importer:** Download soundscapes directly from [ambient-mixer.com](https://www.ambient-mixer.com/) with stem extraction, automatic URL subdomain categorization, metadata parsing, and cover art preservation.
+- **🤖 Local AI Audio Generation (`audio.cpp`):** Generate ambient sound effects and audio loops seamlessly from text prompts inside the sample library, running entirely locally on CPU/GPU via native GGUF models.
 - **📚 Integrated Soundscape & Samples Library:** Full-screen tabbed library workspace (`F3` / `F4`) for browsing soundscapes, editing metadata (title, author, category, cover artwork), and managing standalone sample sound banks.
 - **🛤️ Listener Automation & Motion Paths:** Draw smooth motion paths for a virtual walking listener with real-world speed controls ($m/s$ and $km/h$), open/closed loop trajectories, and live waypoint stats.
 - **🎛️ In-Inspector Multi-Channel Routing Grid:** Route tracks as pinpoint 3D sources, omnipresent ambient beds, or discrete speaker channels (`FL`, `FR`, `FC`, `LFE`, `BL`, `BR`, `SL`, `SR`, `TFL`, `TFR`, `TBL`, `TBR`) with 1-click surround presets.
@@ -48,6 +49,7 @@ A modern, high-performance desktop Digital Audio Workstation (DAW) and spatial s
 - **Frontend & Core Engine:** Godot Engine 4.x (GDScript)
 - **Real-Time Spatial Audio:** Godot `AudioServer`, `AudioStreamPlayer3D`, `Camera3D`, and `AudioListener3D`
 - **Offline Audio Rendering Engine:** FFmpeg (compiled with `libmysofa` for HRTF filtering)
+- **Local AI Audio Generation Engine:** `audio.cpp` native C++ inference via GGUF models
 - **HRTF Spatialization:** Standardized `.sofa` (Spatially Oriented Format for Acoustics) data files
 - **Project File Formats:**
   - `.3dscape` / `.zip`: Portable self-contained archive (`project.ambmix` + `metadata.json` + `cover.*` + `audio/` stems)

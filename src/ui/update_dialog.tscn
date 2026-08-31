@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://bv8v7n9m3k2q"]
+[gd_scene format=3 uid="uid://bv8v7oam3k2q"]
 
 [ext_resource type="Script" path="res://src/ui/update_dialog.gd" id="1_upd_dlg"]
 [ext_resource type="Shader" path="res://src/ui/ambient_backdrop.gdshader" id="2_shader"]

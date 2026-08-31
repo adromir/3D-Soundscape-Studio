@@ -4,7 +4,6 @@ extends Node
 # Author: Adromir
 # Repository: https://github.com/adromir
 
-const AppPaths = preload("res://src/core/app_paths.gd")
 
 signal progress_changed(current: int, total: int, status_text: String)
 signal download_completed(project_path: String, project: SoundscapeData.SoundscapeProject)
@@ -41,10 +40,19 @@ func start_import_from_url(input_url: String, category: String = "Nature") -> vo
 	_audio_mapping.clear()
 	_current_download_idx = 0
 	_total_downloads = 0
+	input_url = input_url.strip_edges()
+	
+	if "ambient-mixer.com" in input_url:
+		var url_parts: PackedStringArray = input_url.split("://")
+		if url_parts.size() > 1:
+			var host: String = url_parts[1].split("/")[0]
+			if host.ends_with(".ambient-mixer.com") and host != "www.ambient-mixer.com" and host != "ambient-mixer.com":
+				var subdomain: String = host.replace(".ambient-mixer.com", "")
+				if not subdomain.is_empty():
+					category = subdomain.capitalize()
+
 	_project = SoundscapeData.SoundscapeProject.new()
 	_project.category = category
-
-	input_url = input_url.strip_edges()
 	if input_url.is_empty():
 		download_failed.emit("URL cannot be empty.")
 		return

@@ -95,7 +95,7 @@ func update_localization() -> void:
 	if btn_ok: btn_ok.text = LocalizationData.tr_key("BTN_OK")
 	if btn_cancel: btn_cancel.text = LocalizationData.tr_key("BTN_CANCEL")
 
-func open_for_track(track: SoundscapeData.TrackConfig, target_global_pos: Vector2 = Vector2.ZERO) -> void:
+func open_for_track(track: SoundscapeData.TrackConfig, _target_global_pos: Vector2 = Vector2.ZERO) -> void:
 	if track == null: return
 	current_track_id = track.id
 	selected_counter = clampi(track.trigger.density_count, 1, MAX_COUNTER)

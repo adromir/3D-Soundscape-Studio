@@ -13,11 +13,77 @@ var _dragging_point_idx: int = -1
 var _playhead_t: float = 0.0 # 0.0 to 1.0 along the path
 var soundspace_max_distance: float = 12.0
 
+var heatmap_enabled: bool = true
+var heatmap_opacity: float = 0.50
+var heatmap_colormap: int = 0
+
+var _heatmap_rect: ColorRect = null
+var _heatmap_material: ShaderMaterial = null
+
 func _ready() -> void:
 	custom_minimum_size = Vector2(300, 250)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	clip_contents = true
+	_setup_heatmap()
+
+func _setup_heatmap() -> void:
+	var shader: Shader = load("res://src/ui/acoustic_heatmap.gdshader")
+	if shader:
+		_heatmap_material = ShaderMaterial.new()
+		_heatmap_material.shader = shader
+		_heatmap_rect = ColorRect.new()
+		_heatmap_rect.name = "AutomationHeatmapRect"
+		_heatmap_rect.material = _heatmap_material
+		_heatmap_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_heatmap_rect.show_behind_parent = true
+		_heatmap_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		add_child(_heatmap_rect)
+
+func _update_heatmap_uniforms(center: Vector2, radius: float) -> void:
+	if _heatmap_material == null or _heatmap_rect == null:
+		return
+	if not heatmap_enabled or project == null or project.tracks.is_empty():
+		_heatmap_material.set_shader_parameter("u_enabled", false)
+		return
+
+	_heatmap_material.set_shader_parameter("u_enabled", true)
+	_heatmap_material.set_shader_parameter("u_opacity", heatmap_opacity)
+	_heatmap_material.set_shader_parameter("u_colormap", heatmap_colormap)
+	_heatmap_material.set_shader_parameter("u_resolution", size)
+	_heatmap_material.set_shader_parameter("u_center_px", center)
+	_heatmap_material.set_shader_parameter("u_radius_px", radius)
+	_heatmap_material.set_shader_parameter("u_soundspace_scale", soundspace_max_distance)
+
+	var source_positions_px: Array[Vector2] = []
+	var source_volumes: Array[float] = []
+	var source_pulses: Array[float] = []
+	var ambient_floor: float = 0.0
+
+	var count: int = 0
+	for t in project.tracks:
+		if t.muted or is_zero_approx(t.volume):
+			continue
+		if t.channel_mode == SoundscapeData.ChannelRoutingMode.OMNIPRESENT:
+			ambient_floor += t.volume * 0.25
+			continue
+
+		var ang_rad: float = deg_to_rad(t.azimuth - 90.0)
+		var r: float = clampf(t.distance / maxf(soundspace_max_distance, 0.1), 0.08, 0.95) * radius
+		var screen_pos: Vector2 = center + Vector2(cos(ang_rad), sin(ang_rad)) * r
+
+		source_positions_px.append(screen_pos)
+		source_volumes.append(t.volume)
+		source_pulses.append(1.0)
+		count += 1
+		if count >= 32:
+			break
+
+	_heatmap_material.set_shader_parameter("u_ambient_floor", clampf(ambient_floor, 0.0, 1.0))
+	_heatmap_material.set_shader_parameter("u_source_count", count)
+	_heatmap_material.set_shader_parameter("u_sources_px", source_positions_px)
+	_heatmap_material.set_shader_parameter("u_volumes", source_volumes)
+	_heatmap_material.set_shader_parameter("u_pulses", source_pulses)
 
 func set_project(proj: SoundscapeData.SoundscapeProject) -> void:
 	project = proj
@@ -49,7 +115,10 @@ func _draw() -> void:
 	var available_r: float = minf(center.x, center.y) - 16.0
 	var radius: float = maxf(available_r, 80.0)
 
-	# 1. Background Grid & Coordinates
+	# 1. Update Heatmap
+	_update_heatmap_uniforms(center, radius)
+
+	# 2. Background Grid & Coordinates
 	draw_circle(center, radius, pal["canvas_bg"])
 	draw_arc(center, radius, 0, TAU, 96, pal["panel_border_glow"], 2.0, true)
 
@@ -100,6 +169,19 @@ func _draw() -> void:
 		trk_col.a = 0.6
 		draw_circle(pos, 6.0, trk_col)
 		draw_string(ThemeDB.fallback_font, pos + Vector2(-30, 14), track.name, HORIZONTAL_ALIGNMENT_CENTER, 60, 10, pal["text_dim"])
+
+	# 2.5 Draw Acoustic Obstacle Barriers
+	if not project.barriers.is_empty():
+		for b in project.barriers:
+			var p1_norm: Vector2 = Vector2(float(b.get("p1_x", 0.0)), float(b.get("p1_y", 0.0))) / soundspace_max_distance
+			var p2_norm: Vector2 = Vector2(float(b.get("p2_x", 0.0)), float(b.get("p2_y", 0.0))) / soundspace_max_distance
+			var s_p1: Vector2 = center + Vector2(p1_norm.x, p1_norm.y) * radius
+			var s_p2: Vector2 = center + Vector2(p2_norm.x, p2_norm.y) * radius
+			var wall_col: Color = pal["primary"].lerp(Color(1.0, 0.4, 0.2), 0.5)
+			wall_col.a = 0.85
+			draw_line(s_p1, s_p2, wall_col, 4.0, true)
+			draw_circle(s_p1, 3.5, wall_col)
+			draw_circle(s_p2, 3.5, wall_col)
 
 	# 3. Draw Listener Path Waypoints and Connections
 	var pts: Array[Vector3] = project.listener_path.points

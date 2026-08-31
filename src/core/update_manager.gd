@@ -4,7 +4,6 @@ extends Node
 # Author: Adromir
 # Repository: https://github.com/adromir/3D-Soundscape-Studio
 
-const AppPaths = preload("res://src/core/app_paths.gd")
 
 signal check_completed(has_update: bool, release_info: Dictionary)
 signal check_failed(error_message: String)
@@ -319,7 +318,7 @@ Start-Sleep -Milliseconds 400
 
 try {
     if (Test-Path $StagedFolder) {
-        Copy-Item -Path "$StagedFolder\\*" -Destination (Split-Path -Parent $TargetPath) -Recurse -Force -ErrorAction Stop
+		Copy-Item -Path "$StagedFolder\\*" -Destination (Split-Path -Parent $TargetPath) -Recurse -Force -ErrorAction Stop
     } else {
         Copy-Item -Path $SourcePath -Destination $TargetPath -Force -ErrorAction Stop
     }

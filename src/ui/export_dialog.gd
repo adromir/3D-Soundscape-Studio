@@ -49,9 +49,9 @@ func _ready() -> void:
 	_verify_ffmpeg_environment()
 	apply_theme(ThemeManager.current_theme)
 
-func apply_theme(mode: ThemeManager.ThemeMode) -> void:
-	var pal: Dictionary = ThemeManager.get_palette_for_mode(mode)
-	var orbs: Dictionary = ThemeManager.get_orb_colors(mode)
+func apply_theme(theme_mode: ThemeManager.ThemeMode) -> void:
+	var pal: Dictionary = ThemeManager.get_palette_for_mode(theme_mode)
+	var orbs: Dictionary = ThemeManager.get_orb_colors(theme_mode)
 
 	if background_rect and background_rect.material is ShaderMaterial:
 		var mat: ShaderMaterial = background_rect.material as ShaderMaterial
@@ -59,7 +59,7 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 		mat.set_shader_parameter("orb1_color", orbs["orb1"])
 		mat.set_shader_parameter("orb2_color", orbs["orb2"])
 		mat.set_shader_parameter("orb3_color", orbs["orb3"])
-		if mode == ThemeManager.ThemeMode.ZEN:
+		if theme_mode == ThemeManager.ThemeMode.ZEN:
 			mat.set_shader_parameter("use_texture", true)
 			if ResourceLoader.exists("res://assets/textures/zen/bg_zen_atmosphere.png"):
 				mat.set_shader_parameter("bg_texture", load("res://assets/textures/zen/bg_zen_atmosphere.png"))
@@ -91,19 +91,19 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 		start_sb.content_margin_top = 4
 		start_sb.content_margin_bottom = 4
 		btn_start.add_theme_stylebox_override("normal", start_sb)
-		btn_start.add_theme_color_override("font_color", Color.BLACK if mode == ThemeManager.ThemeMode.LIGHT else Color.WHITE)
+		btn_start.add_theme_color_override("font_color", Color.BLACK if theme_mode == ThemeManager.ThemeMode.LIGHT else Color.WHITE)
 
-	ThemeManager.apply_theme(self, mode)
+	ThemeManager.apply_theme(self, theme_mode)
 
 func _verify_ffmpeg_environment() -> void:
 	var status: Dictionary = FfmpegExporter.check_ffmpeg_status()
 	if status["available"]:
 		var sofa_note: String = " (SOFA supported)" if status["has_sofa_support"] else ""
-		status_label.text = "✅ FFmpeg ready: %s%s" % [status["version_info"], sofa_note]
+		status_label.text = "FFmpeg ready: %s%s" % [status["version_info"], sofa_note]
 		status_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.5))
 		if btn_start: btn_start.disabled = false
 	else:
-		status_label.text = "⚠️ FFmpeg not found in PATH or app directory. Place 'ffmpeg.exe' in application root."
+		status_label.text = "FFmpeg not found in PATH or app directory. Place 'ffmpeg.exe' in application root."
 		status_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.2))
 		if btn_start: btn_start.disabled = true
 
@@ -211,7 +211,7 @@ func _on_export_pkg_pressed() -> void:
 			final_out += ".3dscape"
 		var success: bool = LibraryManager.export_soundscape_package(project, final_out)
 		if success:
-			status_label.text = "✅ Soundscape package exported: " + final_out.get_file()
+			status_label.text = "Soundscape package exported: " + final_out.get_file()
 			status_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.5))
 		fd.queue_free()
 	)

@@ -138,7 +138,7 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 
 	var vol_label: Label = Label.new()
 	vol_label.text = "%d%%" % int(track.volume * 100.0)
-	vol_label.custom_minimum_size = Vector2(28, 0)
+	vol_label.custom_minimum_size = Vector2(32, 0)
 	vol_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vol_label.add_theme_font_size_override("font_size", 10)
 	vol_label.add_theme_color_override("font_color", pal["text_dim"])
@@ -167,7 +167,7 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	btn_mute.button_pressed = track.muted
 	btn_mute.icon = load("res://assets/icons/volume_mute.svg") if track.muted else load("res://assets/icons/volume.svg")
 	btn_mute.expand_icon = true
-	btn_mute.custom_minimum_size = Vector2(24, 22)
+	btn_mute.custom_minimum_size = Vector2(28, 28)
 	btn_mute.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_mute.tooltip_text = "Unmute Track (Currently Muted)" if track.muted else "Mute Track (Click to silence)"
 	if track.muted:
@@ -189,7 +189,7 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	btn_solo.text = "S"
 	btn_solo.toggle_mode = true
 	btn_solo.button_pressed = track.solo
-	btn_solo.custom_minimum_size = Vector2(20, 22)
+	btn_solo.custom_minimum_size = Vector2(28, 28)
 	btn_solo.add_theme_font_size_override("font_size", 10)
 	btn_solo.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_solo.tooltip_text = LocalizationData.tr_key("TOOLTIP_SOLO")
@@ -210,7 +210,7 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	var btn_crossfade: Button = Button.new()
 	btn_crossfade.icon = load("res://assets/icons/loop.svg")
 	btn_crossfade.expand_icon = true
-	btn_crossfade.custom_minimum_size = Vector2(22, 22)
+	btn_crossfade.custom_minimum_size = Vector2(28, 28)
 	btn_crossfade.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_crossfade.tooltip_text = "Continuous Loop (Crossfade: %s)" % ("On" if track.crossfade else "Off")
 	var is_continuous: bool = (track.trigger.mode == SoundscapeData.TriggerMode.CONTINUOUS_LOOP)
@@ -231,7 +231,7 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	var btn_random: Button = Button.new()
 	btn_random.icon = load("res://assets/icons/random.svg")
 	btn_random.expand_icon = true
-	btn_random.custom_minimum_size = Vector2(22, 22)
+	btn_random.custom_minimum_size = Vector2(28, 28)
 	btn_random.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_random.tooltip_text = LocalizationData.tr_key("TOOLTIP_RANDOM")
 	var is_random: bool = (track.trigger.mode == SoundscapeData.TriggerMode.RANDOM_INTERVAL)
@@ -256,7 +256,7 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	if is_random:
 		var btn_rate: Button = Button.new()
 		btn_rate.text = track.trigger.get_rate_label()
-		btn_rate.custom_minimum_size = Vector2(50, 20)
+		btn_rate.custom_minimum_size = Vector2(50, 28)
 		btn_rate.add_theme_font_size_override("font_size", 9)
 		btn_rate.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_rate.add_theme_color_override("font_color", Color(0.2, 0.95, 0.6))
@@ -270,9 +270,10 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	var btn_del: Button = Button.new()
 	btn_del.icon = load("res://assets/icons/trash.svg")
 	btn_del.expand_icon = true
-	btn_del.custom_minimum_size = Vector2(22, 22)
+	btn_del.custom_minimum_size = Vector2(28, 28)
 	btn_del.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_del.tooltip_text = LocalizationData.tr_key("TOOLTIP_DELETE")
+	btn_del.modulate = Color(1.2, 0.4, 0.4)
 	btn_del.pressed.connect(func():
 		track_deleted.emit(track.id)
 	)

@@ -5,6 +5,7 @@
 - **[🛤️ Listener Automation & Motion](Listener-Automation-&-Motion)**
 - **[🎛️ Stem Audio Tracks & Inspector](Stem-Audio-Tracks-&-Parameter-Inspector)**
 - **[📚 Soundscape Library & Import](Soundscape-Library-&-Ambient-Mixer-Import)**
+- **[🤖 AI Audio Generation](AI-Audio-Generation)**
 - **[🔊 Surround Sound & Export](Multi-Channel-Surround-&-Offline-Export)**
 - **[🎧 SOFA & HRTF Audio Guide](SOFA-HRTF-Spatial-Audio-Guide)**
 - **[🎨 Themes & Preferences](Themes-Localization-&-Preferences)**

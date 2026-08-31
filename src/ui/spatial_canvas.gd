@@ -20,6 +20,13 @@ var _radar_sweep_angle: float = 0.0 # Radians for animated sweep
 var _icon_textures: Dictionary = {}
 var _empty_text: String = "No audio tracks yet\nDrop audio or click + Add Track"
 
+var heatmap_enabled: bool = true
+var heatmap_opacity: float = 0.65
+var heatmap_colormap: int = 0 # 0: Thermal, 1: Phosphor, 2: Cyberpunk
+
+var _heatmap_rect: ColorRect = null
+var _heatmap_material: ShaderMaterial = null
+
 func _get_icon_texture(icon_name: String) -> Texture2D:
 	if _icon_textures.has(icon_name):
 		return _icon_textures[icon_name]
@@ -34,6 +41,7 @@ func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	clip_contents = true
+	_setup_heatmap()
 	mouse_entered.connect(queue_redraw)
 	mouse_exited.connect(func():
 		_hovered_track_id = ""
@@ -41,6 +49,37 @@ func _ready() -> void:
 		queue_redraw()
 	)
 	update_localization()
+
+func _setup_heatmap() -> void:
+	var shader: Shader = load("res://src/ui/acoustic_heatmap.gdshader")
+	if shader:
+		_heatmap_material = ShaderMaterial.new()
+		_heatmap_material.shader = shader
+		_heatmap_rect = ColorRect.new()
+		_heatmap_rect.name = "AcousticHeatmapRect"
+		_heatmap_rect.material = _heatmap_material
+		_heatmap_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_heatmap_rect.show_behind_parent = true
+		_heatmap_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		add_child(_heatmap_rect)
+
+func set_heatmap_enabled(enabled: bool) -> void:
+	heatmap_enabled = enabled
+	if _heatmap_material:
+		_heatmap_material.set_shader_parameter("u_enabled", enabled)
+	queue_redraw()
+
+func set_heatmap_colormap(colormap_idx: int) -> void:
+	heatmap_colormap = clamp(colormap_idx, 0, 2)
+	if _heatmap_material:
+		_heatmap_material.set_shader_parameter("u_colormap", heatmap_colormap)
+	queue_redraw()
+
+func set_heatmap_opacity(opacity_val: float) -> void:
+	heatmap_opacity = clampf(opacity_val, 0.0, 1.0)
+	if _heatmap_material:
+		_heatmap_material.set_shader_parameter("u_opacity", heatmap_opacity)
+	queue_redraw()
 
 func update_localization() -> void:
 	_empty_text = LocalizationData.tr_key("EMPTY_TRACKS_TITLE") if LocalizationData.tr_key("EMPTY_TRACKS_TITLE") != "EMPTY_TRACKS_TITLE" else "No audio tracks yet"
@@ -102,6 +141,50 @@ func _process(delta: float) -> void:
 	if needs_redraw:
 		queue_redraw()
 
+func _update_heatmap_uniforms(center: Vector2, radius: float) -> void:
+	if _heatmap_material == null or _heatmap_rect == null:
+		return
+	if not heatmap_enabled or project == null or project.tracks.is_empty():
+		_heatmap_material.set_shader_parameter("u_enabled", false)
+		return
+
+	_heatmap_material.set_shader_parameter("u_enabled", true)
+	_heatmap_material.set_shader_parameter("u_opacity", heatmap_opacity)
+	_heatmap_material.set_shader_parameter("u_colormap", heatmap_colormap)
+	_heatmap_material.set_shader_parameter("u_resolution", size)
+	_heatmap_material.set_shader_parameter("u_center_px", center)
+	_heatmap_material.set_shader_parameter("u_radius_px", radius)
+	_heatmap_material.set_shader_parameter("u_soundspace_scale", soundspace_max_distance)
+
+	var source_positions_px: Array[Vector2] = []
+	var source_volumes: Array[float] = []
+	var source_pulses: Array[float] = []
+	var ambient_floor: float = 0.0
+
+	var count: int = 0
+	for t in project.tracks:
+		if t.muted or is_zero_approx(t.volume):
+			continue
+		if t.channel_mode == SoundscapeData.ChannelRoutingMode.OMNIPRESENT:
+			ambient_floor += t.volume * 0.25
+			continue
+
+		var screen_pos: Vector2 = _get_screen_position_for_track(t, center, radius)
+		var pulse_val: float = 1.0 + (_active_pulses.get(t.id, 0.0) * 0.6)
+
+		source_positions_px.append(screen_pos)
+		source_volumes.append(t.volume)
+		source_pulses.append(pulse_val)
+		count += 1
+		if count >= 32:
+			break
+
+	_heatmap_material.set_shader_parameter("u_ambient_floor", clampf(ambient_floor, 0.0, 1.0))
+	_heatmap_material.set_shader_parameter("u_source_count", count)
+	_heatmap_material.set_shader_parameter("u_sources_px", source_positions_px)
+	_heatmap_material.set_shader_parameter("u_volumes", source_volumes)
+	_heatmap_material.set_shader_parameter("u_pulses", source_pulses)
+
 func _draw() -> void:
 	var pal: Dictionary = ThemeManager.get_palette()
 	var center: Vector2 = size * 0.5
@@ -111,7 +194,10 @@ func _draw() -> void:
 	if radius <= 10.0:
 		return
 
-	# 1. Liquid Glass Lens Base
+	# 1. Update Heatmap Uniforms
+	_update_heatmap_uniforms(center, radius)
+
+	# 2. Liquid Glass Lens Base
 	var bg_color: Color = pal["canvas_bg"]
 	draw_circle(center, radius, bg_color)
 
@@ -120,7 +206,7 @@ func _draw() -> void:
 	rim_color.a = 0.35
 	draw_arc(center, radius, 0, TAU, 96, rim_color, 2.0, true)
 
-	# 2. Rotating Radar Phosphor Sweep (Optional Liquid Beam)
+	# 3. Rotating Radar Phosphor Sweep (Optional Liquid Beam)
 	if radar_sweep_enabled:
 		var sweep_segments: int = 32
 		var sweep_arc: float = 0.5 # ~28 degrees
@@ -182,6 +268,19 @@ func _draw() -> void:
 	if project == null or project.tracks.is_empty():
 		draw_string(ThemeDB.fallback_font, Vector2(center.x - 70, center.y + 40), _empty_text, HORIZONTAL_ALIGNMENT_CENTER, 140, 11, pal["text_dim"])
 		return
+
+	# 4.5 Draw Acoustic Obstacle Barriers
+	if project and not project.barriers.is_empty():
+		for b in project.barriers:
+			var p1_norm: Vector2 = Vector2(float(b.get("p1_x", 0.0)), float(b.get("p1_y", 0.0))) / soundspace_max_distance
+			var p2_norm: Vector2 = Vector2(float(b.get("p2_x", 0.0)), float(b.get("p2_y", 0.0))) / soundspace_max_distance
+			var s_p1: Vector2 = center + Vector2(p1_norm.x, p1_norm.y) * radius
+			var s_p2: Vector2 = center + Vector2(p2_norm.x, p2_norm.y) * radius
+			var wall_col: Color = pal["primary"].lerp(Color(1.0, 0.4, 0.2), 0.5)
+			wall_col.a = 0.85
+			draw_line(s_p1, s_p2, wall_col, 4.0, true)
+			draw_circle(s_p1, 3.5, wall_col)
+			draw_circle(s_p2, 3.5, wall_col)
 
 	# 5. Omnipresent Atmosphere Rings
 	var has_omni: bool = false
@@ -260,23 +359,48 @@ func _draw_movement_preview(track: SoundscapeData.TrackConfig, center: Vector2, 
 	trail_color.a = 0.55
 
 	match mov.pattern:
-		SoundscapeData.MovementPattern.PING_PONG_LR, SoundscapeData.MovementPattern.ONE_WAY_LR:
+		SoundscapeData.MovementPattern.PING_PONG_LR, SoundscapeData.MovementPattern.ONE_WAY_LR, SoundscapeData.MovementPattern.ONE_WAY_RL:
 			var start_ang: float = deg_to_rad(mov.min_azimuth - 90.0)
 			var end_ang: float = deg_to_rad(mov.max_azimuth - 90.0)
 			var r: float = (track.distance / soundspace_max_distance) * radius
 			draw_arc(center, r, start_ang, end_ang, 48, trail_color, 2.2, true)
-		SoundscapeData.MovementPattern.PING_PONG_FB, SoundscapeData.MovementPattern.ONE_WAY_FB:
+		SoundscapeData.MovementPattern.PING_PONG_FB, SoundscapeData.MovementPattern.ONE_WAY_FB, SoundscapeData.MovementPattern.ONE_WAY_BF:
 			var az_rad: float = deg_to_rad(track.azimuth - 90.0)
 			var r_min: float = (mov.min_distance / soundspace_max_distance) * radius
 			var r_max: float = (mov.max_distance / soundspace_max_distance) * radius
 			var p1: Vector2 = center + Vector2(cos(az_rad), sin(az_rad)) * r_min
 			var p2: Vector2 = center + Vector2(cos(az_rad), sin(az_rad)) * r_max
 			draw_line(p1, p2, trail_color, 2.2, true)
-		SoundscapeData.MovementPattern.RANDOM_WALK:
-			var az_rad: float = deg_to_rad(track.azimuth - 90.0)
+		SoundscapeData.MovementPattern.ORBIT_CW, SoundscapeData.MovementPattern.ORBIT_CCW:
 			var r: float = (track.distance / soundspace_max_distance) * radius
-			var p: Vector2 = center + Vector2(cos(az_rad), sin(az_rad)) * r
-			draw_arc(p, 18.0, 0, TAU, 24, trail_color, 1.5, true)
+			draw_arc(center, r, 0, TAU, 64, trail_color, 2.0, true)
+		SoundscapeData.MovementPattern.SPIRAL_IN, SoundscapeData.MovementPattern.SPIRAL_OUT:
+			var pts: PackedVector2Array = []
+			var r_max_px: float = (mov.max_distance / soundspace_max_distance) * radius
+			var r_min_px: float = (mov.min_distance / soundspace_max_distance) * radius
+			var total_steps: int = 48
+			for i in range(total_steps + 1):
+				var factor: float = float(i) / float(total_steps)
+				var cur_r: float = lerpf(r_min_px, r_max_px, factor) if mov.pattern == SoundscapeData.MovementPattern.SPIRAL_OUT else lerpf(r_max_px, r_min_px, factor)
+				var theta: float = factor * TAU * 2.0 - (PI * 0.5)
+				pts.append(center + Vector2(cos(theta), sin(theta)) * cur_r)
+			if pts.size() >= 2:
+				draw_polyline(pts, trail_color, 1.8, true)
+		SoundscapeData.MovementPattern.FIGURE_EIGHT:
+			var pts: PackedVector2Array = []
+			var a_px: float = maxf((mov.max_distance / soundspace_max_distance) * radius * 0.85, 12.0)
+			var total_steps: int = 64
+			for i in range(total_steps + 1):
+				var t: float = (float(i) / float(total_steps)) * TAU
+				var denom: float = 1.0 + sin(t) * sin(t)
+				var fx: float = (a_px * cos(t)) / denom
+				var fz: float = (a_px * sin(t) * cos(t)) / denom
+				pts.append(center + Vector2(fx, fz))
+			if pts.size() >= 2:
+				draw_polyline(pts, trail_color, 1.8, true)
+		SoundscapeData.MovementPattern.RANDOM_WALK:
+			var r_max: float = (mov.max_distance / soundspace_max_distance) * radius
+			draw_arc(center, r_max, 0, TAU, 48, trail_color * Color(1, 1, 1, 0.4), 1.5, true)
 
 func _get_screen_position_for_track(track: SoundscapeData.TrackConfig, center: Vector2, max_r: float) -> Vector2:
 	if track.channel_mode == SoundscapeData.ChannelRoutingMode.OMNIPRESENT:

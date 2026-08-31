@@ -9,6 +9,8 @@ signal track_position_updated(track_id: String, azimuth: float, elevation: float
 signal listener_position_updated(pos: Vector3, t: float)
 signal playback_state_changed(is_playing: bool)
 
+
+
 var _project: SoundscapeData.SoundscapeProject = null
 var _audio_players: Dictionary = {} # track_id -> AudioStreamPlayer3D or AudioStreamPlayer
 var _schedulers: Dictionary = {} # track_id -> SoundscapeScheduler.RuntimeTrackState
@@ -17,6 +19,7 @@ var _is_playing: bool = false
 var is_playing: bool:
 	get: return _is_playing
 var speaker_layout: SpeakerLayouts.LayoutType = SpeakerLayouts.LayoutType.BINAURAL_SOFA
+var acoustic_env: AcousticEnvironmentManager = AcousticEnvironmentManager.new()
 
 var _audio_viewport: SubViewport = null
 var _camera_3d: Camera3D = null
@@ -51,8 +54,15 @@ func load_project(project: SoundscapeData.SoundscapeProject) -> void:
 	_cleanup_players()
 	_project = project
 
-	for track in _project.tracks:
-		_setup_track_player(track)
+	acoustic_env.clear()
+	if _project:
+		for b_dict in _project.barriers:
+			acoustic_env.barriers.append(AcousticEnvironmentManager.AcousticBarrier.from_dict(b_dict))
+		for z_dict in _project.zones:
+			acoustic_env.zones.append(AcousticEnvironmentManager.AcousticZone.from_dict(z_dict))
+
+		for track in _project.tracks:
+			_setup_track_player(track)
 
 func _cleanup_players() -> void:
 	for id in _audio_players.keys():
@@ -313,6 +323,11 @@ func _update_inflight_movement(track: SoundscapeData.TrackConfig, delta: float) 
 			if track.azimuth > mov.max_azimuth:
 				track.azimuth = mov.min_azimuth
 
+		SoundscapeData.MovementPattern.ONE_WAY_RL:
+			track.azimuth -= speed_deg_sec * delta
+			if track.azimuth < mov.min_azimuth:
+				track.azimuth = mov.max_azimuth
+
 		SoundscapeData.MovementPattern.PING_PONG_FB:
 			track.distance += mov.direction * (mov.speed * 1.5) * delta
 			if track.distance >= mov.max_distance:
@@ -326,6 +341,44 @@ func _update_inflight_movement(track: SoundscapeData.TrackConfig, delta: float) 
 			track.distance -= (mov.speed * 1.5) * delta
 			if track.distance < mov.min_distance:
 				track.distance = mov.max_distance
+
+		SoundscapeData.MovementPattern.ONE_WAY_BF:
+			track.distance += (mov.speed * 1.5) * delta
+			if track.distance > mov.max_distance:
+				track.distance = mov.min_distance
+
+		SoundscapeData.MovementPattern.ORBIT_CW:
+			track.azimuth += speed_deg_sec * delta
+			track.azimuth = wrapf(track.azimuth, -180.0, 180.0)
+
+		SoundscapeData.MovementPattern.ORBIT_CCW:
+			track.azimuth -= speed_deg_sec * delta
+			track.azimuth = wrapf(track.azimuth, -180.0, 180.0)
+
+		SoundscapeData.MovementPattern.SPIRAL_IN:
+			track.azimuth += speed_deg_sec * delta
+			track.azimuth = wrapf(track.azimuth, -180.0, 180.0)
+			track.distance -= (mov.speed * 0.8) * delta
+			if track.distance <= mov.min_distance:
+				track.distance = mov.max_distance
+
+		SoundscapeData.MovementPattern.SPIRAL_OUT:
+			track.azimuth += speed_deg_sec * delta
+			track.azimuth = wrapf(track.azimuth, -180.0, 180.0)
+			track.distance += (mov.speed * 0.8) * delta
+			if track.distance >= mov.max_distance:
+				track.distance = mov.min_distance
+
+		SoundscapeData.MovementPattern.FIGURE_EIGHT:
+			mov.wander_timer += delta * (mov.speed * 0.8)
+			var t: float = mov.wander_timer
+			var a: float = maxf(mov.max_distance * 0.85, 2.0)
+			var denom: float = 1.0 + sin(t) * sin(t)
+			var fx: float = (a * cos(t)) / denom
+			var fz: float = (a * sin(t) * cos(t)) / denom
+			var dist: float = maxf(sqrt(fx * fx + fz * fz), mov.min_distance)
+			track.distance = dist
+			track.azimuth = rad_to_deg(atan2(fx, -fz))
 
 		SoundscapeData.MovementPattern.RANDOM_WALK:
 			# Smooth steering wander with persistent velocity across the soundspace
@@ -382,7 +435,7 @@ func _apply_jump_movement(track: SoundscapeData.TrackConfig) -> void:
 			else:
 				track.azimuth = mov.min_azimuth
 				mov.direction = 1.0
-		SoundscapeData.MovementPattern.ONE_WAY_LR:
+		SoundscapeData.MovementPattern.ONE_WAY_LR, SoundscapeData.MovementPattern.ONE_WAY_RL:
 			track.azimuth = randf_range(mov.min_azimuth, mov.max_azimuth)
 		SoundscapeData.MovementPattern.PING_PONG_FB:
 			if mov.direction > 0:
@@ -391,6 +444,24 @@ func _apply_jump_movement(track: SoundscapeData.TrackConfig) -> void:
 			else:
 				track.distance = mov.min_distance
 				mov.direction = 1.0
+		SoundscapeData.MovementPattern.ONE_WAY_FB, SoundscapeData.MovementPattern.ONE_WAY_BF:
+			track.distance = randf_range(mov.min_distance, mov.max_distance)
+		SoundscapeData.MovementPattern.ORBIT_CW:
+			track.azimuth = wrapf(track.azimuth + 45.0, -180.0, 180.0)
+		SoundscapeData.MovementPattern.ORBIT_CCW:
+			track.azimuth = wrapf(track.azimuth - 45.0, -180.0, 180.0)
+		SoundscapeData.MovementPattern.SPIRAL_IN, SoundscapeData.MovementPattern.SPIRAL_OUT:
+			track.azimuth = wrapf(track.azimuth + 60.0, -180.0, 180.0)
+			track.distance = randf_range(mov.min_distance, mov.max_distance)
+		SoundscapeData.MovementPattern.FIGURE_EIGHT:
+			mov.wander_timer += 0.8
+			var t: float = mov.wander_timer
+			var a: float = maxf(mov.max_distance * 0.85, 2.0)
+			var denom: float = 1.0 + sin(t) * sin(t)
+			var fx: float = (a * cos(t)) / denom
+			var fz: float = (a * sin(t) * cos(t)) / denom
+			track.distance = maxf(sqrt(fx * fx + fz * fz), mov.min_distance)
+			track.azimuth = rad_to_deg(atan2(fx, -fz))
 		SoundscapeData.MovementPattern.RANDOM_WALK:
 			# Jump to a random position within roam boundary
 			track.azimuth = randf_range(mov.min_azimuth, mov.max_azimuth)
@@ -483,6 +554,18 @@ func _update_player_3d_position(track: SoundscapeData.TrackConfig, player: Audio
 
 	player.position = Vector3(x, y, z)
 
+	if acoustic_env and _project:
+		var sound_pos_2d: Vector2 = Vector2(x, z)
+		var listener_pos_2d: Vector2 = Vector2(_listener_3d.position.x, _listener_3d.position.z) if _listener_3d else Vector2.ZERO
+		var occ: float = acoustic_env.calculate_occlusion(sound_pos_2d, listener_pos_2d)
+		var effective_vol: float = track.volume if not track.muted else 0.0
+		var master_vol: float = _project.master_volume if _project else 1.0
+		var base_db: float = linear_to_db(effective_vol * master_vol) if effective_vol > 0.0001 else -80.0
+		if occ < 0.99:
+			player.volume_db = maxf(-80.0, base_db + linear_to_db(occ) * 0.4)
+		else:
+			player.volume_db = base_db
+
 func _get_track_by_id(id: String) -> SoundscapeData.TrackConfig:
 	for t in _project.tracks:
 		if t.id == id:
@@ -544,4 +627,9 @@ func update_track_volume(track: SoundscapeData.TrackConfig) -> void:
 func update_track_spatial_position(track: SoundscapeData.TrackConfig) -> void:
 	if track == null: return
 	set_track_position(track.id, track.azimuth, track.elevation, track.distance)
+
+func get_listener_position() -> Vector3:
+	if _listener_3d:
+		return _listener_3d.position
+	return Vector3.ZERO
 

@@ -415,7 +415,7 @@ func _connect_controls() -> void:
 			if current_track:
 				current_track.trigger.density_count = int(val)
 				if density_count_val_label: density_count_val_label.text = "%dx" % int(val)
-				if rate_summary_label: rate_summary_label.text = "⚡ Rate: " + current_track.trigger.get_rate_label()
+				if rate_summary_label: rate_summary_label.text = "Rate: " + current_track.trigger.get_rate_label()
 				_update_preset_selection()
 				track_modified.emit(current_track.id)
 		)
@@ -432,7 +432,7 @@ func _connect_controls() -> void:
 						density_window_val_label.text = "%.1f h" % (val / 3600.0)
 					else:
 						density_window_val_label.text = "%.1f min" % mins
-				if rate_summary_label: rate_summary_label.text = "⚡ Rate: " + current_track.trigger.get_rate_label()
+				if rate_summary_label: rate_summary_label.text = "Rate: " + current_track.trigger.get_rate_label()
 				_update_preset_selection()
 				track_modified.emit(current_track.id)
 		)
@@ -517,8 +517,15 @@ func update_localization() -> void:
 		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_NONE"), SoundscapeData.MovementPattern.NONE)
 		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_PING_PONG_LR"), SoundscapeData.MovementPattern.PING_PONG_LR)
 		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_ONE_WAY_LR"), SoundscapeData.MovementPattern.ONE_WAY_LR)
+		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_ONE_WAY_RL"), SoundscapeData.MovementPattern.ONE_WAY_RL)
 		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_PING_PONG_FB"), SoundscapeData.MovementPattern.PING_PONG_FB)
 		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_ONE_WAY_FB"), SoundscapeData.MovementPattern.ONE_WAY_FB)
+		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_ONE_WAY_BF"), SoundscapeData.MovementPattern.ONE_WAY_BF)
+		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_ORBIT_CW"), SoundscapeData.MovementPattern.ORBIT_CW)
+		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_ORBIT_CCW"), SoundscapeData.MovementPattern.ORBIT_CCW)
+		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_SPIRAL_IN"), SoundscapeData.MovementPattern.SPIRAL_IN)
+		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_SPIRAL_OUT"), SoundscapeData.MovementPattern.SPIRAL_OUT)
+		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_FIGURE_EIGHT"), SoundscapeData.MovementPattern.FIGURE_EIGHT)
 		mov_pattern_option.add_item(LocalizationData.tr_key("MOV_RANDOM_WALK"), SoundscapeData.MovementPattern.RANDOM_WALK)
 		if sel_id >= 0:
 			_select_option_by_id(mov_pattern_option, sel_id)
@@ -592,8 +599,8 @@ func inspect_track(track: SoundscapeData.TrackConfig) -> void:
 	if trigger_mode_option: _select_option_by_id(trigger_mode_option, track.trigger.mode)
 	if check_crossfade: check_crossfade.set_pressed_no_signal(track.crossfade)
 	if btn_open_rate_picker:
-		btn_open_rate_picker.text = "🔀 Frequency: %s  (Change...)" % track.trigger.get_rate_label()
-	if rate_summary_label: rate_summary_label.text = "⚡ Rate: " + track.trigger.get_rate_label()
+		btn_open_rate_picker.text = "Frequency: %s  (Change...)" % track.trigger.get_rate_label()
+	if rate_summary_label: rate_summary_label.text = "Rate: " + track.trigger.get_rate_label()
 
 	if interval_slider:
 		interval_slider.set_value_no_signal(track.trigger.fixed_interval_sec)
@@ -667,7 +674,16 @@ func _update_visibility_groups() -> void:
 	if movement_group:
 		movement_group.visible = (current_track.channel_mode == SoundscapeData.ChannelRoutingMode.POINT_3D)
 	if roam_group:
-		roam_group.visible = (current_track.channel_mode == SoundscapeData.ChannelRoutingMode.POINT_3D and current_track.movement.pattern == SoundscapeData.MovementPattern.RANDOM_WALK)
+		var has_dist_param: bool = current_track.movement.pattern in [
+			SoundscapeData.MovementPattern.RANDOM_WALK,
+			SoundscapeData.MovementPattern.FIGURE_EIGHT,
+			SoundscapeData.MovementPattern.SPIRAL_IN,
+			SoundscapeData.MovementPattern.SPIRAL_OUT,
+			SoundscapeData.MovementPattern.PING_PONG_FB,
+			SoundscapeData.MovementPattern.ONE_WAY_FB,
+			SoundscapeData.MovementPattern.ONE_WAY_BF
+		]
+		roam_group.visible = (current_track.channel_mode == SoundscapeData.ChannelRoutingMode.POINT_3D and has_dist_param)
 	if multi_channel_group:
 		multi_channel_group.visible = (current_track.channel_mode == SoundscapeData.ChannelRoutingMode.MULTI_CHANNEL)
 	if omnipresent_group:

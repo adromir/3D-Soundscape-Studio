@@ -4,12 +4,14 @@ extends Control
 # Author: Adromir
 # Repository: https://github.com/adromir
 
-const AppPaths = preload("res://src/core/app_paths.gd")
-const UpdateDialog = preload("res://src/ui/update_dialog.gd")
-const UpdateManager = preload("res://src/core/update_manager.gd")
+
+
+
 
 var current_project: SoundscapeData.SoundscapeProject = null
 var spatial_engine: SpatialEngine = null
+var lighting_engine: LightingEngine = null
+var visual_ambient_dialog: VisualAmbientDialog = null
 
 # Menu Bar
 @onready var top_menu_bar: MenuBar = $Margin/RootVBox/MenuBarContainer/TopMenuBar
@@ -43,8 +45,8 @@ var spatial_engine: SpatialEngine = null
 # Library Sub-views
 @onready var btn_subtab_soundscapes: Button = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SubTabsRow/BtnSubTabSoundscapes
 @onready var btn_subtab_samples: Button = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SubTabsRow/BtnSubTabSamples
-@onready var soundscape_browser: PanelContainer = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SoundscapeBrowser
-@onready var sample_browser: PanelContainer = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser
+@onready var soundscape_browser: Control = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SoundscapeBrowser
+@onready var sample_browser: Control = $Margin/RootVBox/ViewsStack/LibraryView/VBox/SampleBrowser
 
 var _active_library_subtab: int = 0
 
@@ -56,6 +58,8 @@ var _active_library_subtab: int = 0
 @onready var track_list: TrackList = $Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/TrackListSlot/TrackList
 
 @onready var center_dock: PanelContainer = $Margin/RootVBox/ViewsStack/StudioView/CenterDock
+@onready var btn_toggle_heatmap: Button = $Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/BtnToggleHeatmap if has_node("Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/BtnToggleHeatmap") else null
+@onready var opt_heatmap_colormap: OptionButton = $Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/OptHeatmapColormap if has_node("Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/OptHeatmapColormap") else null
 @onready var btn_popout_radar: Button = $Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/BtnPopoutRadar
 @onready var spin_radius: SpinBox = $Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/RadiusHBox/SpinRadius if has_node("Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/RadiusHBox/SpinRadius") else null
 @onready var btn_radius_dec: Button = $Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/RadiusHBox/BtnRadiusDec if has_node("Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter/RadiusHBox/BtnRadiusDec") else null
@@ -102,12 +106,13 @@ const CLEAR_RECENT_ID: int = 9999
 
 # Menu Action IDs
 enum MenuFileAction { NEW, OPEN, SAVE, SAVE_AS, EXPORT, EXPORT_PACKAGE, IMPORT, IMPORT_PACKAGE, PREFERENCES, EXIT }
-enum MenuEditAction { ADD_TRACK, CLEAR_TRACKS, RESET_PATH, RESET_SELECTED_STEM, RESET_ALL_STEMS }
+enum MenuEditAction { ADD_TRACK, CLEAR_TRACKS, RESET_PATH, RESET_SELECTED_STEM, RESET_ALL_STEMS, VISUAL_AMBIENT_LIGHTING }
 enum MenuViewAction { TAB_STUDIO, TAB_STORY, TAB_SAMPLES, OPEN_LIBRARY, FULLSCREEN }
 enum MenuPlaybackAction { PLAY, PAUSE, STOP }
 enum MenuHelpAction { ABOUT, DOCS, GITHUB, CHECK_UPDATES }
 
 var _package_dialog: FileDialog = null
+var _quit_dialog: ConfirmationDialog = null
 
 func _ready() -> void:
 	position = Vector2.ZERO
@@ -115,13 +120,27 @@ func _ready() -> void:
 	if has_node("Background"): $Background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	if has_node("Margin"): $Margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
+	get_tree().set_auto_accept_quit(false)
 
 	spatial_engine = SpatialEngine.new()
 	spatial_engine.name = "SpatialEngine"
 	add_child(spatial_engine)
 
+	lighting_engine = LightingEngine.new()
+	lighting_engine.name = "LightingEngine"
+	add_child(lighting_engine)
+
+	visual_ambient_dialog = VisualAmbientDialog.new()
+	visual_ambient_dialog.name = "VisualAmbientDialog"
+	add_child(visual_ambient_dialog)
+	visual_ambient_dialog.lighting_saved.connect(func():
+		if lighting_engine and current_project:
+			lighting_engine.set_project_lighting(current_project.lighting)
+	)
+
 	spatial_engine.track_triggered.connect(func(id: String):
 		if spatial_canvas: spatial_canvas.trigger_pulse(id)
+		if lighting_engine: lighting_engine.on_sound_triggered(id)
 	)
 
 	DisplayServer.window_set_title("3D Soundscape Studio")
@@ -136,11 +155,16 @@ func _ready() -> void:
 	update_localization()
 	get_tree().create_timer(2.0).timeout.connect(_check_for_updates_startup)
 
+func _process(delta: float) -> void:
+	if spatial_engine and spatial_engine.is_playing and lighting_engine:
+		lighting_engine.update_frame(delta, spatial_engine.get_listener_position())
+
 func _on_viewport_size_changed() -> void:
 	_update_dock_layout()
 	if spatial_canvas and spatial_canvas.is_inside_tree():
 		spatial_canvas.queue_redraw()
 
+@warning_ignore("int_as_enum_without_match")
 func _setup_menu_bar() -> void:
 	if top_menu_bar == null:
 		return
@@ -155,8 +179,8 @@ func _setup_menu_bar() -> void:
 	# 1. FILE POPUP
 	if popup_file:
 		popup_file.clear()
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_NEW"), MenuFileAction.NEW, KEY_MASK_CTRL | KEY_N)
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_OPEN"), MenuFileAction.OPEN, KEY_MASK_CTRL | KEY_O)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_NEW"), MenuFileAction.NEW, (KEY_MASK_CTRL | KEY_N) as Key)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_OPEN"), MenuFileAction.OPEN, (KEY_MASK_CTRL | KEY_O) as Key)
 
 		# Submenu Recent Projects
 		if _recent_popup == null:
@@ -168,31 +192,33 @@ func _setup_menu_bar() -> void:
 		popup_file.add_submenu_node_item(LocalizationData.tr_key("MENU_FILE_RECENT"), _recent_popup)
 
 		popup_file.add_separator()
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_SAVE"), MenuFileAction.SAVE, KEY_MASK_CTRL | KEY_S)
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_SAVE_AS"), MenuFileAction.SAVE_AS, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_S)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_SAVE"), MenuFileAction.SAVE, (KEY_MASK_CTRL | KEY_S) as Key)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_SAVE_AS"), MenuFileAction.SAVE_AS, (KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_S) as Key)
 		popup_file.add_separator()
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXPORT"), MenuFileAction.EXPORT, KEY_MASK_CTRL | KEY_E)
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXPORT_PACKAGE"), MenuFileAction.EXPORT_PACKAGE, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_E)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXPORT"), MenuFileAction.EXPORT, (KEY_MASK_CTRL | KEY_E) as Key)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXPORT_PACKAGE"), MenuFileAction.EXPORT_PACKAGE, (KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_E) as Key)
 		popup_file.add_separator()
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_IMPORT_PACKAGE"), MenuFileAction.IMPORT_PACKAGE, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_I)
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_IMPORT"), MenuFileAction.IMPORT, KEY_MASK_CTRL | KEY_I)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_IMPORT_PACKAGE"), MenuFileAction.IMPORT_PACKAGE, (KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_I) as Key)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_IMPORT"), MenuFileAction.IMPORT, (KEY_MASK_CTRL | KEY_I) as Key)
 		popup_file.add_separator()
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_PREFERENCES"), MenuFileAction.PREFERENCES, KEY_MASK_CTRL | KEY_COMMA)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_PREFERENCES"), MenuFileAction.PREFERENCES, (KEY_MASK_CTRL | KEY_COMMA) as Key)
 		popup_file.add_separator()
-		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXIT"), MenuFileAction.EXIT, KEY_MASK_ALT | KEY_F4)
+		popup_file.add_item(LocalizationData.tr_key("MENU_FILE_EXIT"), MenuFileAction.EXIT, (KEY_MASK_ALT | KEY_F4) as Key)
 		if not popup_file.id_pressed.is_connected(_on_file_menu_id_pressed):
 			popup_file.id_pressed.connect(_on_file_menu_id_pressed)
 
 	# 2. EDIT POPUP
 	if popup_edit:
 		popup_edit.clear()
-		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_ADD_TRACK"), MenuEditAction.ADD_TRACK, KEY_MASK_CTRL | KEY_T)
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_ADD_TRACK"), MenuEditAction.ADD_TRACK, (KEY_MASK_CTRL | KEY_T) as Key)
 		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_CLEAR_TRACKS"), MenuEditAction.CLEAR_TRACKS)
 		popup_edit.add_separator()
-		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_RESET_STEM"), MenuEditAction.RESET_SELECTED_STEM, KEY_MASK_CTRL | KEY_R)
-		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_RESET_ALL"), MenuEditAction.RESET_ALL_STEMS, KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_R)
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_RESET_STEM"), MenuEditAction.RESET_SELECTED_STEM, (KEY_MASK_CTRL | KEY_R) as Key)
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_RESET_ALL"), MenuEditAction.RESET_ALL_STEMS, (KEY_MASK_CTRL | KEY_MASK_SHIFT | KEY_R) as Key)
 		popup_edit.add_separator()
 		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_RESET_PATH"), MenuEditAction.RESET_PATH)
+		popup_edit.add_separator()
+		popup_edit.add_item(LocalizationData.tr_key("MENU_EDIT_LIGHTING"), MenuEditAction.VISUAL_AMBIENT_LIGHTING, (KEY_MASK_CTRL | KEY_L) as Key)
 		if not popup_edit.id_pressed.is_connected(_on_edit_menu_id_pressed):
 			popup_edit.id_pressed.connect(_on_edit_menu_id_pressed)
 
@@ -405,6 +431,11 @@ func _on_edit_menu_id_pressed(id: int) -> void:
 				current_project.listener_path.points.clear()
 				current_project.listener_path.enabled = false
 				if automation_canvas: automation_canvas.queue_redraw()
+		MenuEditAction.VISUAL_AMBIENT_LIGHTING:
+			if visual_ambient_dialog and current_project:
+				visual_ambient_dialog.setup(current_project.lighting, current_project.tracks)
+				ThemeManager.apply_theme(visual_ambient_dialog, ThemeManager.current_theme)
+				visual_ambient_dialog.popup_centered()
 
 func _on_view_menu_id_pressed(id: int) -> void:
 	match id:
@@ -572,6 +603,20 @@ func _connect_signals() -> void:
 			if automation_canvas: automation_canvas.set_soundspace_max_distance(r)
 		)
 
+	if btn_toggle_heatmap:
+		btn_toggle_heatmap.toggled.connect(func(pressed: bool):
+			if spatial_canvas:
+				spatial_canvas.set_heatmap_enabled(pressed)
+			if opt_heatmap_colormap:
+				opt_heatmap_colormap.visible = pressed
+		)
+
+	if opt_heatmap_colormap:
+		opt_heatmap_colormap.item_selected.connect(func(idx: int):
+			if spatial_canvas:
+				spatial_canvas.set_heatmap_colormap(idx)
+		)
+
 	if spin_radius:
 		spin_radius.value_changed.connect(func(val: float):
 			if current_project:
@@ -704,6 +749,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_F4:
 			_switch_tab(2, 1)
 			get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_H:
+			var focus = get_viewport().gui_get_focus_owner()
+			if not (focus is LineEdit or focus is TextEdit):
+				if btn_toggle_heatmap:
+					btn_toggle_heatmap.button_pressed = !btn_toggle_heatmap.button_pressed
+					get_viewport().set_input_as_handled()
 
 func _switch_tab(idx: int, subtab_idx: int = -1) -> void:
 	_active_tab = idx
@@ -832,7 +883,7 @@ func _dock_inspector_back() -> void:
 		_save_workspace_settings()
 
 func _apply_theme(mode: ThemeManager.ThemeMode) -> void:
-	ThemeManager.apply_theme(get_tree().root if get_tree() else self, mode)
+	ThemeManager.apply_theme(get_tree().root as Node if get_tree() else self as Node, mode)
 	var orbs: Dictionary = ThemeManager.get_orb_colors(mode)
 	if has_node("Background"):
 		var bg: ColorRect = $Background
@@ -939,6 +990,18 @@ func update_localization() -> void:
 	if master_slider: master_slider.tooltip_text = LocalizationData.tr_key("TOOLTIP_MASTER_VOL")
 	if layout_option: layout_option.tooltip_text = LocalizationData.tr_key("TOOLTIP_LAYOUT")
 
+	if btn_toggle_heatmap:
+		btn_toggle_heatmap.tooltip_text = LocalizationData.tr_key("TOOLTIP_HEATMAP_TOGGLE")
+	if opt_heatmap_colormap:
+		opt_heatmap_colormap.tooltip_text = LocalizationData.tr_key("TOOLTIP_HEATMAP_COLORMAP")
+		var sel_idx: int = opt_heatmap_colormap.selected
+		opt_heatmap_colormap.clear()
+		opt_heatmap_colormap.add_item(LocalizationData.tr_key("HEATMAP_THERMAL"), 0)
+		opt_heatmap_colormap.add_item(LocalizationData.tr_key("HEATMAP_PHOSPHOR"), 1)
+		opt_heatmap_colormap.add_item(LocalizationData.tr_key("HEATMAP_CYBERPUNK"), 2)
+		if sel_idx >= 0 and sel_idx < opt_heatmap_colormap.item_count:
+			opt_heatmap_colormap.selected = sel_idx
+
 	# Dock Headers
 	var title_left = get_node_or_null("Margin/RootVBox/ViewsStack/StudioView/LeftDock/VBoxLeft/HeaderLeft/TitleLeft")
 	if title_left: title_left.text = LocalizationData.tr_key("HEADER_STEMS_TRACKS")
@@ -974,6 +1037,7 @@ func load_project(proj: SoundscapeData.SoundscapeProject, record_recent: bool = 
 	if spatial_canvas: spatial_canvas.set_project(current_project)
 	if spatial_engine: spatial_engine.load_project(current_project)
 	if automation_canvas: automation_canvas.set_project(current_project)
+	if lighting_engine and current_project: lighting_engine.set_project_lighting(current_project.lighting)
 	if spin_radius: spin_radius.set_value_no_signal(current_project.soundspace_radius)
 	_update_path_controls_ui()
 
@@ -1188,7 +1252,7 @@ func _on_window_files_dropped(files: PackedStringArray) -> void:
 		elif lower.ends_with(".png") or lower.ends_with(".jpg") or lower.ends_with(".jpeg") or lower.ends_with(".webp"):
 			if current_project:
 				current_project.cover_image_path = file
-				print("✔ Set cover image from drag & drop: ", file)
+				print("Set cover image from drag & drop: ", file)
 
 func _import_dropped_package(pkg_path: String) -> void:
 	var imported_proj: SoundscapeData.SoundscapeProject = LibraryManager.import_soundscape_package(pkg_path)
@@ -1199,7 +1263,7 @@ func _import_dropped_package(pkg_path: String) -> void:
 			soundscape_browser._setup_category_filters()
 			soundscape_browser.refresh_library()
 		_switch_tab(0)
-		print("✔ Drag & Drop: Loaded imported soundscape: ", imported_proj.title)
+		print("Drag & Drop: Loaded imported soundscape: ", imported_proj.title)
 
 func _on_export_package_menu_selected() -> void:
 	if current_project == null: return
@@ -1222,7 +1286,7 @@ func _on_export_package_menu_selected() -> void:
 			final_out += ".3dscape"
 		var success: bool = LibraryManager.export_soundscape_package(current_project, final_out)
 		if success:
-			print("✔ Exported current soundscape package to: ", final_out)
+			print("Exported current soundscape package to: ", final_out)
 	)
 	ThemeManager.apply_theme(_package_dialog, ThemeManager.current_theme)
 	add_child(_package_dialog)
@@ -1248,7 +1312,7 @@ func _on_import_package_menu_selected() -> void:
 				soundscape_browser._setup_category_filters()
 				soundscape_browser.refresh_library()
 			_switch_tab(0)
-			print("✔ Imported and loaded soundscape: ", imported_proj.title)
+			print("Imported and loaded soundscape: ", imported_proj.title)
 	)
 	ThemeManager.apply_theme(_package_dialog, ThemeManager.current_theme)
 	add_child(_package_dialog)
@@ -1258,13 +1322,17 @@ func _toggle_play_pause() -> void:
 	if spatial_engine == null: return
 	if spatial_engine.is_playing:
 		spatial_engine.pause_all()
+		if lighting_engine: lighting_engine.stop_playback()
 	else:
 		spatial_engine.play_all()
+		if lighting_engine: lighting_engine.start_playback()
 	_update_play_pause_ui()
 
 func _stop_playback() -> void:
 	if spatial_engine:
 		spatial_engine.stop_all()
+	if lighting_engine:
+		lighting_engine.stop_playback()
 	_update_play_pause_ui()
 
 func _update_play_pause_ui() -> void:
@@ -1374,7 +1442,7 @@ func _show_themed_about_dialog() -> void:
 	header_hbox.add_child(title_lbl)
 
 	var btn_close: Button = Button.new()
-	btn_close.text = "✕"
+	btn_close.text = "X"
 	btn_close.custom_minimum_size = Vector2(24, 24)
 	btn_close.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_close.pressed.connect(win.queue_free)
@@ -1486,7 +1554,7 @@ func _on_save_pressed() -> void:
 	if title.is_empty(): title = "New Soundscape"
 	current_project.title = title
 	var saved_path: String = LibraryManager.save_soundscape(current_project)
-	print("✔ Project saved to Library: ", saved_path)
+	print("Project saved to Library: ", saved_path)
 	_add_recent_project(title, saved_path)
 	if soundscape_browser: soundscape_browser.refresh_library()
 
@@ -1497,7 +1565,7 @@ func _on_save_as_pressed() -> void:
 	current_project.title = title
 	var new_folder: String = AmbientMixerClient.sanitize_filename(title)
 	var saved_path: String = LibraryManager.save_soundscape(current_project, new_folder)
-	print("✔ Project saved as: ", saved_path)
+	print("Project saved as: ", saved_path)
 	_add_recent_project(title, saved_path, new_folder)
 	if soundscape_browser: soundscape_browser.refresh_library()
 
@@ -1594,3 +1662,39 @@ func _load_workspace_settings() -> void:
 			inspector_window.position = Vector2i(int(data["inspector_pos"][0]), int(data["inspector_pos"][1]))
 		if data.has("inspector_size") and data["inspector_size"] is Array and data["inspector_size"].size() == 2:
 			inspector_window.size = Vector2i(int(data["inspector_size"][0]), int(data["inspector_size"][1]))
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if current_project == null:
+			get_tree().quit()
+			return
+		
+		# Pause spatial engine if playing
+		var was_playing = false
+		if spatial_engine and spatial_engine._is_playing:
+			was_playing = true
+			spatial_engine.stop_playback()
+			
+		_quit_dialog = ConfirmationDialog.new()
+		_quit_dialog.title = "Save before quitting?"
+		_quit_dialog.dialog_text = "Do you want to save your project before you quit?"
+		_quit_dialog.get_ok_button().text = "Save & Quit"
+		_quit_dialog.add_button("Don't Save", true, "dont_save")
+		_quit_dialog.get_cancel_button().text = "Cancel"
+		
+		_quit_dialog.confirmed.connect(func():
+			_on_save_pressed()
+			get_tree().quit()
+		)
+		_quit_dialog.custom_action.connect(func(action: String):
+			if action == "dont_save":
+				get_tree().quit()
+		)
+		_quit_dialog.canceled.connect(func():
+			if was_playing:
+				spatial_engine.start_playback()
+			_quit_dialog.queue_free()
+		)
+		
+		add_child(_quit_dialog)
+		ThemeManager.apply_theme(_quit_dialog, ThemeManager.current_theme)
+		_quit_dialog.popup_centered()

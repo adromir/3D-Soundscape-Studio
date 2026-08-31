@@ -8,8 +8,15 @@ enum MovementPattern {
 	NONE,
 	PING_PONG_LR,
 	ONE_WAY_LR,
+	ONE_WAY_RL,
 	PING_PONG_FB,
 	ONE_WAY_FB,
+	ONE_WAY_BF,
+	ORBIT_CW,
+	ORBIT_CCW,
+	SPIRAL_IN,
+	SPIRAL_OUT,
+	FIGURE_EIGHT,
 	RANDOM_WALK
 }
 
@@ -28,6 +35,14 @@ enum TriggerMode {
 	CONTINUOUS_LOOP,
 	FIXED_INTERVAL,
 	RANDOM_INTERVAL
+}
+
+enum LightEffectMode {
+	STATIC,
+	CANDLE_HEARTH_FLICKER,
+	LIGHTNING_TRIGGER_FLASH,
+	WATER_SHIMMER,
+	PROXIMITY_WALK
 }
 
 class MovementConfig extends RefCounted:
@@ -319,6 +334,77 @@ class ListenerPathConfig extends RefCounted:
 				config.points.append(Vector3(float(pt.get("x", 0.0)), float(pt.get("y", 0.0)), float(pt.get("z", 0.0))))
 		return config
 
+class LightEntityConfig extends RefCounted:
+	var entity_id: String = ""
+	var name: String = "Ambient Light"
+	var enabled: bool = true
+	var position_3d: Vector3 = Vector3.ZERO
+	var effect_mode: int = LightEffectMode.STATIC
+	var base_rgb: Color = Color(1.0, 0.75, 0.4) # Warm amber
+	var brightness_pct: int = 80
+	var trigger_track_id: String = "" # Sound track ID for flash sync
+	var flash_duration_ms: int = 150
+	var flash_color: Color = Color(0.9, 0.95, 1.0) # Lightning white
+
+	func to_dict() -> Dictionary:
+		return {
+			"entity_id": entity_id,
+			"name": name,
+			"enabled": enabled,
+			"pos_x": position_3d.x,
+			"pos_y": position_3d.y,
+			"pos_z": position_3d.z,
+			"effect_mode": effect_mode,
+			"base_rgb_hex": base_rgb.to_html(false),
+			"brightness_pct": brightness_pct,
+			"trigger_track_id": trigger_track_id,
+			"flash_duration_ms": flash_duration_ms,
+			"flash_color_hex": flash_color.to_html(false)
+		}
+
+	static func from_dict(dict: Dictionary) -> LightEntityConfig:
+		var cfg: LightEntityConfig = LightEntityConfig.new()
+		cfg.entity_id = dict.get("entity_id", "")
+		cfg.name = dict.get("name", "Ambient Light")
+		cfg.enabled = bool(dict.get("enabled", true))
+		cfg.position_3d = Vector3(float(dict.get("pos_x", 0.0)), float(dict.get("pos_y", 0.0)), float(dict.get("pos_z", 0.0)))
+		cfg.effect_mode = int(dict.get("effect_mode", LightEffectMode.STATIC))
+		cfg.base_rgb = Color.from_string(dict.get("base_rgb_hex", "#ffbf66"), Color(1.0, 0.75, 0.4))
+		cfg.brightness_pct = int(dict.get("brightness_pct", 80))
+		cfg.trigger_track_id = dict.get("trigger_track_id", "")
+		cfg.flash_duration_ms = int(dict.get("flash_duration_ms", 150))
+		cfg.flash_color = Color.from_string(dict.get("flash_color_hex", "#e6f2ff"), Color(0.9, 0.95, 1.0))
+		return cfg
+
+class LightingProjectConfig extends RefCounted:
+	var enabled: bool = false
+	var ha_endpoint: String = "http://homeassistant.local:8123"
+	var ha_token: String = ""
+	var lights: Array[LightEntityConfig] = []
+
+	func to_dict() -> Dictionary:
+		var lights_arr: Array = []
+		for l in lights:
+			lights_arr.append(l.to_dict())
+		return {
+			"enabled": enabled,
+			"ha_endpoint": ha_endpoint,
+			"ha_token": ha_token,
+			"lights": lights_arr
+		}
+
+	static func from_dict(dict: Dictionary) -> LightingProjectConfig:
+		var cfg: LightingProjectConfig = LightingProjectConfig.new()
+		cfg.enabled = bool(dict.get("enabled", false))
+		cfg.ha_endpoint = dict.get("ha_endpoint", "http://homeassistant.local:8123")
+		cfg.ha_token = dict.get("ha_token", "")
+		cfg.lights = []
+		var arr = dict.get("lights", [])
+		for item in arr:
+			if item is Dictionary:
+				cfg.lights.append(LightEntityConfig.from_dict(item))
+		return cfg
+
 class SoundscapeProject extends RefCounted:
 	var source_path: String = ""
 	var title: String = "Untitled Soundscape"
@@ -332,6 +418,9 @@ class SoundscapeProject extends RefCounted:
 	var sofa_path: String = ""
 	var master_volume: float = 1.0
 	var listener_path: ListenerPathConfig = ListenerPathConfig.new()
+	var lighting: LightingProjectConfig = LightingProjectConfig.new()
+	var barriers: Array[Dictionary] = [] # [{p1_x, p1_y, p2_x, p2_y, absorption, transmission, name}]
+	var zones: Array[Dictionary] = [] # [{id, name, x, y, w, h, reverb_room_size, reverb_damping, reverb_wetness}]
 	var tracks: Array[TrackConfig] = []
 
 	func to_dict() -> Dictionary:
@@ -352,6 +441,9 @@ class SoundscapeProject extends RefCounted:
 			"sofa_path": sofa_path,
 			"master_volume": master_volume,
 			"listener_path": listener_path.to_dict(),
+			"lighting": lighting.to_dict(),
+			"barriers": barriers,
+			"zones": zones,
 			"tracks": tracks_data
 		}
 
@@ -368,6 +460,15 @@ class SoundscapeProject extends RefCounted:
 		project.sofa_path = dict.get("sofa_path", "")
 		project.master_volume = float(dict.get("master_volume", 1.0))
 		project.listener_path = ListenerPathConfig.from_dict(dict.get("listener_path", {}))
+		project.lighting = LightingProjectConfig.from_dict(dict.get("lighting", {}))
+		project.barriers = []
+		var raw_barriers = dict.get("barriers", [])
+		for b in raw_barriers:
+			if b is Dictionary: project.barriers.append(b)
+		project.zones = []
+		var raw_zones = dict.get("zones", [])
+		for z in raw_zones:
+			if z is Dictionary: project.zones.append(z)
 
 		project.tracks = []
 		var tracks_data: Array = dict.get("tracks", [])

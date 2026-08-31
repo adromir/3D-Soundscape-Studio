@@ -34,6 +34,7 @@
 [ext_resource type="Texture2D" path="res://assets/icons/plus.svg" id="33_icon_plus"]
 [ext_resource type="Texture2D" path="res://assets/icons/search.svg" id="34_icon_search"]
 [ext_resource type="PackedScene" path="res://src/ui/update_dialog.tscn" id="35_update_dlg"]
+[ext_resource type="Texture2D" path="res://assets/icons/heatmap.svg" id="36_icon_heatmap"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_backdrop"]
 shader = ExtResource("2_shader")
@@ -349,6 +350,32 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
 text = "3D Spatial Radar Canvas"
+
+[node name="BtnToggleHeatmap" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
+custom_minimum_size = Vector2(30, 26)
+layout_mode = 2
+tooltip_text = "Acoustic Pressure / Audibility Heatmap (H)"
+mouse_default_cursor_shape = 2
+toggle_mode = true
+button_pressed = true
+icon = ExtResource("36_icon_heatmap")
+icon_alignment = 1
+expand_icon = true
+
+[node name="OptHeatmapColormap" type="OptionButton" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
+custom_minimum_size = Vector2(85, 26)
+layout_mode = 2
+tooltip_text = "Heatmap Colormap (Thermal, Phosphor, Cyberpunk)"
+mouse_default_cursor_shape = 2
+flat = true
+item_count = 3
+selected = 0
+popup/item_0/text = "Thermal"
+popup/item_0/id = 0
+popup/item_1/text = "Phosphor"
+popup/item_1/id = 1
+popup/item_2/text = "Cyberpunk"
+popup/item_2/id = 2
 
 [node name="BtnPopoutRadar" type="Button" parent="Margin/RootVBox/ViewsStack/StudioView/CenterDock/VBoxCenter/HeaderCenter"]
 custom_minimum_size = Vector2(30, 26)

@@ -15,6 +15,7 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 | 🛤️ **Listener Automation & Motion Paths** | Draw smooth motion paths for a virtual walking listener with speed controls ($m/s$ & $km/h$), open/closed loop modes, and live distance/time stats. |
 | 🎛️ **Multi-Track Stem Mixer & In-Inspector Matrix** | Control stem volumes, mute/solo states, random/periodic trigger rates, seamless crossfade loops, and discrete in-inspector multi-channel routing (`FL`, `FR`, `FC`, `LFE`, `BL`, `BR`, `SL`, `SR`, `TFL`, `TFR`, `TBL`, `TBR`). |
 | 📚 **Built-In Library & Ambient-Mixer Import** | Browse soundscapes, edit metadata and cover art, import XML templates directly from ambient-mixer.com, and manage custom audio sample banks. |
+| 🤖 **Local AI Audio Generation (`audio.cpp`)** | Generate ambient sound effects and loops completely locally using native C++ inference and GGUF models directly within the sample browser. |
 | 🔊 **Multi-Channel Surround & FFmpeg Export** | Real-time playback and offline mixdown to Stereo Binaural (HRTF / SOFA), Quadraphonic 4.0, 5.1 Surround, 7.1 Surround, and 7.1.4 Dolby Atmos. |
 | 🎧 **SOFA HRTF Spatialization** | Load custom measured Head-Related Transfer Function profiles (`.sofa`) for personalized 3D headphone listening. |
 | 🎨 **Pro DAW Liquid Glass & 8 Themes** | Choose between 8 handcrafted visual styles: *Aetheric Dark*, *Studio Light*, *Cyberpunk Neon*, *Warm Fantasy*, *Holo Sci-Fi*, *Antique Sepia*, *Emerald Jungle*, and *Abyss Ocean*. |
@@ -48,6 +49,7 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 - **[🛤️ Listener Automation & Motion](Listener-Automation-&-Motion.md)**: Design dynamic movement paths, speed regulation, and waypoint curves.
 - **[🎛️ Stem Audio Tracks & Parameter Inspector](Stem-Audio-Tracks-&-Parameter-Inspector.md)**: Configure stems, volume curves, trigger intervals, and channel routing.
 - **[📚 Soundscape & Samples Library](Soundscape-Library-&-Ambient-Mixer-Import.md)**: Manage sound collections, `.3dscape` packaging, custom sample categories, and online imports.
+- **[🤖 AI Audio Generation](AI-Audio-Generation.md)**: Guide to configuring local `audio.cpp` models and generating sounds from text prompts.
 - **[🔊 Multi-Channel Surround & Offline Export](Multi-Channel-Surround-&-Offline-Export.md)**: Set up speaker configurations, SOFA profiles, and FFmpeg mixdowns.
 - **[🎧 SOFA HRTF & Spatial Audio Guide](SOFA-HRTF-Spatial-Audio-Guide.md)**: Deep dive into HRTF filters, SOFA database sources, and personalized binaural audio.
 - **[🎨 Themes, Localization & Preferences](Themes-Localization-&-Preferences.md)**: Customize themes, 5 languages, and workspace preferences.

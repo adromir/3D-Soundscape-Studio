@@ -4,7 +4,6 @@ extends Window
 # Author: Adromir
 # Repository: https://github.com/adromir/3D-Soundscape-Studio
 
-const UpdateManager = preload("res://src/core/update_manager.gd")
 
 enum State { IDLE, CHECKING, UP_TO_DATE, UPDATE_AVAILABLE, DOWNLOADING, READY_TO_INSTALL, ERROR }
 
@@ -59,9 +58,9 @@ func _ready() -> void:
 	update_localization()
 	apply_theme(ThemeManager.current_theme)
 
-func apply_theme(mode: ThemeManager.ThemeMode) -> void:
-	var pal: Dictionary = ThemeManager.get_palette_for_mode(mode)
-	var orbs: Dictionary = ThemeManager.get_orb_colors(mode)
+func apply_theme(theme_mode: ThemeManager.ThemeMode) -> void:
+	var pal: Dictionary = ThemeManager.get_palette_for_mode(theme_mode)
+	var orbs: Dictionary = ThemeManager.get_orb_colors(theme_mode)
 
 	if background_rect and background_rect.material is ShaderMaterial:
 		var mat: ShaderMaterial = background_rect.material as ShaderMaterial
@@ -112,7 +111,7 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 	if changelog_text:
 		changelog_text.add_theme_color_override("default_color", pal.get("text_main", Color.WHITE))
 
-	ThemeManager.apply_theme(self, mode)
+	ThemeManager.apply_theme(self, theme_mode)
 	_refresh_state_ui()
 
 func update_localization() -> void:
@@ -160,7 +159,7 @@ func _refresh_state_ui() -> void:
 
 		State.UP_TO_DATE:
 			if headline_label:
-				headline_label.text = "✅ " + LocalizationData.tr_key("UPDATE_UP_TO_DATE_TITLE")
+				headline_label.text = LocalizationData.tr_key("UPDATE_UP_TO_DATE_TITLE")
 				headline_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.5))
 			if version_compare_label:
 				version_compare_label.text = "%s %s" % [LocalizationData.tr_key("UPDATE_CURRENT_VERSION"), curr_ver]
@@ -185,10 +184,10 @@ func _refresh_state_ui() -> void:
 		State.UPDATE_AVAILABLE:
 			var new_tag: String = _release_info.get("tag_name", "New Version")
 			if headline_label:
-				headline_label.text = "🎉 " + LocalizationData.tr_key("UPDATE_AVAILABLE_TITLE")
+				headline_label.text = LocalizationData.tr_key("UPDATE_AVAILABLE_TITLE")
 				headline_label.add_theme_color_override("font_color", pal["primary"])
 			if version_compare_label:
-				version_compare_label.text = "%s %s  ➔  %s %s" % [
+				version_compare_label.text = "%s %s  ->  %s %s" % [
 					LocalizationData.tr_key("UPDATE_CURRENT_VERSION"), curr_ver,
 					LocalizationData.tr_key("UPDATE_LATEST_VERSION"), new_tag
 				]
@@ -215,7 +214,7 @@ func _refresh_state_ui() -> void:
 
 		State.READY_TO_INSTALL:
 			if headline_label:
-				headline_label.text = "📦 Update Ready to Apply"
+				headline_label.text = "Update Ready to Apply"
 				headline_label.add_theme_color_override("font_color", Color(0.2, 0.9, 0.5))
 			if progress_bar: progress_bar.visible = false
 			if status_label:
@@ -228,7 +227,7 @@ func _refresh_state_ui() -> void:
 
 		State.ERROR:
 			if headline_label:
-				headline_label.text = "⚠️ Update Error"
+				headline_label.text = "Update Error"
 				headline_label.add_theme_color_override("font_color", Color(1.0, 0.4, 0.4))
 			if progress_bar: progress_bar.visible = false
 			if btn_action:

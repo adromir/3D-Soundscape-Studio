@@ -4,7 +4,6 @@ extends PanelContainer
 # Author: Adromir
 # Repository: https://github.com/adromir/3D-Soundscape-Studio
 
-const AppPaths = preload("res://src/core/app_paths.gd")
 
 signal soundscape_loaded(project: SoundscapeData.SoundscapeProject)
 
@@ -47,10 +46,12 @@ func _ready() -> void:
 
 	if btn_import_package:
 		btn_import_package.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_import_package.icon = load("res://assets/icons/package.svg")
 		btn_import_package.pressed.connect(_prompt_import_package)
 
 	if btn_download:
 		btn_download.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_download.icon = load("res://assets/icons/download.svg")
 		btn_download.pressed.connect(_open_download_import_dialog)
 
 	if search_input:
@@ -222,7 +223,7 @@ func _open_download_import_dialog() -> void:
 	header_hbox.add_child(title_lbl)
 
 	var btn_close_top: Button = Button.new()
-	btn_close_top.text = "✕"
+	btn_close_top.text = "X"
 	btn_close_top.custom_minimum_size = Vector2(24, 24)
 	btn_close_top.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_close_top.pressed.connect(_download_dialog.queue_free)
@@ -407,7 +408,7 @@ func _prompt_edit_soundscape(item: Dictionary) -> void:
 	header_hbox.add_child(title_lbl)
 
 	var btn_close_top: Button = Button.new()
-	btn_close_top.text = "✕"
+	btn_close_top.text = "X"
 	btn_close_top.custom_minimum_size = Vector2(24, 24)
 	btn_close_top.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_close_top.pressed.connect(_edit_dialog.queue_free)
@@ -655,7 +656,7 @@ func _prompt_add_category() -> void:
 	header_hbox.add_child(title_lbl)
 
 	var btn_close_top: Button = Button.new()
-	btn_close_top.text = "✕"
+	btn_close_top.text = "X"
 	btn_close_top.custom_minimum_size = Vector2(24, 24)
 	btn_close_top.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	btn_close_top.pressed.connect(_add_cat_dialog.queue_free)
@@ -944,7 +945,7 @@ func _prompt_import_package() -> void:
 			_load_categories()
 			_setup_category_filters()
 			refresh_library()
-			print("✔ Imported soundscape package: ", imported_proj.title)
+			print("Imported soundscape package: ", imported_proj.title)
 			soundscape_loaded.emit(imported_proj)
 	)
 	ThemeManager.apply_theme(_package_file_dialog, ThemeManager.current_theme)
@@ -969,7 +970,7 @@ func _prompt_export_package(folder_or_slug: String) -> void:
 			final_out += ".3dscape"
 		var success: bool = LibraryManager.export_soundscape_by_folder(folder_or_slug, final_out)
 		if success:
-			print("✔ Exported soundscape package to: ", final_out)
+			print("Exported soundscape package to: ", final_out)
 	)
 	ThemeManager.apply_theme(_package_file_dialog, ThemeManager.current_theme)
 	add_child(_package_file_dialog)

@@ -178,6 +178,13 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Restablecer trayectoria",
 		Language.IT: "Ripristina percorso"
 	},
+	"MENU_EDIT_LIGHTING": {
+		Language.EN: "Visual Ambient Lighting (Home Assistant)...",
+		Language.DE: "Visuelles Ambient-Licht (Home Assistant)...",
+		Language.FR: "Éclairage d'ambiance visuel (Home Assistant)...",
+		Language.ES: "Iluminación ambiental visual (Home Assistant)...",
+		Language.IT: "Illuminazione ambientale visiva (Home Assistant)..."
+	},
 	"MENU_VIEW": {
 		Language.EN: "View",
 		Language.DE: "Ansicht",
@@ -584,6 +591,118 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Volumen maestro",
 		Language.IT: "Volume principale"
 	},
+	"TOOLTIP_HEATMAP_TOGGLE": {
+		Language.EN: "Toggle Acoustic Pressure & Audibility Heatmap (H)",
+		Language.DE: "Akustische Druck- / Hörbarkeits-Heatmap umschalten (H)",
+		Language.FR: "Basculer la carte thermique de pression acoustique (H)",
+		Language.ES: "Alternar mapa de calor de presión acústica (H)",
+		Language.IT: "Attiva/disattiva mappa termica di pressione acustica (H)"
+	},
+	"TOOLTIP_HEATMAP_COLORMAP": {
+		Language.EN: "Select Heatmap Colormap Palette",
+		Language.DE: "Farbskala für Akustik-Heatmap auswählen",
+		Language.FR: "Sélectionner la palette de la carte thermique",
+		Language.ES: "Seleccionar paleta del mapa térmico",
+		Language.IT: "Seleziona tavolozza mappa termica"
+	},
+	"HEATMAP_THERMAL": {
+		Language.EN: "Thermal",
+		Language.DE: "Thermal",
+		Language.FR: "Thermique",
+		Language.ES: "Térmico",
+		Language.IT: "Termico"
+	},
+	"HEATMAP_PHOSPHOR": {
+		Language.EN: "Phosphor",
+		Language.DE: "Phosphor",
+		Language.FR: "Phosphore",
+		Language.ES: "Fósforo",
+		Language.IT: "Fosforo"
+	},
+	"HEATMAP_CYBERPUNK": {
+		Language.EN: "Cyberpunk",
+		Language.DE: "Cyberpunk",
+		Language.FR: "Cyberpunk",
+		Language.ES: "Cyberpunk",
+		Language.IT: "Cyberpunk"
+	},
+	"TAB_LOCAL_SAMPLES": {
+		Language.EN: "Local Samples",
+		Language.DE: "Lokale Samples",
+		Language.FR: "Échantillons locaux",
+		Language.ES: "Muestras locales",
+		Language.IT: "Campioni locali"
+	},
+	"TAB_FREESOUND": {
+		Language.EN: "Freesound.org Database",
+		Language.DE: "Freesound.org Online-Datenbank",
+		Language.FR: "Base de données Freesound.org",
+		Language.ES: "Base de datos Freesound.org",
+		Language.IT: "Database Freesound.org"
+	},
+	"SEARCH_FREESOUND_PLACEHOLDER": {
+		Language.EN: "Search 500,000+ sound effects & ambient stems on Freesound.org...",
+		Language.DE: "Suche in über 500.000 Soundeffekten & Ambient-Stems auf Freesound.org...",
+		Language.FR: "Rechercher parmi plus de 500 000 effets sonores sur Freesound.org...",
+		Language.ES: "Buscar en más de 500.000 efectos de sonido en Freesound.org...",
+		Language.IT: "Cerca tra oltre 500.000 effetti sonori su Freesound.org..."
+	},
+	"FILTER_LICENSE": {
+		Language.EN: "License",
+		Language.DE: "Lizenz",
+		Language.FR: "Licence",
+		Language.ES: "Licencia",
+		Language.IT: "Licenza"
+	},
+	"FILTER_DURATION": {
+		Language.EN: "Duration",
+		Language.DE: "Dauer",
+		Language.FR: "Durée",
+		Language.ES: "Duración",
+		Language.IT: "Durata"
+	},
+	"BTN_SEARCH_ONLINE": {
+		Language.EN: "Search Freesound",
+		Language.DE: "Freesound durchsuchen",
+		Language.FR: "Rechercher sur Freesound",
+		Language.ES: "Buscar en Freesound",
+		Language.IT: "Cerca su Freesound"
+	},
+	"BTN_IMPORT_TO_LIB": {
+		Language.EN: "Import to Library",
+		Language.DE: "In Bibliothek importieren",
+		Language.FR: "Importer dans la bibliothèque",
+		Language.ES: "Importar a la biblioteca",
+		Language.IT: "Importa nella libreria"
+	},
+	"BTN_ADD_TO_STUDIO": {
+		Language.EN: "Add to Studio",
+		Language.DE: "Als 3D-Spur einfügen",
+		Language.FR: "Ajouter au Studio",
+		Language.ES: "Añadir al Estudio",
+		Language.IT: "Aggiungi allo Studio"
+	},
+	"FREESOUND_SEARCHING": {
+		Language.EN: "Searching Freesound.org database...",
+		Language.DE: "Durchsuche Freesound.org Datenbank...",
+		Language.FR: "Recherche dans la base de données Freesound.org...",
+		Language.ES: "Buscando en la base de datos de Freesound.org...",
+		Language.IT: "Ricerca nel database di Freesound.org..."
+	},
+	"FREESOUND_DOWNLOADING": {
+		Language.EN: "Downloading sample...",
+		Language.DE: "Lade Sample herunter...",
+		Language.FR: "Téléchargement de l'échantillon...",
+		Language.ES: "Descargando muestra...",
+		Language.IT: "Download del campione..."
+	},
+	"FREESOUND_IMPORTED_SUCCESS": {
+		Language.EN: "Sample imported successfully into library!",
+		Language.DE: "Sample erfolgreich in die Bibliothek importiert!",
+		Language.FR: "Échantillon importé avec succès dans la bibliothèque !",
+		Language.ES: "¡Muestra importada con éxito a la biblioteca!",
+		Language.IT: "Campione importato con successo nella libreria!"
+	},
 	"LABEL_OUTPUT_FORMAT": {
 		Language.EN: "Speaker Layout",
 		Language.DE: "Lautsprecher-Setup",
@@ -668,6 +787,13 @@ const TRANSLATIONS: Dictionary = {
 		Language.ES: "Izquierda ➔ Derecha (Unidireccional)",
 		Language.IT: "Sinistra ➔ Destra (Senso unico)"
 	},
+	"MOV_ONE_WAY_RL": {
+		Language.EN: "Right ➔ Left (One-Way)",
+		Language.DE: "Rechts ➔ Links (Einweg)",
+		Language.FR: "Droite ➔ Gauche (Sens unique)",
+		Language.ES: "Derecha ➔ Izquierda (Unidireccional)",
+		Language.IT: "Destra ➔ Sinistra (Senso unico)"
+	},
 	"MOV_PING_PONG_FB": {
 		Language.EN: "Front ⟷ Back (Ping-Pong)",
 		Language.DE: "Vorne ⟷ Hinten (Ping-Pong)",
@@ -676,11 +802,53 @@ const TRANSLATIONS: Dictionary = {
 		Language.IT: "Avanti ⟷ Dietro (Ping-Pong)"
 	},
 	"MOV_ONE_WAY_FB": {
-		Language.EN: "Front ➔ Back (One-Way)",
-		Language.DE: "Vorne ➔ Hinten (Einweg)",
-		Language.FR: "Avant ➔ Arrière (Sens unique)",
-		Language.ES: "Frente ➔ Atrás (Unidireccional)",
-		Language.IT: "Avanti ➔ Dietro (Senso unico)"
+		Language.EN: "Front ➔ Back / Recede (One-Way)",
+		Language.DE: "Vorne ➔ Hinten / Entfernen (Einweg)",
+		Language.FR: "Avant ➔ Arrière / Éloignement",
+		Language.ES: "Frente ➔ Atrás / Alejamiento",
+		Language.IT: "Avanti ➔ Dietro / Allontanamento"
+	},
+	"MOV_ONE_WAY_BF": {
+		Language.EN: "Back ➔ Front / Approach (One-Way)",
+		Language.DE: "Hinten ➔ Vorne / Annähern (Einweg)",
+		Language.FR: "Arrière ➔ Avant / Rapprochement",
+		Language.ES: "Atrás ➔ Frente / Acercamiento",
+		Language.IT: "Dietro ➔ Avanti / Avvicinamento"
+	},
+	"MOV_ORBIT_CW": {
+		Language.EN: "Orbit (Clockwise ↻)",
+		Language.DE: "Kreisbahn (Uhrzeigersinn ↻)",
+		Language.FR: "Orbite (Sens horaire ↻)",
+		Language.ES: "Órbita (Sentido horario ↻)",
+		Language.IT: "Orbita (Senso orario ↻)"
+	},
+	"MOV_ORBIT_CCW": {
+		Language.EN: "Orbit (Counter-Clockwise ↺)",
+		Language.DE: "Kreisbahn (Gegenuhrzeigersinn ↺)",
+		Language.FR: "Orbite (Sens antihoraire ↺)",
+		Language.ES: "Órbita (Sentido antihorario ↺)",
+		Language.IT: "Orbita (Senso antiorario ↺)"
+	},
+	"MOV_SPIRAL_IN": {
+		Language.EN: "Spiral (Inward 🌀)",
+		Language.DE: "Spirale (Einwärts 🌀)",
+		Language.FR: "Spirale (Vers l'intérieur 🌀)",
+		Language.ES: "Espiral (Hacia dentro 🌀)",
+		Language.IT: "Spirale (Verso l'interno 🌀)"
+	},
+	"MOV_SPIRAL_OUT": {
+		Language.EN: "Spiral (Outward 🌀)",
+		Language.DE: "Spirale (Auswärts 🌀)",
+		Language.FR: "Spirale (Vers l'extérieur 🌀)",
+		Language.ES: "Espiral (Hacia fuera 🌀)",
+		Language.IT: "Spirale (Verso l'esterno 🌀)"
+	},
+	"MOV_FIGURE_EIGHT": {
+		Language.EN: "Figure-8 / Lemniscate (♾️)",
+		Language.DE: "Achterbahn / Lemniskate (♾️)",
+		Language.FR: "Huit / Lemniscate (♾️)",
+		Language.ES: "Figura en ocho / Lemniscata (♾️)",
+		Language.IT: "Figura a otto / Lemniscata (♾️)"
 	},
 	"MOV_RANDOM_WALK": {
 		Language.EN: "Random Walk (Continuous)",
@@ -1528,6 +1696,41 @@ const TRANSLATIONS: Dictionary = {
 		Language.FR: "Exporter un paquet portable complet avec paramètres, métadonnées et toutes les pistes audio pour le partage.",
 		Language.ES: "Exportar paquete portátil completo con configuraciones, metadatos y todas las pistas de audio para compartir.",
 		Language.IT: "Esporta un pacchetto portatile completo con impostazioni, metadati e tutte le tracce audio da condividere."
+	},
+	"TAB_AI_GEN": {
+		Language.EN: "Local AI Sound Generation (audio.cpp)",
+		Language.DE: "Lokale KI-Soundgenerierung (audio.cpp)",
+		Language.FR: "Génération de son IA locale (audio.cpp)",
+		Language.ES: "Generación de sonido IA local (audio.cpp)",
+		Language.IT: "Generazione audio IA locale (audio.cpp)"
+	},
+	"PROMPT_AI_GEN_PLACEHOLDER": {
+		Language.EN: "Describe the sound to synthesize (e.g. Whispering pine wind with temple chimes, Deep distant thunder)...",
+		Language.DE: "Beschreibe den zu generierenden Klang (z.B. Flüsternder Kiefernwind mit Tempelglocken, Tiefes Donnergrollen)...",
+		Language.FR: "Décrivez le son à synthétiser (ex. Vent murmurant dans les pins avec cloches de temple, Tonnerre lointain)...",
+		Language.ES: "Describe el sonido a sintetizar (ej. Viento susurrante entre pinos con campanas de templo, Trueno lejano)...",
+		Language.IT: "Descrivi il suono da sintetizzare (es. Vento tra i pini con campane del tempio, Tuono distante)..."
+	},
+	"BTN_GENERATE_AI_SOUND": {
+		Language.EN: "Generate AI Sound Stem",
+		Language.DE: "KI-Soundspur generieren",
+		Language.FR: "Générer la piste audio IA",
+		Language.ES: "Generar pista de audio IA",
+		Language.IT: "Genera traccia audio IA"
+	},
+	"BTN_PREVIEW": {
+		Language.EN: "Preview",
+		Language.DE: "Vorhören",
+		Language.FR: "Écouter",
+		Language.ES: "Escuchar",
+		Language.IT: "Ascolta"
+	},
+	"BTN_ADD_AS_3D_TRACK": {
+		Language.EN: "Add as 3D Track",
+		Language.DE: "Als 3D-Spur einfügen",
+		Language.FR: "Ajouter en piste 3D",
+		Language.ES: "Añadir como pista 3D",
+		Language.IT: "Aggiungi come traccia 3D"
 	}
 }
 

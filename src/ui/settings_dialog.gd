@@ -4,7 +4,6 @@ extends Window
 # Author: Adromir
 # Repository: https://github.com/adromir
 
-const AppPaths = preload("res://src/core/app_paths.gd")
 
 signal settings_saved()
 
@@ -46,6 +45,10 @@ static func get_settings_file() -> String:
 @onready var theme_option: OptionButton = $Margin/VBox/Tabs/DisplayTab/ThemeOption if has_node("Margin/VBox/Tabs/DisplayTab/ThemeOption") else null
 @onready var radar_anim_label: Label = $Margin/VBox/Tabs/DisplayTab/RadarAnimationLabel if has_node("Margin/VBox/Tabs/DisplayTab/RadarAnimationLabel") else null
 
+var freesound_key_edit: LineEdit = null
+var audio_cpp_path_edit: LineEdit = null
+var audio_cpp_model_edit: LineEdit = null
+
 @onready var btn_save: Button = $Margin/VBox/BottomHBox/BtnSaveSettings
 @onready var btn_cancel: Button = $Margin/VBox/BottomHBox/BtnCancelSettings
 @onready var path_file_dialog: FileDialog = $PathFileDialog
@@ -53,7 +56,7 @@ static func get_settings_file() -> String:
 var _active_browse_target: LineEdit = null
 
 func _ready() -> void:
-	title = "⚙️ Studio Preferences & Settings"
+	title = "Studio Preferences & Settings"
 	close_requested.connect(hide)
 	
 	if btn_close:
@@ -66,6 +69,7 @@ func _ready() -> void:
 		btn_test_ffmpeg.pressed.connect(_test_ffmpeg_path)
 
 	_setup_browse_buttons()
+	_setup_freesound_settings()
 	_populate_devices()
 	_populate_layouts()
 	_populate_languages()
@@ -75,9 +79,79 @@ func _ready() -> void:
 	update_localization()
 	apply_theme(ThemeManager.current_theme)
 
-func apply_theme(mode: ThemeManager.ThemeMode) -> void:
-	var pal: Dictionary = ThemeManager.get_palette_for_mode(mode)
-	var orbs: Dictionary = ThemeManager.get_orb_colors(mode)
+func _setup_freesound_settings() -> void:
+	var display_tab = get_node_or_null("Margin/VBox/Tabs/DisplayTab")
+	if display_tab:
+		var fs_lbl: Label = Label.new()
+		fs_lbl.text = "Freesound.org API Token (Optional / Free):"
+		fs_lbl.add_theme_font_size_override("font_size", 11)
+		display_tab.add_child(fs_lbl)
+
+		var fs_hbox: HBoxContainer = HBoxContainer.new()
+		fs_hbox.add_theme_constant_override("separation", 6)
+		display_tab.add_child(fs_hbox)
+
+		freesound_key_edit = LineEdit.new()
+		freesound_key_edit.placeholder_text = "Paste your Freesound API token or leave blank for default..."
+		freesound_key_edit.secret = true
+		freesound_key_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		freesound_key_edit.custom_minimum_size = Vector2(0, 26)
+		fs_hbox.add_child(freesound_key_edit)
+
+		var btn_get_token: Button = Button.new()
+		btn_get_token.text = "Get API Key ↗"
+		btn_get_token.custom_minimum_size = Vector2(100, 26)
+		btn_get_token.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_get_token.pressed.connect(func(): OS.shell_open("https://freesound.org/apiv2/apply/"))
+		fs_hbox.add_child(btn_get_token)
+
+		var audio_cpp_lbl: Label = Label.new()
+		audio_cpp_lbl.text = "audio.cpp Executable Path:"
+		audio_cpp_lbl.add_theme_font_size_override("font_size", 11)
+		display_tab.add_child(audio_cpp_lbl)
+
+		var acpp_hbox: HBoxContainer = HBoxContainer.new()
+		acpp_hbox.add_theme_constant_override("separation", 6)
+		display_tab.add_child(acpp_hbox)
+
+		audio_cpp_path_edit = LineEdit.new()
+		audio_cpp_path_edit.placeholder_text = "Path to audio.cpp executable (e.g. C:/audio.cpp/build/bin/audio.cpp.exe)"
+		audio_cpp_path_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		audio_cpp_path_edit.custom_minimum_size = Vector2(0, 26)
+		acpp_hbox.add_child(audio_cpp_path_edit)
+
+		var btn_browse_acpp: Button = Button.new()
+		btn_browse_acpp.text = "Browse..."
+		btn_browse_acpp.custom_minimum_size = Vector2(80, 26)
+		btn_browse_acpp.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_browse_acpp.pressed.connect(func(): _open_picker(audio_cpp_path_edit, FileDialog.FILE_MODE_OPEN_FILE, "Select audio.cpp executable", ["*.exe", "*"]))
+		acpp_hbox.add_child(btn_browse_acpp)
+		
+		var acpp_model_lbl: Label = Label.new()
+		acpp_model_lbl.text = "GGUF Model Path for audio.cpp:"
+		acpp_model_lbl.add_theme_font_size_override("font_size", 11)
+		display_tab.add_child(acpp_model_lbl)
+
+		var model_hbox: HBoxContainer = HBoxContainer.new()
+		model_hbox.add_theme_constant_override("separation", 6)
+		display_tab.add_child(model_hbox)
+
+		audio_cpp_model_edit = LineEdit.new()
+		audio_cpp_model_edit.placeholder_text = "Path to .gguf model file"
+		audio_cpp_model_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		audio_cpp_model_edit.custom_minimum_size = Vector2(0, 26)
+		model_hbox.add_child(audio_cpp_model_edit)
+
+		var btn_browse_model: Button = Button.new()
+		btn_browse_model.text = "Browse..."
+		btn_browse_model.custom_minimum_size = Vector2(80, 26)
+		btn_browse_model.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_browse_model.pressed.connect(func(): _open_picker(audio_cpp_model_edit, FileDialog.FILE_MODE_OPEN_FILE, "Select GGUF model", ["*.gguf", "*"]))
+		model_hbox.add_child(btn_browse_model)
+
+func apply_theme(theme_mode: ThemeManager.ThemeMode) -> void:
+	var pal: Dictionary = ThemeManager.get_palette_for_mode(theme_mode)
+	var orbs: Dictionary = ThemeManager.get_orb_colors(theme_mode)
 
 	if background_rect and background_rect.material is ShaderMaterial:
 		var mat: ShaderMaterial = background_rect.material as ShaderMaterial
@@ -85,7 +159,7 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 		mat.set_shader_parameter("orb1_color", orbs["orb1"])
 		mat.set_shader_parameter("orb2_color", orbs["orb2"])
 		mat.set_shader_parameter("orb3_color", orbs["orb3"])
-		if mode == ThemeManager.ThemeMode.ZEN:
+		if theme_mode == ThemeManager.ThemeMode.ZEN:
 			mat.set_shader_parameter("use_texture", true)
 			if ResourceLoader.exists("res://assets/textures/zen/bg_zen_atmosphere.png"):
 				mat.set_shader_parameter("bg_texture", load("res://assets/textures/zen/bg_zen_atmosphere.png"))
@@ -109,9 +183,9 @@ func apply_theme(mode: ThemeManager.ThemeMode) -> void:
 		save_sb.content_margin_top = 4
 		save_sb.content_margin_bottom = 4
 		btn_save.add_theme_stylebox_override("normal", save_sb)
-		btn_save.add_theme_color_override("font_color", Color.BLACK if mode == ThemeManager.ThemeMode.LIGHT else Color.WHITE)
+		btn_save.add_theme_color_override("font_color", Color.BLACK if theme_mode == ThemeManager.ThemeMode.LIGHT else Color.WHITE)
 
-	ThemeManager.apply_theme(self, mode)
+	ThemeManager.apply_theme(self, theme_mode)
 
 func _setup_browse_buttons() -> void:
 	if path_file_dialog:
@@ -208,6 +282,9 @@ func load_settings() -> Dictionary:
 	if export_path_edit: export_path_edit.text = data.get("export_path", "")
 	if sofa_path_edit: sofa_path_edit.text = data.get("sofa_path", "")
 	if ffmpeg_path_edit: ffmpeg_path_edit.text = data.get("ffmpeg_path", "")
+	if freesound_key_edit: freesound_key_edit.text = data.get("freesound_api_key", "")
+	if audio_cpp_path_edit: audio_cpp_path_edit.text = data.get("audio_cpp_binary_path", "")
+	if audio_cpp_model_edit: audio_cpp_model_edit.text = data.get("audio_cpp_model_path", "")
 	if layout_option: layout_option.select(int(data.get("speaker_layout", 0)))
 	if chk_radar_animation: chk_radar_animation.button_pressed = bool(data.get("radar_animation", true))
 	if chk_check_updates: chk_check_updates.button_pressed = bool(data.get("check_updates_on_startup", true))
@@ -262,7 +339,7 @@ func _setup_realtime_sync() -> void:
 			apply_theme(idx as ThemeManager.ThemeMode)
 			_save_current_settings(false)
 		)
-	for edit in [lib_path_edit, samples_path_edit, export_path_edit, sofa_path_edit, ffmpeg_path_edit]:
+	for edit in [lib_path_edit, samples_path_edit, export_path_edit, sofa_path_edit, ffmpeg_path_edit, freesound_key_edit, audio_cpp_path_edit, audio_cpp_model_edit]:
 		if edit:
 			edit.text_changed.connect(func(_t: String):
 				_save_current_settings(false)
@@ -288,6 +365,9 @@ func _save_current_settings(should_hide: bool = false) -> void:
 	existing_data["export_path"] = export_path_edit.text.strip_edges() if export_path_edit else ""
 	existing_data["sofa_path"] = sofa_path_edit.text.strip_edges() if sofa_path_edit else ""
 	existing_data["ffmpeg_path"] = ffmpeg_path_edit.text.strip_edges() if ffmpeg_path_edit else ""
+	existing_data["freesound_api_key"] = freesound_key_edit.text.strip_edges() if freesound_key_edit else ""
+	existing_data["audio_cpp_binary_path"] = audio_cpp_path_edit.text.strip_edges() if audio_cpp_path_edit else ""
+	existing_data["audio_cpp_model_path"] = audio_cpp_model_edit.text.strip_edges() if audio_cpp_model_edit else ""
 	existing_data["radar_animation"] = chk_radar_animation.button_pressed if chk_radar_animation else true
 	existing_data["check_updates_on_startup"] = chk_check_updates.button_pressed if chk_check_updates else true
 
@@ -319,11 +399,11 @@ func _test_ffmpeg_path() -> void:
 	if exit_code == 0 and not output.is_empty():
 		var first_line: String = output[0].split("\n")[0]
 		if ffmpeg_status_lbl:
-			ffmpeg_status_lbl.text = "✅ Found: " + first_line
+			ffmpeg_status_lbl.text = "Found: " + first_line
 			ffmpeg_status_lbl.add_theme_color_override("font_color", Color(0.2, 1.0, 0.4))
 	else:
 		if ffmpeg_status_lbl:
-			ffmpeg_status_lbl.text = "❌ FFmpeg not found at this path"
+			ffmpeg_status_lbl.text = "FFmpeg not found at this path"
 			ffmpeg_status_lbl.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
 
 func update_localization() -> void:

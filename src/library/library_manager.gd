@@ -4,7 +4,6 @@ extends RefCounted
 # Author: Adromir
 # Repository: https://github.com/adromir
 
-const AppPaths = preload("res://src/core/app_paths.gd")
 
 static func get_library_root() -> String:
 	return AppPaths.get_default_library_dir()
@@ -101,13 +100,8 @@ static func load_project_file(path: String) -> SoundscapeData.SoundscapeProject:
 	var global_p: String = ProjectSettings.globalize_path(path)
 	if not FileAccess.file_exists(global_p):
 		return null
-	var file: FileAccess = FileAccess.open(global_p, FileAccess.READ)
-	if file == null:
-		return null
-	var json: JSON = JSON.new()
-	if json.parse(file.get_as_text()) == OK and json.data is Dictionary:
-		return SoundscapeData.SoundscapeProject.from_dict(json.data)
-	return null
+	var proj: SoundscapeData.SoundscapeProject = SoundscapeData.SoundscapeProject.load_from_file(global_p)
+	return proj
 
 static func save_soundscape(project: SoundscapeData.SoundscapeProject, target_folder: String = "") -> String:
 	ensure_library_directory()
