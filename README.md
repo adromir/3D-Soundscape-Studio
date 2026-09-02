@@ -22,7 +22,10 @@ A modern, high-performance desktop Digital Audio Workstation (DAW), 3D spatial s
 **3D Soundscape Studio** and the **3D Ambient Player** empower sound designers, composers, tabletop RPG masters, game developers, and relaxation listeners to craft and enjoy living virtual audio environments in 3D space:
 
 - **🎧 Dedicated Standalone 3D Ambient Player (`3D-Ambient-Player`):** A lightweight, meditative player for Windows, Linux, macOS, Android, and iOS. Features an expandable Atmosphere Stem Mixer drawer, breathing vinyl visualizer halo, sleep timer with 15-second gentle audio fade-out, 1-click `.3dscape` package import, and theme customization without DAW overhead.
-- **💡 Native Philips Hue & Home Assistant Smart Lighting:** Synchronize your physical room lights with your soundscape. Features local Hue Bridge auto-discovery, 30-second push-link pairing, wide-gamut CIE 1931 xy color math, instant lightning strobe flashes ($0\text{ms}$ transition), fireplace hearth flicker, and listener proximity dimming.
+- **💡 Native Philips Hue & Home Assistant Smart Lighting:** Synchronize physical room lights with your soundscape. Features local Hue Bridge auto-discovery, 30-second push-link pairing, wide-gamut CIE 1931 xy color math, instant lightning strobe flashes ($0\text{ms}$ transition), fireplace hearth flicker, and listener proximity dimming.
+- **🧱 Acoustic Environments, Raycast Occlusion & Barriers:** Place physical barrier walls directly on the soundstage. Features real-time line-of-sight raycast occlusion that realistically muffles high frequencies while allowing low-end diffraction, plus environmental room reverb presets.
+- **🌡️ Real-Time Acoustic Heatmap & Sound Pressure Field Visualizer:** High-performance GPU shader computing live sound pressure distributions with Iso-dB contour rings across 3 visual palettes (*Thermal*, *Phosphor*, *Cyberpunk*) toggled with **`H`**.
+- **🎵 Freesound.org REST API Integration & Audition Streaming:** Search and browse hundreds of thousands of open-source sound effects directly inside the studio with tag chips, CC0 / CC-BY license filters, zero-cache in-memory streaming audio preview, and 1-click 3D soundstage placement.
 - **⚡ 1-Click Dependency Downloader:** Automated cross-platform downloader and installer for `audio.cpp`, FFmpeg, and recommended AudioGen GGUF diffusion models on Windows, Linux, and macOS.
 - **📦 Portable Soundscape Project Packaging (`.3dscape` / `.zip`):** Export and import self-contained soundscape archives containing track coordinates, listener movement paths, trigger schedules, metadata, cover artwork, and all referenced audio stem files with zero missing-file errors.
 - **🎯 Interactive 3D Spatial Radar:** Visually position audio sources relative to a central listener with real-time azimuth, elevation, and distance attenuation (up to 30m soundspaces) with live drag & drop.
@@ -63,26 +66,42 @@ A modern, high-performance desktop Digital Audio Workstation (DAW), 3D spatial s
 
 ---
 
-## 🛠️ Installation & Setup
+## 📥 Download & Installation
 
-### Prerequisites
+### 🚀 Pre-Compiled Releases (Recommended)
 
-- [Godot Engine 4.x](https://godotengine.org/download) (Standard build)
-- [FFmpeg](https://ffmpeg.org/download.html) (placed in system `PATH` or next to the application executable)
+Pre-built, standalone, ready-to-run releases are available for **Windows**, **Linux**, **macOS**, and **Android** on the official [**GitHub Releases**](https://github.com/adromir/3D-Soundscape-Studio/releases) page.
 
-### Running from Source
+| Target Platform | Package Format | Architecture | Highlights |
+| :--- | :--- | :--- | :--- |
+| **🪟 Windows** | `.msi` Setup Installer | `x64` | Native Windows Installer with Desktop & Start Menu shortcuts |
+| | `.zip` Portable | `x64`, `ARM64` | Standalone portable archive, zero installation required |
+| **🐧 Linux** | `.AppImage` Universal | `x86_64` | Self-contained universal binary, runs on all modern distributions |
+| | `.deb` Package | `amd64`, `arm64` | Native package for Debian, Ubuntu, Linux Mint, Pop!_OS |
+| | `.tar.gz` Portable | `x86_64`, `arm64` | Lightweight portable archive with executables and desktop icon |
+| | `.flatpak` Bundle | `x86_64` | Sandboxed desktop application package |
+| **🍎 macOS** | `.dmg` Disk Image | `Universal` (Apple Silicon & Intel) | Drag-and-drop installer into `/Applications` |
+| | `.zip` Portable | `Universal` (Apple Silicon & Intel) | Standalone `.app` bundle |
+| **🤖 Android** | `.apk` Package | `ARM64-v8a` | Standalone mobile ambient player for phones and tablets |
 
-1. Clone this repository:
+> 💡 **Both Applications Included:** Every release archive provides both the full **3D Soundscape Studio DAW** (`3D-Soundscape-Studio`) and the distraction-free **3D Ambient Player** (`3D-Ambient-Player`).
 
+---
+
+### 🛠️ Running / Building from Source
+
+For developers modifying the code or contributing features:
+
+1. **Prerequisites:**
+   - [Godot Engine 4.3+](https://godotengine.org/download) (Standard build)
+   - [FFmpeg](https://ffmpeg.org/download.html) (placed in system `PATH` or next to executable)
+
+2. **Clone and Launch:**
    ```bash
-   git clone https://github.com/adromir/3d-soundscape-studio.git
+   git clone https://github.com/adromir/3D-Soundscape-Studio.git
+   cd 3D-Soundscape-Studio
    ```
-
-2. Open Godot Engine and import the project:
-   - Click **Import**
-   - Navigate to the cloned repository directory
-   - Select `project.godot`
-3. Press **F5** (or click **Play**) to launch the application.
+3. Open Godot Engine, import `project.godot`, and press **F5** to run.
 
 ---
 
@@ -90,79 +109,67 @@ A modern, high-performance desktop Digital Audio Workstation (DAW), 3D spatial s
 
 ### 1. Exporting & Importing Soundscape Packages (`.3dscape`)
 
-- **Export Package:**
-  - Go to **File > Export Soundscape Package (.3dscape)...** (`Ctrl+Shift+E`).
-  - Or click the **`[ 📦 ]`** button on any soundscape card in the Library.
-  - Or click **`[ 📦 Paket exportieren ]`** inside the Edit Soundscape modal or Export Dialog.
-- **Import Package:**
-  - Go to **File > Import Soundscape Package (.3dscape)...** (`Ctrl+Shift+I`).
-  - Or click **`[ 📦 Paket importieren... ]`** in the Soundscape Library TopBar or Download dialog.
-  - Or simply **drag and drop** a `.3dscape`, `.soundscape`, or `.zip` file anywhere onto the application window!
+- **Export Package:** Go to **File > Export Soundscape Package (.3dscape)...** (`Ctrl+Shift+E`), or click the **`[ 📦 ]`** button on any soundscape card.
+- **Import Package:** Go to **File > Import Soundscape Package (.3dscape)...** (`Ctrl+Shift+I`), or simply **drag and drop** a `.3dscape` file anywhere onto the window!
 
-### 2. Downloading from Ambient Mixer
+### 2. Positioning & Spatializing Tracks
 
-1. Switch to the **Library** tab (`F3`).
-2. Click **Download & Import...**.
-3. Enter the Ambient-Mixer URL (e.g. `https://www.ambient-mixer.com/mix/...`) or numeric template ID and choose a category.
-4. Click **Download & Import**. The stems, cover art, and spatial layout are automatically downloaded, converted, and saved to your local library.
+- **Drag & Drop:** Click and drag any audio stem puck on the central radar canvas to adjust azimuth and distance.
+- **Elevation & Spread:** Use the right-hand **Track Inspector** to adjust height ($-90^\circ$ to $+90^\circ$) and spatial spread.
+- **Routing:** Toggle between `3D Point Source`, `Omnipresent (All Around)`, or `Multi-Channel Specific` (`FL`, `FR`, `FC`, `LFE`, `BL`, `BR`, `SL`, `SR`, `TFL`, `TFR`, `TBL`, `TBR`).
 
-### 3. Positioning & Spatializing Tracks
+### 3. Acoustic Barriers & Sound Pressure Heatmap
 
-- **Drag & Drop:** Click and drag any audio stem circle on the central radar canvas to adjust azimuth and distance.
-- **Drag Audio Files:** Drag audio stems directly from the OS or Sample Browser onto the radar to place them at exact coordinates.
-- **Routing Mode:** In the right-hand **Track Inspector**, choose between:
-  - `3D Point Source`: Directional audio in spherical coordinates.
-  - `Omnipresent (All Around)`: Enveloping atmosphere surrounding the listener equally.
-  - `Multi-Channel Specific`: Route to discrete speaker channels (`FL`, `FR`, `FC`, `LFE`, etc.).
+- **Acoustic Heatmap:** Press **`H`** anytime to view the live GPU sound pressure field with Iso-dB contour rings in Thermal, Phosphor, or Cyberpunk palettes.
+- **Barrier Occlusion:** Draw physical wall obstacles on the radar; sound passing through walls is realistically muffled using dynamic low-pass filtering.
 
-### 4. Simulating Listener Movement (Automation Tab `F2`)
+### 4. Freesound.org & Local AI Audio Generation (`F4`)
 
-1. Switch to the **Automation** tab (`F2`).
-2. Click on the canvas to add waypoints for a walking listener path.
-3. Configure walking speed ($m/s$ or $km/h$) and toggle between **Closed Loop** and **Open Path**.
-4. Activate listener motion to experience a journey through your 3D sound environment.
+- Open the **Sample Browser** (`F4`).
+- **Freesound**: Search online sound effects by tags (`#Rain`, `#Thunder`, `#Campfire`), filter by CC0 licensing, and stream in-memory previews.
+- **Local AI Audio (`audio.cpp`)**: Enter a prompt (e.g. *"crackling campfire with gentle breeze"*) and render locally on CPU/GPU via GGUF models.
 
-### 5. Exporting Multi-Channel & Binaural Audio (`Ctrl+E`)
+### 5. Simulating Listener Movement (`F2`)
 
-1. Click **Export** in the top transport bar (`Ctrl+E`).
-2. Select your target speaker layout (`Binaural HRTF`, `Stereo`, `Quad 4.0`, `Surround 5.1`, `Surround 7.1`, or `7.1.4 Atmos`).
-3. Set the target duration and optional `.sofa` HRTF file.
-4. Click **🚀 Start Audio Render** to generate the offline master mixdown asynchronously.
+- Switch to the **Automation** tab (`F2`).
+- Click to place waypoints for walking paths, adjust speeds ($m/s$ or $km/h$), and toggle Open Path / Closed Loop modes.
 
-### 6. Seamless GitHub Releases Auto-Updater
+### 6. Exporting Multi-Channel & Binaural Audio (`Ctrl+E`)
 
-- Check for updates anytime via **Help > Check for Updates...** (`Hilfe > Nach Updates suchen...`).
-- Shows release notes, version differences (`v2.0.0` ➔ `v2.1.0`), and downloads update binaries directly.
-- On Windows and Linux, auto-applies the downloaded update package and restarts seamlessly.
-- Configurable in **Preferences > Display & Language** (`[x] Check for updates automatically on startup`).
+- Press **Export** (`Ctrl+E`).
+- Select speaker layout: `Binaural HRTF` (`.sofa`), `Stereo`, `Quad 4.0`, `Surround 5.1`, `Surround 7.1`, or `7.1.4 Dolby Atmos`.
+- Click **🚀 Start Audio Render** for deterministic, buffer-underrun-free offline rendering via FFmpeg.
 
-### 7. Using the Dedicated 3D Ambient Player
+### 7. Dedicated Standalone 3D Ambient Player
 
-For users who want pure ambient soundscape playback, relaxation, meditation, or sleep assistance without loading the full DAW:
+- **Launch Directly:** Run `3D-Ambient-Player.exe` (or pass `--player` / `-p`).
+- **Atmosphere Stem Mixer:** Expand the bottom drawer to adjust individual stem volumes (rain, wind, stream, wildlife).
+- **Sleep Timer:** Select 15m to 2h countdown with automatic 15-second gentle audio fade-out.
 
-- **Launch Directly:** Run `3D-Ambient-Player.exe` (or `3D-Ambient-Player.x86_64` / `.app`), or pass `--player` (or `-p`) on the command line.
-- **Atmosphere Stem Mixer:** Click the bottom drawer to expand real-time volume sliders and icons for each sound element (rain, wind, campfire, birds).
-- **Smart Sleep Timer:** Click the crescent moon icon in the header to select 15m, 30m, 45m, 1h, or 2h with a gentle 15-second volume fade-out.
-- **Library & Packages:** Click the Library button to switch soundscapes or import `.3dscape` package files.
-
-### 8. Philips Hue & Smart Ambient Lighting
+### 8. Philips Hue & Smart Ambient Lighting (`F7`)
 
 - Open **Tools > Visual Ambient Lighting (Hue & HA)...** (`F7`).
-- Click **🔍 Auto-Discover Bridge** or enter your Bridge IP manually.
-- Press the physical push-link button on your Hue Bridge and click **Pair with Bridge**.
-- Fetch and map lights to thunder lightning strobes, fireplace flickers, and walking proximity dimming.
+- Auto-discover local Hue Bridges, click Pair, and map lights to lightning flashes, candle hearth flicker, and distance-based dimming.
 
 ---
 
 ## 🖼️ Screenshots
 
-| Studio Overview | 3D Spatial Radar & Inspector |
+| 🎛️ 3D Soundscape Studio DAW Overview | 🎯 3D Radar with Acoustic Heatmap (`H`) |
 | :---: | :---: |
-| ![Studio Overview](docs/images/01_studio_overview.png) | ![Track Inspector](docs/images/02_track_inspector_radar.png) |
+| ![Studio Overview](docs/images/01_studio_overview.png) | ![Acoustic Heatmap Radar](docs/images/02_track_inspector_radar.png) |
 
-| Listener Automation View | Soundscape Library & Package Management |
+| 🎧 Dedicated Standalone 3D Ambient Player | 💡 Philips Hue & Smart Ambient Lighting |
 | :---: | :---: |
-| ![Automation](docs/images/03_listener_automation_view.png) | ![Library](docs/images/05_soundscape_library_dialog.png) |
+| ![3D Ambient Player](docs/images/12_dedicated_ambient_player.png) | ![Philips Hue Integration](docs/images/13_philips_hue_smart_lighting.png) |
+
+| 🛤️ Listener Automation & Motion Paths | 🎵 Freesound Search & AI Audio Generation |
+| :---: | :---: |
+| ![Listener Automation](docs/images/03_listener_automation_view.png) | ![Freesound and AI Generation](docs/images/14_ai_audio_and_freesound.png) |
+
+| 📚 Soundscape Library & Packaging | 🔊 Multi-Channel Surround & Offline Export |
+| :---: | :---: |
+| ![Library](docs/images/05_soundscape_library_dialog.png) | ![Surround Export](docs/images/06_export_surround_dialog.png) |
 
 ---
 

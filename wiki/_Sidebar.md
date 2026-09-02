@@ -2,9 +2,11 @@
 
 - **[📖 Getting Started](Home)**
 - **[🎯 3D Spatial Audio Radar](3D-Spatial-Audio-Radar)**
+- **[🧱 Acoustics, Barriers & Heatmap](Acoustics-Raycast-Occlusion-&-Heatmap)**
 - **[🛤️ Listener Automation & Motion](Listener-Automation-&-Motion)**
 - **[🎛️ Stem Audio Tracks & Inspector](Stem-Audio-Tracks-&-Parameter-Inspector)**
 - **[📚 Soundscape Library & Import](Soundscape-Library-&-Ambient-Mixer-Import)**
+- **[🎵 Freesound & Sample Browser](Freesound-&-Sample-Browser)**
 - **[🤖 AI Audio Generation](AI-Audio-Generation)**
 - **[🔊 Surround Sound & Export](Multi-Channel-Surround-&-Offline-Export)**
 - **[🎧 SOFA & HRTF Audio Guide](SOFA-HRTF-Spatial-Audio-Guide)**

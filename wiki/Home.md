@@ -12,10 +12,14 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 | :--- | :--- |
 | 📦 **Portable Soundscape Packages (`.3dscape`)** | Export and import self-contained soundscapes containing all spatial coordinates, schedules, metadata, cover artwork, and audio stems in a single file for instant sharing. |
 | 🎯 **Interactive 3D Spatial Radar** | Place audio sources on an intuitive polar coordinates radar with real-time azimuth, elevation, and distance attenuation (up to 30 meters) with live drag & drop. |
+| 🧱 **Acoustic Barriers & Raycast Occlusion** | Physical wall geometry blocking and muffling audio with frequency-dependent low-pass filtering and environmental reverb room zones. |
+| 🌡️ **Acoustic Heatmap & Sound Pressure Field** | Real-time GPU shader visualizing live sound pressure distributions with Iso-dB contour rings and 3 color palettes (Thermal, Phosphor, Cyberpunk) (`H`). |
 | 🛤️ **Listener Automation & Motion Paths** | Draw smooth motion paths for a virtual walking listener with speed controls ($m/s$ & $km/h$), open/closed loop modes, and live distance/time stats. |
 | 🎛️ **Multi-Track Stem Mixer & In-Inspector Matrix** | Control stem volumes, mute/solo states, random/periodic trigger rates, seamless crossfade loops, and discrete in-inspector multi-channel routing (`FL`, `FR`, `FC`, `LFE`, `BL`, `BR`, `SL`, `SR`, `TFL`, `TFR`, `TBL`, `TBR`). |
 | 📚 **Built-In Library & Ambient-Mixer Import** | Browse soundscapes, edit metadata and cover art, import XML templates directly from ambient-mixer.com, and manage custom audio sample banks. |
+| 🎵 **Freesound.org REST API & Sample Browser** | Discover thousands of open-source sound effects with tag chips, CC0/CC-BY license filtering, zero-cache streaming preview, and 1-click soundstage placement. |
 | 🤖 **Local AI Audio Generation (`audio.cpp`)** | Generate ambient sound effects and loops completely locally using native C++ inference and GGUF models directly within the sample browser. |
+| ⚡ **1-Click Dependency Downloader** | Integrated cross-platform downloader and installer for `audio.cpp`, FFmpeg, and recommended AudioGen GGUF models across Windows, Linux, and macOS. |
 | 🔊 **Multi-Channel Surround & FFmpeg Export** | Real-time playback and offline mixdown to Stereo Binaural (HRTF / SOFA), Quadraphonic 4.0, 5.1 Surround, 7.1 Surround, and 7.1.4 Dolby Atmos. |
 | 🎧 **SOFA HRTF Spatialization** | Load custom measured Head-Related Transfer Function profiles (`.sofa`) for personalized 3D headphone listening. |
 | 🎨 **Pro DAW Liquid Glass & 8 Themes** | Choose between 8 handcrafted visual styles: *Aetheric Dark*, *Studio Light*, *Cyberpunk Neon*, *Warm Fantasy*, *Holo Sci-Fi*, *Antique Sepia*, *Emerald Jungle*, and *Abyss Ocean*. |
@@ -48,9 +52,11 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 ## 🧭 Wiki Documentation Index
 
 - **[🎯 3D Spatial Audio Radar](3D-Spatial-Audio-Radar.md)**: Master polar spatialization, distance attenuation, and visual source markers.
+- **[🧱 Acoustics, Barriers & Heatmap](Acoustics-Raycast-Occlusion-&-Heatmap.md)**: Design physical barrier walls, simulate line-of-sight raycast occlusion, and view real-time sound pressure heatmaps.
 - **[🛤️ Listener Automation & Motion](Listener-Automation-&-Motion.md)**: Design dynamic movement paths, speed regulation, and waypoint curves.
 - **[🎛️ Stem Audio Tracks & Parameter Inspector](Stem-Audio-Tracks-&-Parameter-Inspector.md)**: Configure stems, volume curves, trigger intervals, and channel routing.
 - **[📚 Soundscape & Samples Library](Soundscape-Library-&-Ambient-Mixer-Import.md)**: Manage sound collections, `.3dscape` packaging, custom sample categories, and online imports.
+- **[🎵 Freesound & Sample Browser](Freesound-&-Sample-Browser.md)**: Explore the online Freesound library with zero-cache streaming and local sample banks.
 - **[🤖 AI Audio Generation](AI-Audio-Generation.md)**: Guide to configuring local `audio.cpp` models and generating sounds from text prompts.
 - **[🔊 Multi-Channel Surround & Offline Export](Multi-Channel-Surround-&-Offline-Export.md)**: Set up speaker configurations, SOFA profiles, and FFmpeg mixdowns.
 - **[🎧 SOFA HRTF & Spatial Audio Guide](SOFA-HRTF-Spatial-Audio-Guide.md)**: Deep dive into HRTF filters, SOFA database sources, and personalized binaural audio.
