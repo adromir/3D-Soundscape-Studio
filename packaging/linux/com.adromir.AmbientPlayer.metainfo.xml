@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.adromir.AmbientPlayer</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>3D Ambient Player</name>
+  <summary>Dedicated Standalone 3D Ambient &amp; Binaural Soundscape Player</summary>
+  <description>
+    <p>
+      3D Ambient Player is a lightweight, distraction-free standalone soundscape player
+      designed for deep relaxation, focus, meditation, and sleep.
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Distraction-free ambient player with breathing halo artwork visualizer</li>
+      <li>Atmosphere Stem Mixer for adjusting individual environmental elements</li>
+      <li>Smart Sleep Timer with gentle 15-second audio fade-out</li>
+      <li>1-click .3dscape soundscape package import</li>
+      <li>Smart ambient lighting sync with Philips Hue Bridge and Home Assistant</li>
+      <li>Binaural 3D spatial headphone audio and stereo speaker playback</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">com.adromir.AmbientPlayer.desktop</launchable>
+  <url type="homepage">https://github.com/adromir/3D-Soundscape-Studio</url>
+  <url type="bugtracker">https://github.com/adromir/3D-Soundscape-Studio/issues</url>
+  <developer_name>Adromir</developer_name>
+  <categories>
+    <category>AudioVideo</category>
+    <category>Audio</category>
+    <category>Player</category>
+  </categories>
+  <provides>
+    <binary>3d-ambient-player</binary>
+  </provides>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="2.0.0" date="2026-09-02">
+      <description>
+        <p>Initial standalone release of 3D Ambient Player.</p>
+      </description>
+    </release>
+  </releases>
+</component>

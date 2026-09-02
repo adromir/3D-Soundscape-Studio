@@ -1,0 +1,30 @@
+name: CI & Compilation Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-project:
+    name: Headless Compile & Scene Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Godot Engine
+        run: |
+          GODOT_VER="4.3-stable"
+          GODOT_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VER}/Godot_v${GODOT_VER}_linux.x86_64.zip"
+          curl -sL -o godot.zip "$GODOT_URL"
+          unzip -q godot.zip
+          GODOT_EXE=$(ls Godot_v* | head -n 1)
+          chmod +x "$GODOT_EXE"
+          echo "GODOT_EXE=$PWD/$GODOT_EXE" >> $GITHUB_ENV
+
+      - name: Verify GDScript Compilation & Engine Check
+        run: |
+          "$GODOT_EXE" --headless --check-only
+          echo "✔ Headless compile check passed."

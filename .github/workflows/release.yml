@@ -177,7 +177,64 @@ jobs:
           if (-not (Test-Path $msiName)) {
             throw "MSI build failed!"
           }
-          Write-Host "Successfully generated MSI installer: $msiName"
+          Write-Host "Successfully generated Studio MSI installer: $msiName"
+
+          # 2. Build Player Installer (.msi)
+          $playerMsiName = "3D-Ambient-Player-$env:VERSION_NAME-Windows-Setup.msi"
+          $playerWxs = @(
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">',
+            "  <Product Id=`"*`" Name=`"3D Ambient Player`" Language=`"1033`" Version=`"$msiVersion`" Manufacturer=`"Adromir`" UpgradeCode=`"8D34B5E7-A63F-5BA0-9E03-67E0CB884D41`">",
+            '    <Package InstallerVersion="300" Compressed="yes" InstallScope="perMachine" />',
+            '    <MajorUpgrade DowngradeErrorMessage="A newer version of 3D Ambient Player is already installed." />',
+            '    <MediaTemplate EmbedCab="yes" />',
+            '    <Icon Id="AppIcon" SourceFile="icon.ico" />',
+            '    <Property Id="ARPPRODUCTICON" Value="AppIcon" />',
+            '    <Property Id="ARPHELPLINK" Value="https://github.com/adromir/3D-Soundscape-Studio" />',
+            '    <Directory Id="TARGETDIR" Name="SourceDir">',
+            '      <Directory Id="ProgramFiles64Folder">',
+            '        <Directory Id="INSTALLFOLDER" Name="3D Ambient Player" />',
+            '      </Directory>',
+            '      <Directory Id="ProgramMenuFolder">',
+            '        <Directory Id="ApplicationProgramsFolder" Name="3D Ambient Player" />',
+            '      </Directory>',
+            '      <Directory Id="DesktopFolder" Name="Desktop" />',
+            '    </Directory>',
+            '    <DirectoryRef Id="INSTALLFOLDER">',
+            '      <Component Id="MainExecutable" Guid="B49F70F3-6512-5578-BA75-E83E7E4B1B32" Win64="yes">',
+            '        <File Id="PlayerExe" Source="build\windows\3D-Ambient-Player.exe" KeyPath="yes">',
+            '          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="3D Ambient Player" WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />',
+            '          <Shortcut Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Name="3D Ambient Player" WorkingDirectory="INSTALLFOLDER" Icon="AppIcon" Advertise="yes" />',
+            '        </File>',
+            '      </Component>',
+            '    </DirectoryRef>',
+            '    <DirectoryRef Id="ApplicationProgramsFolder">',
+            '      <Component Id="ApplicationShortcut" Guid="C9249EF6-5F88-5D1B-C42A-836E81760D00">',
+            '        <RemoveFolder Id="CleanUpShortCut" On="uninstall" />',
+            '        <RegistryValue Root="HKCU" Key="Software\Adromir\3DAmbientPlayer" Name="installed" Type="integer" Value="1" KeyPath="yes" />',
+            '      </Component>',
+            '    </DirectoryRef>',
+            '    <Feature Id="ProductFeature" Title="3D Ambient Player" Level="1">',
+            '      <ComponentRef Id="MainExecutable" />',
+            '      <ComponentRef Id="ApplicationShortcut" />',
+            '    </Feature>',
+            '    <UIRef Id="WixUI_Minimal" />',
+            '  </Product>',
+            '</Wix>'
+          )
+          $playerWxs | Set-Content -Path "player_installer.wxs" -Encoding UTF8
+          if (Test-Path "$wixBin\candle.exe") {
+            Write-Host "Compiling Player MSI using WiX v3 ($wixBin)..."
+            & "$wixBin\candle.exe" -arch x64 -out "player_installer.wixobj" "player_installer.wxs"
+            & "$wixBin\light.exe" -ext WixUIExtension -out $playerMsiName "player_installer.wixobj"
+          } elseif (Get-Command "wix" -ErrorAction SilentlyContinue) {
+            Write-Host "Compiling Player MSI using WiX v4/v5..."
+            wix build -arch x64 -o $playerMsiName "player_installer.wxs"
+          }
+          if (-not (Test-Path $playerMsiName)) {
+            throw "Player MSI build failed!"
+          }
+          Write-Host "Successfully generated Player MSI installer: $playerMsiName"
 
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
@@ -186,6 +243,7 @@ jobs:
           path: |
             3D-Soundscape-Studio-*-Windows-Setup.msi
             3D-Soundscape-Studio-*-Windows-Portable.zip
+            3D-Ambient-Player-*-Windows-Setup.msi
             3D-Ambient-Player-*-Windows-Portable.zip
 
   # =========================================================================
@@ -264,21 +322,16 @@ jobs:
           tar -czvf "3D-Ambient-Player-${VERSION_NAME}-Linux-x86_64.tar.gz" -C build/linux 3D-Ambient-Player.x86_64 icon.png
           echo "Created portable Linux archives for Studio and Player."
 
-      - name: Build Debian Package (.deb)
+      - name: Build Debian Packages (.deb)
         run: |
+          # 1. Studio DEB
           DEB_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-amd64.deb"
           PKG_ROOT="deb_staging"
-          
-          mkdir -p "$PKG_ROOT/DEBIAN"
-          mkdir -p "$PKG_ROOT/usr/bin"
-          mkdir -p "$PKG_ROOT/usr/share/applications"
-          mkdir -p "$PKG_ROOT/usr/share/icons/hicolor/1024x1024/apps"
-          
+          mkdir -p "$PKG_ROOT/DEBIAN" "$PKG_ROOT/usr/bin" "$PKG_ROOT/usr/share/applications" "$PKG_ROOT/usr/share/icons/hicolor/1024x1024/apps"
           cp "build/linux/3D-Soundscape-Studio.x86_64" "$PKG_ROOT/usr/bin/3d-soundscape-studio"
           chmod 755 "$PKG_ROOT/usr/bin/3d-soundscape-studio"
           cp icon.png "$PKG_ROOT/usr/share/icons/hicolor/1024x1024/apps/com.adromir.SoundscapeStudio.png"
           cp packaging/linux/com.adromir.SoundscapeStudio.desktop "$PKG_ROOT/usr/share/applications/"
-          
           {
             echo "Package: 3d-soundscape-studio"
             echo "Version: ${CLEAN_VERSION}"
@@ -290,37 +343,69 @@ jobs:
             echo " A professional DAW and 3D spatial soundscape generator featuring real-time"
             echo " polar positioning, HRTF binaural audio rendering, and organic sound textures."
           } > "$PKG_ROOT/DEBIAN/control"
-          
           dpkg-deb --build --root-owner-group "$PKG_ROOT" "$DEB_NAME"
-          echo "Successfully created Debian package: $DEB_NAME"
 
-      - name: Build Universal AppImage
+          # 2. Player DEB
+          DEB_PLAYER_NAME="3D-Ambient-Player-${VERSION_NAME}-Linux-amd64.deb"
+          PKG_PLAYER_ROOT="deb_player_staging"
+          mkdir -p "$PKG_PLAYER_ROOT/DEBIAN" "$PKG_PLAYER_ROOT/usr/bin" "$PKG_PLAYER_ROOT/usr/share/applications" "$PKG_PLAYER_ROOT/usr/share/icons/hicolor/1024x1024/apps"
+          cp "build/linux/3D-Ambient-Player.x86_64" "$PKG_PLAYER_ROOT/usr/bin/3d-ambient-player"
+          chmod 755 "$PKG_PLAYER_ROOT/usr/bin/3d-ambient-player"
+          cp icon.png "$PKG_PLAYER_ROOT/usr/share/icons/hicolor/1024x1024/apps/com.adromir.AmbientPlayer.png"
+          cp packaging/linux/com.adromir.AmbientPlayer.desktop "$PKG_PLAYER_ROOT/usr/share/applications/"
+          {
+            echo "Package: 3d-ambient-player"
+            echo "Version: ${CLEAN_VERSION}"
+            echo "Section: sound"
+            echo "Priority: optional"
+            echo "Architecture: amd64"
+            echo "Maintainer: Adromir <https://github.com/adromir>"
+            echo "Description: Dedicated Standalone 3D Ambient & Binaural Soundscape Player"
+            echo " A lightweight, distraction-free spatial soundscape player featuring"
+            echo " binaural headphone audio, atmosphere stem mixing, and smart lighting sync."
+          } > "$PKG_PLAYER_ROOT/DEBIAN/control"
+          dpkg-deb --build --root-owner-group "$PKG_PLAYER_ROOT" "$DEB_PLAYER_NAME"
+          echo "Successfully created Debian packages for Studio and Player."
+
+      - name: Build Universal AppImages
         run: |
+          wget -q -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+
+          # 1. Studio AppImage
           APPIMAGE_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-x86_64.AppImage"
           APP_DIR="AppDir"
-          
-          mkdir -p "$APP_DIR/usr/bin"
-          mkdir -p "$APP_DIR/usr/share/icons/hicolor/1024x1024/apps"
-          
+          mkdir -p "$APP_DIR/usr/bin" "$APP_DIR/usr/share/icons/hicolor/1024x1024/apps"
           cp "build/linux/3D-Soundscape-Studio.x86_64" "$APP_DIR/usr/bin/3d-soundscape-studio"
           chmod 755 "$APP_DIR/usr/bin/3d-soundscape-studio"
           cp icon.png "$APP_DIR/usr/share/icons/hicolor/1024x1024/apps/com.adromir.SoundscapeStudio.png"
           cp icon.png "$APP_DIR/com.adromir.SoundscapeStudio.png"
           cp packaging/linux/com.adromir.SoundscapeStudio.desktop "$APP_DIR/"
-          
           {
             echo '#!/bin/sh'
             echo 'HERE="$(dirname "$(readlink -f "${0}")")"'
             echo 'exec "${HERE}/usr/bin/3d-soundscape-studio" "$@"'
           } > "$APP_DIR/AppRun"
           chmod +x "$APP_DIR/AppRun"
-          
-          # Download official appimagetool
-          wget -q -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool
-          
           ARCH=x86_64 ./appimagetool --appimage-extract-and-run "$APP_DIR" "$APPIMAGE_NAME"
-          echo "Successfully created AppImage: $APPIMAGE_NAME"
+
+          # 2. Player AppImage
+          APPIMAGE_PLAYER_NAME="3D-Ambient-Player-${VERSION_NAME}-Linux-x86_64.AppImage"
+          APP_PLAYER_DIR="AppDirPlayer"
+          mkdir -p "$APP_PLAYER_DIR/usr/bin" "$APP_PLAYER_DIR/usr/share/icons/hicolor/1024x1024/apps"
+          cp "build/linux/3D-Ambient-Player.x86_64" "$APP_PLAYER_DIR/usr/bin/3d-ambient-player"
+          chmod 755 "$APP_PLAYER_DIR/usr/bin/3d-ambient-player"
+          cp icon.png "$APP_PLAYER_DIR/usr/share/icons/hicolor/1024x1024/apps/com.adromir.AmbientPlayer.png"
+          cp icon.png "$APP_PLAYER_DIR/com.adromir.AmbientPlayer.png"
+          cp packaging/linux/com.adromir.AmbientPlayer.desktop "$APP_PLAYER_DIR/"
+          {
+            echo '#!/bin/sh'
+            echo 'HERE="$(dirname "$(readlink -f "${0}")")"'
+            echo 'exec "${HERE}/usr/bin/3d-ambient-player" "$@"'
+          } > "$APP_PLAYER_DIR/AppRun"
+          chmod +x "$APP_PLAYER_DIR/AppRun"
+          ARCH=x86_64 ./appimagetool --appimage-extract-and-run "$APP_PLAYER_DIR" "$APPIMAGE_PLAYER_NAME"
+          echo "Successfully created AppImages for Studio and Player."
 
       - name: Build Flatpak Bundle (.flatpak)
         run: |
@@ -342,6 +427,8 @@ jobs:
             3D-Soundscape-Studio-*-Linux-x86_64.flatpak
             3D-Soundscape-Studio-*-Linux-amd64.deb
             3D-Soundscape-Studio-*-Linux-x86_64.tar.gz
+            3D-Ambient-Player-*-Linux-x86_64.AppImage
+            3D-Ambient-Player-*-Linux-amd64.deb
             3D-Ambient-Player-*-Linux-x86_64.tar.gz
 
   # =========================================================================
@@ -419,21 +506,33 @@ jobs:
           fi
           echo "Created portable macOS archives."
 
-      - name: Create Drag-and-Drop Installer (.dmg)
+      - name: Create Drag-and-Drop Installers (.dmg)
         run: |
+          # 1. Studio DMG
           DMG_NAME="3D-Soundscape-Studio-${VERSION_NAME}-macOS.dmg"
           DMG_STAGING="dmg_staging"
           mkdir -p "$DMG_STAGING"
-          
           cp -R "$STUDIO_APP" "$DMG_STAGING/"
           ln -s /Applications "$DMG_STAGING/Applications"
-          
           hdiutil create -volname "3D Soundscape Studio" \
                          -srcfolder "$DMG_STAGING" \
                          -ov -format UDZO \
                          "$DMG_NAME"
-          
-          echo "Successfully created DMG image: $DMG_NAME"
+          echo "Successfully created Studio DMG: $DMG_NAME"
+
+          # 2. Player DMG
+          if [ -n "$PLAYER_APP" ]; then
+            DMG_PLAYER_NAME="3D-Ambient-Player-${VERSION_NAME}-macOS.dmg"
+            DMG_PLAYER_STAGING="dmg_player_staging"
+            mkdir -p "$DMG_PLAYER_STAGING"
+            cp -R "$PLAYER_APP" "$DMG_PLAYER_STAGING/"
+            ln -s /Applications "$DMG_PLAYER_STAGING/Applications"
+            hdiutil create -volname "3D Ambient Player" \
+                           -srcfolder "$DMG_PLAYER_STAGING" \
+                           -ov -format UDZO \
+                           "$DMG_PLAYER_NAME"
+            echo "Successfully created Player DMG: $DMG_PLAYER_NAME"
+          fi
 
       - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4
@@ -442,15 +541,102 @@ jobs:
           path: |
             3D-Soundscape-Studio-*-macOS.dmg
             3D-Soundscape-Studio-*-macOS-Universal.zip
+            3D-Ambient-Player-*-macOS.dmg
             3D-Ambient-Player-*-macOS-Universal.zip
 
   # =========================================================================
-  # 4. PUBLISH GITHUB RELEASE
+  # 4. ANDROID BUILD & PACKAGING (Standalone Player APK)
+  # =========================================================================
+  build-android:
+    name: Build & Package Android Player
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Resolve Version Info
+        id: vars
+        run: |
+          VER="${{ github.event.inputs.version_tag }}"
+          if [ -z "$VER" ] || [ "$VER" = "main" ]; then VER="v2.0.0"; fi
+          GODOT_VER="${{ github.event.inputs.godot_version }}"
+          if [ -z "$GODOT_VER" ]; then GODOT_VER="4.3-stable"; fi
+          echo "VERSION_TAG=$VER" >> $GITHUB_ENV
+          echo "VERSION_NAME=$VER" >> $GITHUB_ENV
+          echo "GODOT_VERSION=$GODOT_VER" >> $GITHUB_ENV
+
+      - name: Setup Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android Build Tools
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Generate Android Debug Keystore
+        run: |
+          keytool -genkey -v -keystore "$HOME/debug.keystore" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Setup Godot Engine & Export Templates
+        run: |
+          GVER="$GODOT_VERSION"
+          GODOT_URL="https://github.com/godotengine/godot/releases/download/${GVER}/Godot_v${GVER}_linux.x86_64.zip"
+          TPZ_URL="https://github.com/godotengine/godot/releases/download/${GVER}/Godot_v${GVER}_export_templates.tpz"
+          
+          curl -sL -o godot_linux.zip "$GODOT_URL"
+          unzip -q godot_linux.zip -d godot_bin
+          GODOT_EXE="godot_bin/$(ls godot_bin | head -n 1)"
+          chmod +x "$GODOT_EXE"
+          echo "GODOT_EXE=$GODOT_EXE" >> $GITHUB_ENV
+          
+          curl -sL -o templates.tpz "$TPZ_URL"
+          unzip -q templates.tpz -d templates_extracted
+          TPL_DIR="$HOME/.local/share/godot/export_templates/${GVER/-/.}"
+          mkdir -p "$TPL_DIR"
+          cp -r templates_extracted/templates/* "$TPL_DIR/"
+
+      - name: Configure Android Export Settings
+        run: |
+          mkdir -p "$HOME/.config/godot"
+          cat << EOF > "$HOME/.config/godot/editor_settings-4.tres"
+[gd_resource type="EditorSettings" format=3]
+
+[resource]
+export/android/android_sdk_path = "$ANDROID_HOME"
+export/android/debug_keystore = "$HOME/debug.keystore"
+export/android/debug_keystore_user = "androiddebugkey"
+export/android/debug_keystore_pass = "android"
+EOF
+
+      - name: Export Android Player APK
+        run: |
+          mkdir -p build/android
+          APK_NAME="3D-Ambient-Player-${VERSION_NAME}-Android.apk"
+          "$GODOT_EXE" --headless --path . --export-debug "Android Player" "build/android/$APK_NAME"
+          if [ ! -f "build/android/$APK_NAME" ]; then
+            echo "Error: Android Player APK export failed!" && exit 1
+          fi
+          echo "Successfully exported Android Player APK: $APK_NAME"
+
+      - name: Upload Android Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-android
+          path: |
+            build/android/3D-Ambient-Player-*-Android.apk
+
+  # =========================================================================
+  # 5. PUBLISH GITHUB RELEASE
   # =========================================================================
   publish-release:
     name: Publish GitHub Release
     runs-on: ubuntu-latest
-    needs: [build-windows, build-linux, build-macos]
+    needs: [build-windows, build-linux, build-macos, build-android]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -471,7 +657,7 @@ jobs:
           VER="${{ github.event.inputs.version_tag }}"
           if [ -z "$VER" ] || [ "$VER" = "main" ]; then VER="v2.0.0"; fi
           
-          TITLE="3D Soundscape Studio ${VER}"
+          TITLE="3D Soundscape Studio & 3D Ambient Player ${VER}"
           PRERELEASE_FLAG=""
           if [ "${{ github.event.inputs.is_prerelease }}" = "true" ]; then
             PRERELEASE_FLAG="--prerelease"
@@ -490,30 +676,45 @@ jobs:
           CUSTOM_NOTES="${{ github.event.inputs.custom_notes }}"
           if [ -z "$CUSTOM_NOTES" ]; then
             NOTES=$(cat << 'EOF'
-          ## 3D Soundscape Studio
+## 🎧 3D Ambient Player & 🎛️ 3D Soundscape Studio
 
-          A 3D spatial ambient soundscape studio and binaural player with real-time polar positioning, multi-channel HRTF rendering, and organic sound textures.
+A comprehensive multi-platform release featuring the brand new **Dedicated Standalone 3D Ambient Player** alongside the full **3D Soundscape Studio DAW**.
 
-          ### 📦 Available Downloads
+### 🎧 3D Ambient Player (Standalone Player)
+*Lightweight, distraction-free spatial audio playback with Atmosphere Stem Mixer, sleep timer with 15s gentle fade-out, .3dscape package import, and Philips Hue smart lighting:*
+- **🪟 Windows (x64)**:
+  - Setup Installer: `3D-Ambient-Player-*-Windows-Setup.msi`
+  - Portable Standalone: `3D-Ambient-Player-*-Windows-Portable.zip`
+- **🐧 Linux (x86_64)**:
+  - Universal AppImage: `3D-Ambient-Player-*-Linux-x86_64.AppImage`
+  - Debian / Ubuntu: `3D-Ambient-Player-*-Linux-amd64.deb`
+  - Portable Tarball: `3D-Ambient-Player-*-Linux-x86_64.tar.gz`
+- **🍎 macOS (Universal)**:
+  - Drag-and-Drop Disk Image: `3D-Ambient-Player-*-macOS.dmg`
+  - Portable App Archive: `3D-Ambient-Player-*-macOS-Universal.zip`
+- **🤖 Android**:
+  - Standalone Application: `3D-Ambient-Player-*-Android.apk`
 
-          #### 🪟 Windows (x64)
-          - **Interactive Setup Installer**: `3D-Soundscape-Studio-*-Windows-Setup.msi`
-          - **Portable Standalone**: `3D-Soundscape-Studio-*-Windows-Portable.zip`
+---
 
-          #### 🐧 Linux (x86_64)
-          - **Universal AppImage**: `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
-          - **Flatpak Bundle**: `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
-          - **Debian / Ubuntu Package**: `3D-Soundscape-Studio-*-Linux-amd64.deb`
-          - **Portable Standalone**: `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
+### 🎛️ 3D Soundscape Studio (Full DAW)
+*Professional 3D spatial soundscape workstation with real-time polar radar, HRTF binaural rendering, automation paths, offline FFmpeg export, and local AI audio generation:*
+- **🪟 Windows (x64)**:
+  - Setup Installer: `3D-Soundscape-Studio-*-Windows-Setup.msi`
+  - Portable Standalone: `3D-Soundscape-Studio-*-Windows-Portable.zip`
+- **🐧 Linux (x86_64)**:
+  - Universal AppImage: `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
+  - Flatpak Bundle: `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
+  - Debian / Ubuntu: `3D-Soundscape-Studio-*-Linux-amd64.deb`
+  - Portable Tarball: `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
+- **🍎 macOS (Universal)**:
+  - Drag-and-Drop Disk Image: `3D-Soundscape-Studio-*-macOS.dmg`
+  - Portable App Archive: `3D-Soundscape-Studio-*-macOS-Universal.zip`
 
-          #### 🍎 macOS (Universal / Apple Silicon & Intel)
-          - **Drag-and-Drop Disk Image**: `3D-Soundscape-Studio-*-macOS.dmg`
-          - **Portable App Archive**: `3D-Soundscape-Studio-*-macOS-Universal.zip`
-
-          ---
-          *All packages are signed with cryptographic SHA256 checksums in `SHA256SUMS.txt`.*
-          EOF
-          )
+---
+*All packages are signed with cryptographic SHA256 checksums in `SHA256SUMS.txt`.*
+EOF
+)
           else
             NOTES="$CUSTOM_NOTES"
           fi
@@ -525,3 +726,4 @@ jobs:
             $PRERELEASE_FLAG \
             --generate-notes=false || \
           gh release upload "$RELEASE_TAG" * --clobber
+

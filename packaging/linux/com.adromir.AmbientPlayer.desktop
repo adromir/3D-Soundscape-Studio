@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=3D Ambient Player
+GenericName=Spatial Ambient Audio Player
+Comment=Dedicated Standalone 3D Ambient & Binaural Soundscape Player
+Exec=3d-ambient-player %U
+Icon=com.adromir.AmbientPlayer
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;Player;
+Keywords=ambient;player;soundscape;spatial;binaural;relaxation;sleep;meditation;
+StartupNotify=true
