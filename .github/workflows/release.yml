@@ -659,15 +659,7 @@ jobs:
       - name: Configure Android Export Settings
         run: |
           mkdir -p "$HOME/.config/godot"
-          cat << EOF > "$HOME/.config/godot/editor_settings-4.tres"
-[gd_resource type="EditorSettings" format=3]
-
-[resource]
-export/android/android_sdk_path = "$ANDROID_HOME"
-export/android/debug_keystore = "$HOME/debug.keystore"
-export/android/debug_keystore_user = "androiddebugkey"
-export/android/debug_keystore_pass = "android"
-EOF
+          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\nexport/android/debug_keystore = "%s/debug.keystore"\nexport/android/debug_keystore_user = "androiddebugkey"\nexport/android/debug_keystore_pass = "android"\n' "$ANDROID_HOME" "$HOME" > "$HOME/.config/godot/editor_settings-4.tres"
 
       - name: Export Android Player APK (ARM64)
         run: |
@@ -730,61 +722,60 @@ EOF
           cd release_assets
           
           CUSTOM_NOTES="${{ github.event.inputs.custom_notes }}"
-          if [ -z "$CUSTOM_NOTES" ]; then
-            NOTES=$(cat << 'EOF'
-## 🎧 3D Ambient Player & 🎛️ 3D Soundscape Studio
-
-A comprehensive multi-platform release featuring the brand new **Dedicated Standalone 3D Ambient Player** alongside the full **3D Soundscape Studio DAW**, with native architecture support for **x86_64, ARM64 (aarch64), and Apple Silicon**.
-
-### 🎧 3D Ambient Player (Standalone Player)
-*Lightweight, distraction-free spatial audio playback with Atmosphere Stem Mixer, sleep timer with 15s gentle fade-out, .3dscape package import, and Philips Hue smart lighting:*
-- **🪟 Windows (x64 & ARM64)**:
-  - Setup Installer (x64): `3D-Ambient-Player-*-Windows-Setup.msi`
-  - Portable Standalone (x64): `3D-Ambient-Player-*-Windows-x64-Portable.zip`
-  - Portable Standalone (ARM64): `3D-Ambient-Player-*-Windows-arm64-Portable.zip`
-- **🐧 Linux (x86_64 & ARM64 / aarch64)**:
-  - Universal AppImage (x86_64): `3D-Ambient-Player-*-Linux-x86_64.AppImage`
-  - Debian / Ubuntu (amd64): `3D-Ambient-Player-*-Linux-amd64.deb`
-  - Debian / Ubuntu (arm64): `3D-Ambient-Player-*-Linux-arm64.deb`
-  - Portable Tarball (x86_64): `3D-Ambient-Player-*-Linux-x86_64.tar.gz`
-  - Portable Tarball (arm64): `3D-Ambient-Player-*-Linux-arm64.tar.gz`
-- **🍎 macOS (Universal / Apple Silicon M1-M4 & Intel x86_64)**:
-  - Drag-and-Drop Disk Image: `3D-Ambient-Player-*-macOS.dmg`
-  - Portable App Archive: `3D-Ambient-Player-*-macOS-Universal.zip`
-- **🤖 Android (ARM64-v8a)**:
-  - Standalone Application: `3D-Ambient-Player-*-Android-arm64.apk`
-
----
-
-### 🎛️ 3D Soundscape Studio (Full DAW)
-*Professional 3D spatial soundscape workstation with real-time polar radar, HRTF binaural rendering, automation paths, offline FFmpeg export, and local AI audio generation:*
-- **🪟 Windows (x64 & ARM64)**:
-  - Setup Installer (x64): `3D-Soundscape-Studio-*-Windows-Setup.msi`
-  - Portable Standalone (x64): `3D-Soundscape-Studio-*-Windows-x64-Portable.zip`
-  - Portable Standalone (ARM64): `3D-Soundscape-Studio-*-Windows-arm64-Portable.zip`
-- **🐧 Linux (x86_64 & ARM64 / aarch64)**:
-  - Universal AppImage (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
-  - Flatpak Bundle (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
-  - Debian / Ubuntu (amd64): `3D-Soundscape-Studio-*-Linux-amd64.deb`
-  - Debian / Ubuntu (arm64): `3D-Soundscape-Studio-*-Linux-arm64.deb`
-  - Portable Tarball (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
-  - Portable Tarball (arm64): `3D-Soundscape-Studio-*-Linux-arm64.tar.gz`
-- **🍎 macOS (Universal / Apple Silicon M1-M4 & Intel x86_64)**:
-  - Drag-and-Drop Disk Image: `3D-Soundscape-Studio-*-macOS.dmg`
-  - Portable App Archive: `3D-Soundscape-Studio-*-macOS-Universal.zip`
-
----
-*All packages are signed with cryptographic SHA256 checksums in `SHA256SUMS.txt`.*
-EOF
-)
+          if [ -n "$CUSTOM_NOTES" ]; then
+            printf "%s\n" "$CUSTOM_NOTES" > release_notes.md
           else
-            NOTES="$CUSTOM_NOTES"
+            cat << 'EOF' | sed 's/^            //' > release_notes.md
+            ## 🎧 3D Ambient Player & 🎛️ 3D Soundscape Studio
+
+            A comprehensive multi-platform release featuring the brand new **Dedicated Standalone 3D Ambient Player** alongside the full **3D Soundscape Studio DAW**, with native architecture support for **x86_64, ARM64 (aarch64), and Apple Silicon**.
+
+            ### 🎧 3D Ambient Player (Standalone Player)
+            *Lightweight, distraction-free spatial audio playback with Atmosphere Stem Mixer, sleep timer with 15s gentle fade-out, .3dscape package import, and Philips Hue smart lighting:*
+            - **🪟 Windows (x64 & ARM64)**:
+              - Setup Installer (x64): `3D-Ambient-Player-*-Windows-Setup.msi`
+              - Portable Standalone (x64): `3D-Ambient-Player-*-Windows-x64-Portable.zip`
+              - Portable Standalone (ARM64): `3D-Ambient-Player-*-Windows-arm64-Portable.zip`
+            - **🐧 Linux (x86_64 & ARM64 / aarch64)**:
+              - Universal AppImage (x86_64): `3D-Ambient-Player-*-Linux-x86_64.AppImage`
+              - Debian / Ubuntu (amd64): `3D-Ambient-Player-*-Linux-amd64.deb`
+              - Debian / Ubuntu (arm64): `3D-Ambient-Player-*-Linux-arm64.deb`
+              - Portable Tarball (x86_64): `3D-Ambient-Player-*-Linux-x86_64.tar.gz`
+              - Portable Tarball (arm64): `3D-Ambient-Player-*-Linux-arm64.tar.gz`
+            - **🍎 macOS (Universal / Apple Silicon M1-M4 & Intel x86_64)**:
+              - Drag-and-Drop Disk Image: `3D-Ambient-Player-*-macOS.dmg`
+              - Portable App Archive: `3D-Ambient-Player-*-macOS-Universal.zip`
+            - **🤖 Android (ARM64-v8a)**:
+              - Standalone Application: `3D-Ambient-Player-*-Android-arm64.apk`
+
+            ---
+
+            ### 🎛️ 3D Soundscape Studio (Full DAW)
+            *Professional 3D spatial soundscape workstation with real-time polar radar, HRTF binaural rendering, automation paths, offline FFmpeg export, and local AI audio generation:*
+            - **🪟 Windows (x64 & ARM64)**:
+              - Setup Installer (x64): `3D-Soundscape-Studio-*-Windows-Setup.msi`
+              - Portable Standalone (x64): `3D-Soundscape-Studio-*-Windows-x64-Portable.zip`
+              - Portable Standalone (ARM64): `3D-Soundscape-Studio-*-Windows-arm64-Portable.zip`
+            - **🐧 Linux (x86_64 & ARM64 / aarch64)**:
+              - Universal AppImage (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
+              - Flatpak Bundle (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
+              - Debian / Ubuntu (amd64): `3D-Soundscape-Studio-*-Linux-amd64.deb`
+              - Debian / Ubuntu (arm64): `3D-Soundscape-Studio-*-Linux-arm64.deb`
+              - Portable Tarball (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
+              - Portable Tarball (arm64): `3D-Soundscape-Studio-*-Linux-arm64.tar.gz`
+            - **🍎 macOS (Universal / Apple Silicon M1-M4 & Intel x86_64)**:
+              - Drag-and-Drop Disk Image: `3D-Soundscape-Studio-*-macOS.dmg`
+              - Portable App Archive: `3D-Soundscape-Studio-*-macOS-Universal.zip`
+
+            ---
+            *All packages are signed with cryptographic SHA256 checksums in `SHA256SUMS.txt`.*
+            EOF
           fi
 
           echo "Publishing Release for tag: $RELEASE_TAG..."
           gh release create "$RELEASE_TAG" * \
             --title "$RELEASE_TITLE" \
-            --notes "$NOTES" \
+            --notes-file release_notes.md \
             $PRERELEASE_FLAG \
             --generate-notes=false || \
           gh release upload "$RELEASE_TAG" * --clobber
