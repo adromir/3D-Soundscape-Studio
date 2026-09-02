@@ -79,28 +79,33 @@ jobs:
           Copy-Item -Path "templates_extracted\templates\*" -Destination $tplDir -Recurse -Force
           Write-Host "Templates installed to: $tplDir"
 
-      - name: Export Windows Executables
+      - name: Export Windows Executables (x64 & arm64)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "build\windows" | Out-Null
+          New-Item -ItemType Directory -Force -Path "build\windows_arm64" | Out-Null
+          
+          # x64 Exports
           & "$env:GODOT_EXE" --headless --path . --export-release "Windows Desktop" "build\windows\3D-Soundscape-Studio.exe"
           & "$env:GODOT_EXE" --headless --path . --export-release "Windows Player" "build\windows\3D-Ambient-Player.exe"
-          if (-not (Test-Path "build\windows\3D-Soundscape-Studio.exe")) {
-            throw "Windows Studio export failed! Executable not found."
-          }
-          if (-not (Test-Path "build\windows\3D-Ambient-Player.exe")) {
-            throw "Windows Player export failed! Executable not found."
-          }
-          Write-Host "Successfully exported Windows binaries (Studio & Player)."
+          
+          # arm64 Exports
+          & "$env:GODOT_EXE" --headless --path . --export-release "Windows Desktop ARM64" "build\windows_arm64\3D-Soundscape-Studio.exe"
+          & "$env:GODOT_EXE" --headless --path . --export-release "Windows Player ARM64" "build\windows_arm64\3D-Ambient-Player.exe"
+          
+          Write-Host "Successfully exported Windows binaries (x64 and arm64)."
 
-      - name: Create Portable ZIP Archives
+      - name: Create Portable ZIP Archives (x64 & arm64)
         shell: pwsh
         run: |
-          $studioZip = "3D-Soundscape-Studio-$env:VERSION_NAME-Windows-Portable.zip"
-          Compress-Archive -Path "build\windows\3D-Soundscape-Studio.exe", "icon.png" -DestinationPath $studioZip
-          $playerZip = "3D-Ambient-Player-$env:VERSION_NAME-Windows-Portable.zip"
-          Compress-Archive -Path "build\windows\3D-Ambient-Player.exe", "icon.png" -DestinationPath $playerZip
-          Write-Host "Created portable archives: $studioZip and $playerZip"
+          # x64 Archives
+          Compress-Archive -Path "build\windows\3D-Soundscape-Studio.exe", "icon.png" -DestinationPath "3D-Soundscape-Studio-$env:VERSION_NAME-Windows-x64-Portable.zip"
+          Compress-Archive -Path "build\windows\3D-Ambient-Player.exe", "icon.png" -DestinationPath "3D-Ambient-Player-$env:VERSION_NAME-Windows-x64-Portable.zip"
+          
+          # arm64 Archives
+          Compress-Archive -Path "build\windows_arm64\3D-Soundscape-Studio.exe", "icon.png" -DestinationPath "3D-Soundscape-Studio-$env:VERSION_NAME-Windows-arm64-Portable.zip"
+          Compress-Archive -Path "build\windows_arm64\3D-Ambient-Player.exe", "icon.png" -DestinationPath "3D-Ambient-Player-$env:VERSION_NAME-Windows-arm64-Portable.zip"
+          Write-Host "Created portable archives for x64 and arm64."
 
       - name: Build Windows Installer (.msi) via WiX
         shell: pwsh
@@ -242,9 +247,9 @@ jobs:
           name: release-windows
           path: |
             3D-Soundscape-Studio-*-Windows-Setup.msi
-            3D-Soundscape-Studio-*-Windows-Portable.zip
+            3D-Soundscape-Studio-*-Windows-*-Portable.zip
             3D-Ambient-Player-*-Windows-Setup.msi
-            3D-Ambient-Player-*-Windows-Portable.zip
+            3D-Ambient-Player-*-Windows-*-Portable.zip
 
   # =========================================================================
   # 2. LINUX BUILD & PACKAGING (AppImage, Flatpak, Debian .deb, Tarball)
@@ -302,29 +307,38 @@ jobs:
           cp -r templates_extracted/templates/* "$TPL_DIR/"
           echo "Installed templates to $TPL_DIR"
 
-      - name: Export Linux Binaries
+      - name: Export Linux Binaries (x86_64 & arm64)
         run: |
-          mkdir -p build/linux
+          mkdir -p build/linux build/linux_arm64
+          
+          # x86_64 Exports
           "$GODOT_EXE" --headless --path . --export-release "Linux" "build/linux/3D-Soundscape-Studio.x86_64"
           "$GODOT_EXE" --headless --path . --export-release "Linux Player" "build/linux/3D-Ambient-Player.x86_64"
           chmod +x "build/linux/3D-Soundscape-Studio.x86_64" "build/linux/3D-Ambient-Player.x86_64"
-          if [ ! -f "build/linux/3D-Soundscape-Studio.x86_64" ]; then
-            echo "Error: Linux Studio export binary missing!" && exit 1
-          fi
-          if [ ! -f "build/linux/3D-Ambient-Player.x86_64" ]; then
-            echo "Error: Linux Player export binary missing!" && exit 1
-          fi
+          
+          # arm64 (aarch64) Exports
+          "$GODOT_EXE" --headless --path . --export-release "Linux ARM64" "build/linux_arm64/3D-Soundscape-Studio.aarch64"
+          "$GODOT_EXE" --headless --path . --export-release "Linux Player ARM64" "build/linux_arm64/3D-Ambient-Player.aarch64"
+          chmod +x "build/linux_arm64/3D-Soundscape-Studio.aarch64" "build/linux_arm64/3D-Ambient-Player.aarch64"
+          
+          echo "Successfully exported Linux binaries for x86_64 and arm64."
 
-      - name: Create Portable TAR.GZ Archives
+      - name: Create Portable TAR.GZ Archives (x86_64 & arm64)
         run: |
+          # x86_64 Archives
           cp icon.png build/linux/
           tar -czvf "3D-Soundscape-Studio-${VERSION_NAME}-Linux-x86_64.tar.gz" -C build/linux 3D-Soundscape-Studio.x86_64 icon.png
           tar -czvf "3D-Ambient-Player-${VERSION_NAME}-Linux-x86_64.tar.gz" -C build/linux 3D-Ambient-Player.x86_64 icon.png
-          echo "Created portable Linux archives for Studio and Player."
+          
+          # arm64 Archives
+          cp icon.png build/linux_arm64/
+          tar -czvf "3D-Soundscape-Studio-${VERSION_NAME}-Linux-arm64.tar.gz" -C build/linux_arm64 3D-Soundscape-Studio.aarch64 icon.png
+          tar -czvf "3D-Ambient-Player-${VERSION_NAME}-Linux-arm64.tar.gz" -C build/linux_arm64 3D-Ambient-Player.aarch64 icon.png
+          echo "Created portable Linux archives for x86_64 and arm64."
 
-      - name: Build Debian Packages (.deb)
+      - name: Build Debian Packages (.deb for amd64 & arm64)
         run: |
-          # 1. Studio DEB
+          # 1. Studio DEB (amd64)
           DEB_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-amd64.deb"
           PKG_ROOT="deb_staging"
           mkdir -p "$PKG_ROOT/DEBIAN" "$PKG_ROOT/usr/bin" "$PKG_ROOT/usr/share/applications" "$PKG_ROOT/usr/share/icons/hicolor/1024x1024/apps"
@@ -345,7 +359,7 @@ jobs:
           } > "$PKG_ROOT/DEBIAN/control"
           dpkg-deb --build --root-owner-group "$PKG_ROOT" "$DEB_NAME"
 
-          # 2. Player DEB
+          # 2. Player DEB (amd64)
           DEB_PLAYER_NAME="3D-Ambient-Player-${VERSION_NAME}-Linux-amd64.deb"
           PKG_PLAYER_ROOT="deb_player_staging"
           mkdir -p "$PKG_PLAYER_ROOT/DEBIAN" "$PKG_PLAYER_ROOT/usr/bin" "$PKG_PLAYER_ROOT/usr/share/applications" "$PKG_PLAYER_ROOT/usr/share/icons/hicolor/1024x1024/apps"
@@ -365,7 +379,49 @@ jobs:
             echo " binaural headphone audio, atmosphere stem mixing, and smart lighting sync."
           } > "$PKG_PLAYER_ROOT/DEBIAN/control"
           dpkg-deb --build --root-owner-group "$PKG_PLAYER_ROOT" "$DEB_PLAYER_NAME"
-          echo "Successfully created Debian packages for Studio and Player."
+
+          # 3. Studio DEB (arm64)
+          DEB_ARM_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-arm64.deb"
+          PKG_ARM_ROOT="deb_arm_staging"
+          mkdir -p "$PKG_ARM_ROOT/DEBIAN" "$PKG_ARM_ROOT/usr/bin" "$PKG_ARM_ROOT/usr/share/applications" "$PKG_ARM_ROOT/usr/share/icons/hicolor/1024x1024/apps"
+          cp "build/linux_arm64/3D-Soundscape-Studio.aarch64" "$PKG_ARM_ROOT/usr/bin/3d-soundscape-studio"
+          chmod 755 "$PKG_ARM_ROOT/usr/bin/3d-soundscape-studio"
+          cp icon.png "$PKG_ARM_ROOT/usr/share/icons/hicolor/1024x1024/apps/com.adromir.SoundscapeStudio.png"
+          cp packaging/linux/com.adromir.SoundscapeStudio.desktop "$PKG_ARM_ROOT/usr/share/applications/"
+          {
+            echo "Package: 3d-soundscape-studio"
+            echo "Version: ${CLEAN_VERSION}"
+            echo "Section: sound"
+            echo "Priority: optional"
+            echo "Architecture: arm64"
+            echo "Maintainer: Adromir <https://github.com/adromir>"
+            echo "Description: 3D Spatial Ambient Soundscape Studio & Binaural Player"
+            echo " A professional DAW and 3D spatial soundscape generator featuring real-time"
+            echo " polar positioning, HRTF binaural audio rendering, and organic sound textures."
+          } > "$PKG_ARM_ROOT/DEBIAN/control"
+          dpkg-deb --build --root-owner-group "$PKG_ARM_ROOT" "$DEB_ARM_NAME"
+
+          # 4. Player DEB (arm64)
+          DEB_PLAYER_ARM_NAME="3D-Ambient-Player-${VERSION_NAME}-Linux-arm64.deb"
+          PKG_PLAYER_ARM_ROOT="deb_player_arm_staging"
+          mkdir -p "$PKG_PLAYER_ARM_ROOT/DEBIAN" "$PKG_PLAYER_ARM_ROOT/usr/bin" "$PKG_PLAYER_ARM_ROOT/usr/share/applications" "$PKG_PLAYER_ARM_ROOT/usr/share/icons/hicolor/1024x1024/apps"
+          cp "build/linux_arm64/3D-Ambient-Player.aarch64" "$PKG_PLAYER_ARM_ROOT/usr/bin/3d-ambient-player"
+          chmod 755 "$PKG_PLAYER_ARM_ROOT/usr/bin/3d-ambient-player"
+          cp icon.png "$PKG_PLAYER_ARM_ROOT/usr/share/icons/hicolor/1024x1024/apps/com.adromir.AmbientPlayer.png"
+          cp packaging/linux/com.adromir.AmbientPlayer.desktop "$PKG_PLAYER_ARM_ROOT/usr/share/applications/"
+          {
+            echo "Package: 3d-ambient-player"
+            echo "Version: ${CLEAN_VERSION}"
+            echo "Section: sound"
+            echo "Priority: optional"
+            echo "Architecture: arm64"
+            echo "Maintainer: Adromir <https://github.com/adromir>"
+            echo "Description: Dedicated Standalone 3D Ambient & Binaural Soundscape Player"
+            echo " A lightweight, distraction-free spatial soundscape player featuring"
+            echo " binaural headphone audio, atmosphere stem mixing, and smart lighting sync."
+          } > "$PKG_PLAYER_ARM_ROOT/DEBIAN/control"
+          dpkg-deb --build --root-owner-group "$PKG_PLAYER_ARM_ROOT" "$DEB_PLAYER_ARM_NAME"
+          echo "Successfully created Debian packages for amd64 and arm64."
 
       - name: Build Universal AppImages
         run: |
@@ -423,13 +479,13 @@ jobs:
         with:
           name: release-linux
           path: |
-            3D-Soundscape-Studio-*-Linux-x86_64.AppImage
-            3D-Soundscape-Studio-*-Linux-x86_64.flatpak
-            3D-Soundscape-Studio-*-Linux-amd64.deb
-            3D-Soundscape-Studio-*-Linux-x86_64.tar.gz
-            3D-Ambient-Player-*-Linux-x86_64.AppImage
-            3D-Ambient-Player-*-Linux-amd64.deb
-            3D-Ambient-Player-*-Linux-x86_64.tar.gz
+            3D-Soundscape-Studio-*-Linux-*.AppImage
+            3D-Soundscape-Studio-*-Linux-*.flatpak
+            3D-Soundscape-Studio-*-Linux-*.deb
+            3D-Soundscape-Studio-*-Linux-*.tar.gz
+            3D-Ambient-Player-*-Linux-*.AppImage
+            3D-Ambient-Player-*-Linux-*.deb
+            3D-Ambient-Player-*-Linux-*.tar.gz
 
   # =========================================================================
   # 3. MACOS BUILD & PACKAGING (Drag & Drop .dmg + Portable .zip)
@@ -613,10 +669,10 @@ export/android/debug_keystore_user = "androiddebugkey"
 export/android/debug_keystore_pass = "android"
 EOF
 
-      - name: Export Android Player APK
+      - name: Export Android Player APK (ARM64)
         run: |
           mkdir -p build/android
-          APK_NAME="3D-Ambient-Player-${VERSION_NAME}-Android.apk"
+          APK_NAME="3D-Ambient-Player-${VERSION_NAME}-Android-arm64.apk"
           "$GODOT_EXE" --headless --path . --export-debug "Android Player" "build/android/$APK_NAME"
           if [ ! -f "build/android/$APK_NAME" ]; then
             echo "Error: Android Player APK export failed!" && exit 1
@@ -628,7 +684,7 @@ EOF
         with:
           name: release-android
           path: |
-            build/android/3D-Ambient-Player-*-Android.apk
+            build/android/3D-Ambient-Player-*-Android-*.apk
 
   # =========================================================================
   # 5. PUBLISH GITHUB RELEASE
@@ -678,36 +734,42 @@ EOF
             NOTES=$(cat << 'EOF'
 ## 🎧 3D Ambient Player & 🎛️ 3D Soundscape Studio
 
-A comprehensive multi-platform release featuring the brand new **Dedicated Standalone 3D Ambient Player** alongside the full **3D Soundscape Studio DAW**.
+A comprehensive multi-platform release featuring the brand new **Dedicated Standalone 3D Ambient Player** alongside the full **3D Soundscape Studio DAW**, with native architecture support for **x86_64, ARM64 (aarch64), and Apple Silicon**.
 
 ### 🎧 3D Ambient Player (Standalone Player)
 *Lightweight, distraction-free spatial audio playback with Atmosphere Stem Mixer, sleep timer with 15s gentle fade-out, .3dscape package import, and Philips Hue smart lighting:*
-- **🪟 Windows (x64)**:
-  - Setup Installer: `3D-Ambient-Player-*-Windows-Setup.msi`
-  - Portable Standalone: `3D-Ambient-Player-*-Windows-Portable.zip`
-- **🐧 Linux (x86_64)**:
-  - Universal AppImage: `3D-Ambient-Player-*-Linux-x86_64.AppImage`
-  - Debian / Ubuntu: `3D-Ambient-Player-*-Linux-amd64.deb`
-  - Portable Tarball: `3D-Ambient-Player-*-Linux-x86_64.tar.gz`
-- **🍎 macOS (Universal)**:
+- **🪟 Windows (x64 & ARM64)**:
+  - Setup Installer (x64): `3D-Ambient-Player-*-Windows-Setup.msi`
+  - Portable Standalone (x64): `3D-Ambient-Player-*-Windows-x64-Portable.zip`
+  - Portable Standalone (ARM64): `3D-Ambient-Player-*-Windows-arm64-Portable.zip`
+- **🐧 Linux (x86_64 & ARM64 / aarch64)**:
+  - Universal AppImage (x86_64): `3D-Ambient-Player-*-Linux-x86_64.AppImage`
+  - Debian / Ubuntu (amd64): `3D-Ambient-Player-*-Linux-amd64.deb`
+  - Debian / Ubuntu (arm64): `3D-Ambient-Player-*-Linux-arm64.deb`
+  - Portable Tarball (x86_64): `3D-Ambient-Player-*-Linux-x86_64.tar.gz`
+  - Portable Tarball (arm64): `3D-Ambient-Player-*-Linux-arm64.tar.gz`
+- **🍎 macOS (Universal / Apple Silicon M1-M4 & Intel x86_64)**:
   - Drag-and-Drop Disk Image: `3D-Ambient-Player-*-macOS.dmg`
   - Portable App Archive: `3D-Ambient-Player-*-macOS-Universal.zip`
-- **🤖 Android**:
-  - Standalone Application: `3D-Ambient-Player-*-Android.apk`
+- **🤖 Android (ARM64-v8a)**:
+  - Standalone Application: `3D-Ambient-Player-*-Android-arm64.apk`
 
 ---
 
 ### 🎛️ 3D Soundscape Studio (Full DAW)
 *Professional 3D spatial soundscape workstation with real-time polar radar, HRTF binaural rendering, automation paths, offline FFmpeg export, and local AI audio generation:*
-- **🪟 Windows (x64)**:
-  - Setup Installer: `3D-Soundscape-Studio-*-Windows-Setup.msi`
-  - Portable Standalone: `3D-Soundscape-Studio-*-Windows-Portable.zip`
-- **🐧 Linux (x86_64)**:
-  - Universal AppImage: `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
-  - Flatpak Bundle: `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
-  - Debian / Ubuntu: `3D-Soundscape-Studio-*-Linux-amd64.deb`
-  - Portable Tarball: `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
-- **🍎 macOS (Universal)**:
+- **🪟 Windows (x64 & ARM64)**:
+  - Setup Installer (x64): `3D-Soundscape-Studio-*-Windows-Setup.msi`
+  - Portable Standalone (x64): `3D-Soundscape-Studio-*-Windows-x64-Portable.zip`
+  - Portable Standalone (ARM64): `3D-Soundscape-Studio-*-Windows-arm64-Portable.zip`
+- **🐧 Linux (x86_64 & ARM64 / aarch64)**:
+  - Universal AppImage (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.AppImage`
+  - Flatpak Bundle (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.flatpak`
+  - Debian / Ubuntu (amd64): `3D-Soundscape-Studio-*-Linux-amd64.deb`
+  - Debian / Ubuntu (arm64): `3D-Soundscape-Studio-*-Linux-arm64.deb`
+  - Portable Tarball (x86_64): `3D-Soundscape-Studio-*-Linux-x86_64.tar.gz`
+  - Portable Tarball (arm64): `3D-Soundscape-Studio-*-Linux-arm64.tar.gz`
+- **🍎 macOS (Universal / Apple Silicon M1-M4 & Intel x86_64)**:
   - Drag-and-Drop Disk Image: `3D-Soundscape-Studio-*-macOS.dmg`
   - Portable App Archive: `3D-Soundscape-Studio-*-macOS-Universal.zip`
 

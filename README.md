@@ -6,11 +6,12 @@
 [![Documentation](https://img.shields.io/badge/Wiki-Documentation-blueviolet.svg?logo=bookstack)](wiki/Home.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platforms](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS%20%7C%20iOS%20%7C%20Android-informational)](#)
+[![Architectures](https://img.shields.io/badge/Architecture-x86__64%20%7C%20ARM64%20%7C%20Apple%20Silicon-orange)](#)
 [![Standalone Player](https://img.shields.io/badge/Standalone-3D%20Ambient%20Player-blue)](#)
 [![Smart Lighting](https://img.shields.io/badge/Smart%20Lighting-Philips%20Hue%20%7C%20Home%20Assistant-purple)](#)
 [![i18n](https://img.shields.io/badge/i18n-English%20%7C%20German%20%7C%20French%20%7C%20Spanish%20%7C%20Italian-brightgreen)](#)
 
-A modern, high-performance desktop Digital Audio Workstation (DAW), 3D spatial soundscape generator, and dedicated standalone **3D Ambient Player** engineered for binaural audio, multi-channel surround rendering, interactive polar audio positioning, portable project packaging (`.3dscape`), Philips Hue smart ambient lighting, and generative relaxation audio.
+A modern, high-performance desktop Digital Audio Workstation (DAW), 3D spatial soundscape generator, and dedicated standalone **3D Ambient Player** engineered for binaural audio, multi-channel surround rendering, interactive polar audio positioning, portable project packaging (`.3dscape`), Philips Hue smart ambient lighting, generative relaxation audio, and cross-platform native execution across **x86_64, ARM64 (aarch64), and Apple Silicon**.
 
 > 📚 **Explore the [Full Visual Wiki Documentation](wiki/Home.md)** with detailed feature guides, architecture diagrams, and tutorials.
 
