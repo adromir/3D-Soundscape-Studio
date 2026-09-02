@@ -19,6 +19,8 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 | 🔊 **Multi-Channel Surround & FFmpeg Export** | Real-time playback and offline mixdown to Stereo Binaural (HRTF / SOFA), Quadraphonic 4.0, 5.1 Surround, 7.1 Surround, and 7.1.4 Dolby Atmos. |
 | 🎧 **SOFA HRTF Spatialization** | Load custom measured Head-Related Transfer Function profiles (`.sofa`) for personalized 3D headphone listening. |
 | 🎨 **Pro DAW Liquid Glass & 8 Themes** | Choose between 8 handcrafted visual styles: *Aetheric Dark*, *Studio Light*, *Cyberpunk Neon*, *Warm Fantasy*, *Holo Sci-Fi*, *Antique Sepia*, *Emerald Jungle*, and *Abyss Ocean*. |
+| 🎧 **Dedicated Standalone 3D Ambient Player** | Distraction-free playback for desktop & mobile (Windows, Linux, macOS, iOS, Android) with stem mixer, breathing visualizer, and sleep timer. |
+| 💡 **Philips Hue & Smart Lighting** | Local Bridge REST API integration with auto-discovery, 30s push-link pairing, CIE 1931 xy colors, and audio-reactive lightning flash triggers. |
 | 🌍 **100% 5-Language Localization** | Instant real-time UI localization in **English**, **German**, **French**, **Spanish**, and **Italian**. |
 
 ---
@@ -52,6 +54,8 @@ Welcome to the official documentation for **3D Soundscape Studio**, a next-gener
 - **[🤖 AI Audio Generation](AI-Audio-Generation.md)**: Guide to configuring local `audio.cpp` models and generating sounds from text prompts.
 - **[🔊 Multi-Channel Surround & Offline Export](Multi-Channel-Surround-&-Offline-Export.md)**: Set up speaker configurations, SOFA profiles, and FFmpeg mixdowns.
 - **[🎧 SOFA HRTF & Spatial Audio Guide](SOFA-HRTF-Spatial-Audio-Guide.md)**: Deep dive into HRTF filters, SOFA database sources, and personalized binaural audio.
+- **[🎧 Dedicated 3D Ambient Player](Dedicated-3D-Ambient-Player.md)**: Explore the standalone player for desktop & mobile, the Atmosphere Stem Mixer, sleep timer, and packaging.
+- **[💡 Philips Hue & Smart Lighting](Philips-Hue-&-Smart-Lighting.md)**: Synchronize physical smart lights with soundscapes via Hue Bridge or Home Assistant.
 - **[🎨 Themes, Localization & Preferences](Themes-Localization-&-Preferences.md)**: Customize themes, 5 languages, and workspace preferences.
 
 ---

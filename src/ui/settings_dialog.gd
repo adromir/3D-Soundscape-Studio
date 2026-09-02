@@ -4,6 +4,7 @@ extends Window
 # Author: Adromir
 # Repository: https://github.com/adromir
 
+const DependencyInstaller = preload("res://src/core/dependency_installer.gd")
 
 signal settings_saved()
 
@@ -55,9 +56,20 @@ var audio_cpp_model_edit: LineEdit = null
 
 var _active_browse_target: LineEdit = null
 
+var dependency_installer: DependencyInstaller = null
+var _progress_panel: PanelContainer = null
+var _progress_label: Label = null
+var _progress_bar: ProgressBar = null
+
 func _ready() -> void:
 	title = "Studio Preferences & Settings"
 	close_requested.connect(hide)
+	
+	dependency_installer = DependencyInstaller.new()
+	add_child(dependency_installer)
+	dependency_installer.progress_changed.connect(_on_dependency_progress)
+	dependency_installer.download_completed.connect(_on_dependency_download_completed)
+	dependency_installer.download_failed.connect(_on_dependency_download_failed)
 	
 	if btn_close:
 		btn_close.pressed.connect(hide)
@@ -124,8 +136,22 @@ func _setup_freesound_settings() -> void:
 		btn_browse_acpp.text = "Browse..."
 		btn_browse_acpp.custom_minimum_size = Vector2(80, 26)
 		btn_browse_acpp.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		btn_browse_acpp.pressed.connect(func(): _open_picker(audio_cpp_path_edit, FileDialog.FILE_MODE_OPEN_FILE, "Select audio.cpp executable", ["*.exe", "*"]))
+		btn_browse_acpp.pressed.connect(func():
+			var flt: Array[String] = ["* ; All Files", "*.exe ; Windows Executable"] if OS.get_name() == "Windows" else ["* ; All Files / Executables"]
+			_open_picker(audio_cpp_path_edit, FileDialog.FILE_MODE_OPEN_FILE, "Select audio.cpp executable", flt)
+		)
 		acpp_hbox.add_child(btn_browse_acpp)
+
+		var btn_dl_acpp: Button = Button.new()
+		btn_dl_acpp.text = "Auto-Install"
+		btn_dl_acpp.icon = load("res://assets/icons/download.svg")
+		btn_dl_acpp.custom_minimum_size = Vector2(110, 26)
+		btn_dl_acpp.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_dl_acpp.pressed.connect(func():
+			_show_download_progress("Starting audio.cpp download...")
+			dependency_installer.download_audiocpp(AppPaths.get_data_dir() + "/bin/audio.cpp")
+		)
+		acpp_hbox.add_child(btn_dl_acpp)
 		
 		var acpp_model_lbl: Label = Label.new()
 		acpp_model_lbl.text = "GGUF Model Path for audio.cpp:"
@@ -148,6 +174,32 @@ func _setup_freesound_settings() -> void:
 		btn_browse_model.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn_browse_model.pressed.connect(func(): _open_picker(audio_cpp_model_edit, FileDialog.FILE_MODE_OPEN_FILE, "Select GGUF model", ["*.gguf", "*"]))
 		model_hbox.add_child(btn_browse_model)
+
+		var btn_dl_model: Button = Button.new()
+		btn_dl_model.text = "Auto-Install"
+		btn_dl_model.icon = load("res://assets/icons/download.svg")
+		btn_dl_model.custom_minimum_size = Vector2(110, 26)
+		btn_dl_model.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_dl_model.pressed.connect(func():
+			_show_download_progress("Starting Model download...")
+			dependency_installer.download_model("https://huggingface.co/audio-cpp/audio.cpp-gguf/resolve/main/audiogen-medium.q8_0.gguf", AppPaths.get_data_dir() + "/models")
+		)
+		model_hbox.add_child(btn_dl_model)
+
+	if btn_browse_ffmpeg and not btn_browse_ffmpeg.get_parent().has_node("BtnDlFfmpeg"):
+		var btn_dl_ffmpeg: Button = Button.new()
+		btn_dl_ffmpeg.name = "BtnDlFfmpeg"
+		btn_dl_ffmpeg.text = "Auto-Install"
+		btn_dl_ffmpeg.icon = load("res://assets/icons/download.svg")
+		btn_dl_ffmpeg.custom_minimum_size = Vector2(110, 26)
+		btn_dl_ffmpeg.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		btn_dl_ffmpeg.pressed.connect(func():
+			_show_download_progress("Starting FFmpeg download...")
+			dependency_installer.download_ffmpeg(AppPaths.get_data_dir() + "/bin/ffmpeg")
+		)
+		var p_idx = btn_browse_ffmpeg.get_index()
+		btn_browse_ffmpeg.get_parent().add_child(btn_dl_ffmpeg)
+		btn_browse_ffmpeg.get_parent().move_child(btn_dl_ffmpeg, p_idx + 1)
 
 func apply_theme(theme_mode: ThemeManager.ThemeMode) -> void:
 	var pal: Dictionary = ThemeManager.get_palette_for_mode(theme_mode)
@@ -187,6 +239,60 @@ func apply_theme(theme_mode: ThemeManager.ThemeMode) -> void:
 
 	ThemeManager.apply_theme(self, theme_mode)
 
+func _show_download_progress(msg: String) -> void:
+	if _progress_panel == null:
+		_progress_panel = PanelContainer.new()
+		_progress_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		
+		var style = StyleBoxFlat.new()
+		style.bg_color = Color(0, 0, 0, 0.7)
+		_progress_panel.add_theme_stylebox_override("panel", style)
+		
+		var center = CenterContainer.new()
+		_progress_panel.add_child(center)
+		
+		var vbox = VBoxContainer.new()
+		center.add_child(vbox)
+		
+		_progress_label = Label.new()
+		_progress_label.text = msg
+		vbox.add_child(_progress_label)
+		
+		_progress_bar = ProgressBar.new()
+		_progress_bar.custom_minimum_size = Vector2(300, 20)
+		vbox.add_child(_progress_bar)
+		
+		add_child(_progress_panel)
+	
+	_progress_label.text = msg
+	_progress_bar.value = 0
+	_progress_panel.show()
+	_progress_panel.move_to_front()
+
+func _hide_download_progress() -> void:
+	if _progress_panel:
+		_progress_panel.hide()
+
+func _on_dependency_progress(msg: String, pct: float) -> void:
+	if _progress_panel and _progress_panel.visible:
+		_progress_label.text = msg
+		_progress_bar.value = pct
+
+func _on_dependency_download_completed(type: String, path: String) -> void:
+	_hide_download_progress()
+	if type == "ffmpeg" and ffmpeg_path_edit:
+		ffmpeg_path_edit.text = path
+	elif type == "audiocpp" and audio_cpp_path_edit:
+		audio_cpp_path_edit.text = path
+	elif type == "gguf_model" and audio_cpp_model_edit:
+		audio_cpp_model_edit.text = path
+	_save_current_settings(false)
+	OS.alert("Download installed successfully!\n" + path, "Success")
+
+func _on_dependency_download_failed(msg: String) -> void:
+	_hide_download_progress()
+	OS.alert("Download failed:\n" + msg, "Error")
+
 func _setup_browse_buttons() -> void:
 	if path_file_dialog:
 		path_file_dialog.dir_selected.connect(_on_path_dialog_selected)
@@ -201,7 +307,10 @@ func _setup_browse_buttons() -> void:
 	if btn_browse_sofa:
 		btn_browse_sofa.pressed.connect(func(): _open_picker(sofa_path_edit, FileDialog.FILE_MODE_OPEN_FILE, "Select HRTF SOFA File", ["*.sofa ; SOFA HRTF Files"]))
 	if btn_browse_ffmpeg:
-		btn_browse_ffmpeg.pressed.connect(func(): _open_picker(ffmpeg_path_edit, FileDialog.FILE_MODE_OPEN_FILE, "Select FFmpeg Executable", ["*.exe ; Executables", "*.* ; All Files"]))
+		btn_browse_ffmpeg.pressed.connect(func():
+			var flt: Array[String] = ["* ; All Files", "*.exe ; Windows Executable"] if OS.get_name() == "Windows" else ["* ; All Files / Executables"]
+			_open_picker(ffmpeg_path_edit, FileDialog.FILE_MODE_OPEN_FILE, "Select FFmpeg Executable", flt)
+		)
 
 func _open_picker(target_edit: LineEdit, mode: FileDialog.FileMode, dialog_title: String, filters: Array[String] = []) -> void:
 	if path_file_dialog == null: return

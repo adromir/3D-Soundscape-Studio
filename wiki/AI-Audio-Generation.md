@@ -6,16 +6,20 @@ This is powered by the open-source [audio.cpp](https://github.com/0xShug0/audio.
 
 ## 🛠️ Setup & Configuration
 
-To use the AI generation features, you need to configure the native engine paths in the Studio preferences.
+You can install all required dependencies directly inside the application with 1-click on **Windows**, **Linux**, and **macOS**!
 
-1. **Download audio.cpp:** Obtain the compiled binaries for your OS from the `audio.cpp` releases page.
-2. **Download a GGUF Audio Model:** You need an AudioGen model converted to GGUF format (e.g., `audiogen-medium.gguf`).
-3. **Configure Preferences:**
-   - Open **File > Preferences** (`Ctrl+,`)
-   - Go to the **System Paths** tab.
-   - Set **audio.cpp Binary Path** to the executable (`audio.exe` on Windows).
-   - Set **GGUF Model Path for audio.cpp** to the `.gguf` file you downloaded.
-   - Click **Save Preferences**.
+### ⚡ 1-Click Auto-Installation (Recommended)
+1. Open **File > Preferences** (`Ctrl+,`).
+2. In the **Display & API** tab, click **`⬇️ Auto-Install`** next to:
+   - **audio.cpp Executable Path**: Automatically detects your platform (Windows x64 Vulkan/CPU, macOS Apple Silicon Metal / Intel, or Linux Vulkan/CPU) and downloads + unpacks the appropriate native binary.
+   - **GGUF Model Path**: Automatically downloads the recommended high-fidelity `audiogen-medium.q8_0.gguf` model straight from HuggingFace to your local storage.
+3. In the **FFmpeg** tab, click **`⬇️ Auto-Install`** to automatically download the static FFmpeg package tailored for your operating system.
+4. The studio automatically configures permissions (`chmod +x`), clears macOS quarantine tags, sets paths, and saves your settings!
+
+### 🔧 Manual Setup (Alternative)
+1. **audio.cpp:** Obtain compiled binaries for your OS (Windows `audio.exe` / `audiocpp_cli.exe`, Linux/macOS `audio` / `audiocpp_cli`) from the [audio.cpp releases page](https://github.com/0xShug0/audio.cpp/releases).
+2. **GGUF Audio Model:** Download an AudioGen model in `.gguf` format (e.g. `audiogen-medium.q8_0.gguf`).
+3. Set the respective paths in **File > Preferences** and click **Save Preferences**.
 
 ## 🎨 Generating Sounds
 

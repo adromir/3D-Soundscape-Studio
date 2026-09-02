@@ -79,22 +79,28 @@ jobs:
           Copy-Item -Path "templates_extracted\templates\*" -Destination $tplDir -Recurse -Force
           Write-Host "Templates installed to: $tplDir"
 
-      - name: Export Windows Executable
+      - name: Export Windows Executables
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path "build\windows" | Out-Null
           & "$env:GODOT_EXE" --headless --path . --export-release "Windows Desktop" "build\windows\3D-Soundscape-Studio.exe"
+          & "$env:GODOT_EXE" --headless --path . --export-release "Windows Player" "build\windows\3D-Ambient-Player.exe"
           if (-not (Test-Path "build\windows\3D-Soundscape-Studio.exe")) {
-            throw "Windows export failed! Executable not found."
+            throw "Windows Studio export failed! Executable not found."
           }
-          Write-Host "Successfully exported Windows binary."
+          if (-not (Test-Path "build\windows\3D-Ambient-Player.exe")) {
+            throw "Windows Player export failed! Executable not found."
+          }
+          Write-Host "Successfully exported Windows binaries (Studio & Player)."
 
-      - name: Create Portable ZIP Archive
+      - name: Create Portable ZIP Archives
         shell: pwsh
         run: |
-          $zipName = "3D-Soundscape-Studio-$env:VERSION_NAME-Windows-Portable.zip"
-          Compress-Archive -Path "build\windows\3D-Soundscape-Studio.exe", "icon.png" -DestinationPath $zipName
-          Write-Host "Created portable archive: $zipName"
+          $studioZip = "3D-Soundscape-Studio-$env:VERSION_NAME-Windows-Portable.zip"
+          Compress-Archive -Path "build\windows\3D-Soundscape-Studio.exe", "icon.png" -DestinationPath $studioZip
+          $playerZip = "3D-Ambient-Player-$env:VERSION_NAME-Windows-Portable.zip"
+          Compress-Archive -Path "build\windows\3D-Ambient-Player.exe", "icon.png" -DestinationPath $playerZip
+          Write-Host "Created portable archives: $studioZip and $playerZip"
 
       - name: Build Windows Installer (.msi) via WiX
         shell: pwsh
@@ -180,6 +186,7 @@ jobs:
           path: |
             3D-Soundscape-Studio-*-Windows-Setup.msi
             3D-Soundscape-Studio-*-Windows-Portable.zip
+            3D-Ambient-Player-*-Windows-Portable.zip
 
   # =========================================================================
   # 2. LINUX BUILD & PACKAGING (AppImage, Flatpak, Debian .deb, Tarball)
@@ -237,21 +244,25 @@ jobs:
           cp -r templates_extracted/templates/* "$TPL_DIR/"
           echo "Installed templates to $TPL_DIR"
 
-      - name: Export Linux Binary
+      - name: Export Linux Binaries
         run: |
           mkdir -p build/linux
           "$GODOT_EXE" --headless --path . --export-release "Linux" "build/linux/3D-Soundscape-Studio.x86_64"
-          chmod +x "build/linux/3D-Soundscape-Studio.x86_64"
+          "$GODOT_EXE" --headless --path . --export-release "Linux Player" "build/linux/3D-Ambient-Player.x86_64"
+          chmod +x "build/linux/3D-Soundscape-Studio.x86_64" "build/linux/3D-Ambient-Player.x86_64"
           if [ ! -f "build/linux/3D-Soundscape-Studio.x86_64" ]; then
-            echo "Error: Linux export binary missing!" && exit 1
+            echo "Error: Linux Studio export binary missing!" && exit 1
+          fi
+          if [ ! -f "build/linux/3D-Ambient-Player.x86_64" ]; then
+            echo "Error: Linux Player export binary missing!" && exit 1
           fi
 
-      - name: Create Portable TAR.GZ Archive
+      - name: Create Portable TAR.GZ Archives
         run: |
-          TAR_NAME="3D-Soundscape-Studio-${VERSION_NAME}-Linux-x86_64.tar.gz"
           cp icon.png build/linux/
-          tar -czvf "$TAR_NAME" -C build/linux 3D-Soundscape-Studio.x86_64 icon.png
-          echo "Created portable archive: $TAR_NAME"
+          tar -czvf "3D-Soundscape-Studio-${VERSION_NAME}-Linux-x86_64.tar.gz" -C build/linux 3D-Soundscape-Studio.x86_64 icon.png
+          tar -czvf "3D-Ambient-Player-${VERSION_NAME}-Linux-x86_64.tar.gz" -C build/linux 3D-Ambient-Player.x86_64 icon.png
+          echo "Created portable Linux archives for Studio and Player."
 
       - name: Build Debian Package (.deb)
         run: |
@@ -331,6 +342,7 @@ jobs:
             3D-Soundscape-Studio-*-Linux-x86_64.flatpak
             3D-Soundscape-Studio-*-Linux-amd64.deb
             3D-Soundscape-Studio-*-Linux-x86_64.tar.gz
+            3D-Ambient-Player-*-Linux-x86_64.tar.gz
 
   # =========================================================================
   # 3. MACOS BUILD & PACKAGING (Drag & Drop .dmg + Portable .zip)
@@ -379,24 +391,33 @@ jobs:
           cp -r templates_extracted/templates/* "$TPL_DIR/"
           echo "Installed templates to $TPL_DIR"
 
-      - name: Export macOS Application Bundle
+      - name: Export macOS Application Bundles
         run: |
           mkdir -p build/macos
           "$GODOT_EXE" --headless --path . --export-release "macOS" "build/macos/3D-Soundscape-Studio.zip"
-          unzip -q "build/macos/3D-Soundscape-Studio.zip" -d "build/macos/"
+          "$GODOT_EXE" --headless --path . --export-release "macOS Player" "build/macos/3D-Ambient-Player.zip"
+          unzip -q "build/macos/3D-Soundscape-Studio.zip" -d "build/macos/studio_app/"
+          unzip -q "build/macos/3D-Ambient-Player.zip" -d "build/macos/player_app/"
           
-          APP_PATH=$(find build/macos -maxdepth 2 -name "*.app" | head -n 1)
-          if [ -z "$APP_PATH" ]; then
-            echo "Error: macOS .app bundle not found after export!" && exit 1
+          STUDIO_APP=$(find build/macos/studio_app -maxdepth 2 -name "*.app" | head -n 1)
+          PLAYER_APP=$(find build/macos/player_app -maxdepth 2 -name "*.app" | head -n 1)
+          if [ -z "$STUDIO_APP" ]; then
+            echo "Error: macOS Studio .app bundle not found after export!" && exit 1
           fi
-          echo "Found application bundle: $APP_PATH"
-          echo "APP_PATH=$APP_PATH" >> $GITHUB_ENV
+          echo "Found studio bundle: $STUDIO_APP"
+          echo "STUDIO_APP=$STUDIO_APP" >> $GITHUB_ENV
 
-      - name: Create Portable ZIP Archive
+      - name: Create Portable ZIP Archives
         run: |
-          ZIP_NAME="3D-Soundscape-Studio-${VERSION_NAME}-macOS-Universal.zip"
-          ditto -c -k --keepParent "$APP_PATH" "$ZIP_NAME"
-          echo "Created portable archive: $ZIP_NAME"
+          STUDIO_ZIP="3D-Soundscape-Studio-${VERSION_NAME}-macOS-Universal.zip"
+          ditto -c -k --keepParent "$STUDIO_APP" "$STUDIO_ZIP"
+          
+          PLAYER_APP=$(find build/macos/player_app -maxdepth 2 -name "*.app" | head -n 1)
+          if [ -n "$PLAYER_APP" ]; then
+            PLAYER_ZIP="3D-Ambient-Player-${VERSION_NAME}-macOS-Universal.zip"
+            ditto -c -k --keepParent "$PLAYER_APP" "$PLAYER_ZIP"
+          fi
+          echo "Created portable macOS archives."
 
       - name: Create Drag-and-Drop Installer (.dmg)
         run: |
@@ -404,7 +425,7 @@ jobs:
           DMG_STAGING="dmg_staging"
           mkdir -p "$DMG_STAGING"
           
-          cp -R "$APP_PATH" "$DMG_STAGING/"
+          cp -R "$STUDIO_APP" "$DMG_STAGING/"
           ln -s /Applications "$DMG_STAGING/Applications"
           
           hdiutil create -volname "3D Soundscape Studio" \
@@ -421,6 +442,7 @@ jobs:
           path: |
             3D-Soundscape-Studio-*-macOS.dmg
             3D-Soundscape-Studio-*-macOS-Universal.zip
+            3D-Ambient-Player-*-macOS-Universal.zip
 
   # =========================================================================
   # 4. PUBLISH GITHUB RELEASE

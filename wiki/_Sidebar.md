@@ -8,6 +8,8 @@
 - **[🤖 AI Audio Generation](AI-Audio-Generation)**
 - **[🔊 Surround Sound & Export](Multi-Channel-Surround-&-Offline-Export)**
 - **[🎧 SOFA & HRTF Audio Guide](SOFA-HRTF-Spatial-Audio-Guide)**
+- **[🎧 Dedicated 3D Ambient Player](Dedicated-3D-Ambient-Player)**
+- **[💡 Philips Hue & Smart Lighting](Philips-Hue-&-Smart-Lighting)**
 - **[🎨 Themes & Preferences](Themes-Localization-&-Preferences)**
 
 ---

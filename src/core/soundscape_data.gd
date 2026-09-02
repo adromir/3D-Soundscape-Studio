@@ -377,7 +377,12 @@ class LightEntityConfig extends RefCounted:
 		return cfg
 
 class LightingProjectConfig extends RefCounted:
+	enum BackendType { PHILIPS_HUE = 0, HOME_ASSISTANT = 1 }
+
 	var enabled: bool = false
+	var backend: int = BackendType.PHILIPS_HUE
+	var hue_bridge_ip: String = ""
+	var hue_username: String = ""
 	var ha_endpoint: String = "http://homeassistant.local:8123"
 	var ha_token: String = ""
 	var lights: Array[LightEntityConfig] = []
@@ -388,6 +393,9 @@ class LightingProjectConfig extends RefCounted:
 			lights_arr.append(l.to_dict())
 		return {
 			"enabled": enabled,
+			"backend": backend,
+			"hue_bridge_ip": hue_bridge_ip,
+			"hue_username": hue_username,
 			"ha_endpoint": ha_endpoint,
 			"ha_token": ha_token,
 			"lights": lights_arr
@@ -396,6 +404,9 @@ class LightingProjectConfig extends RefCounted:
 	static func from_dict(dict: Dictionary) -> LightingProjectConfig:
 		var cfg: LightingProjectConfig = LightingProjectConfig.new()
 		cfg.enabled = bool(dict.get("enabled", false))
+		cfg.backend = int(dict.get("backend", BackendType.PHILIPS_HUE))
+		cfg.hue_bridge_ip = dict.get("hue_bridge_ip", "")
+		cfg.hue_username = dict.get("hue_username", "")
 		cfg.ha_endpoint = dict.get("ha_endpoint", "http://homeassistant.local:8123")
 		cfg.ha_token = dict.get("ha_token", "")
 		cfg.lights = []

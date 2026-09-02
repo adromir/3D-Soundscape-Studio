@@ -229,7 +229,20 @@ static func delete_soundscape(folder_name: String) -> bool:
 	return _remove_dir_recursive(path)
 
 static func load_soundscape(path: String) -> SoundscapeData.SoundscapeProject:
-	return load_project_file(path)
+	if path.is_empty():
+		return null
+	var global_p: String = ProjectSettings.globalize_path(path)
+	if DirAccess.dir_exists_absolute(global_p):
+		var ambmix_file: String = global_p.path_join("project.ambmix")
+		if FileAccess.file_exists(ambmix_file):
+			return load_project_file(ambmix_file)
+	# Check if it's a slug/folder name inside library root
+	var lib_folder: String = get_library_root().path_join(path)
+	if DirAccess.dir_exists_absolute(lib_folder):
+		var ambmix_file: String = lib_folder.path_join("project.ambmix")
+		if FileAccess.file_exists(ambmix_file):
+			return load_project_file(ambmix_file)
+	return load_project_file(global_p)
 
 static func load_soundscape_cover_texture(target: String) -> ImageTexture:
 	var file_to_load: String = ""

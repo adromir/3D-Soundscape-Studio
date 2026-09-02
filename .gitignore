@@ -5,6 +5,6 @@ build/
 MEMORY.md
 PROJECT_CONTEXT.md
 /addons/godot_ai
-/addons/
+/addons/copy_all_errors
 data/
 TODO.md

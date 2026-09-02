@@ -1,15 +1,16 @@
 # 🎧 3D Soundscape Studio
 
 [![Author](https://img.shields.io/badge/Author-Adromir-blue.svg)](https://github.com/adromir)
-[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-lightgrey.svg?logo=github)](https://github.com/adromir)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-lightgrey.svg?logo=github)](https://github.com/adromir/3D-Soundscape-Studio)
 [![Engine](https://img.shields.io/badge/Engine-Godot%204.x-478cbf?logo=godotengine&logoColor=white)](https://godotengine.org/)
 [![Documentation](https://img.shields.io/badge/Wiki-Documentation-blueviolet.svg?logo=bookstack)](wiki/Home.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Platforms](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-informational)](#)
+[![Platforms](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS%20%7C%20iOS%20%7C%20Android-informational)](#)
+[![Standalone Player](https://img.shields.io/badge/Standalone-3D%20Ambient%20Player-blue)](#)
+[![Smart Lighting](https://img.shields.io/badge/Smart%20Lighting-Philips%20Hue%20%7C%20Home%20Assistant-purple)](#)
 [![i18n](https://img.shields.io/badge/i18n-English%20%7C%20German%20%7C%20French%20%7C%20Spanish%20%7C%20Italian-brightgreen)](#)
-[![Themes](https://img.shields.io/badge/Themes-8%20Styles-orange)](#)
 
-A modern, high-performance desktop Digital Audio Workstation (DAW) and spatial soundscape generator engineered for binaural audio, multi-channel surround rendering, interactive polar audio positioning, portable project packaging (`.3dscape`), and ambient soundscape creation.
+A modern, high-performance desktop Digital Audio Workstation (DAW), 3D spatial soundscape generator, and dedicated standalone **3D Ambient Player** engineered for binaural audio, multi-channel surround rendering, interactive polar audio positioning, portable project packaging (`.3dscape`), Philips Hue smart ambient lighting, and generative relaxation audio.
 
 > 📚 **Explore the [Full Visual Wiki Documentation](wiki/Home.md)** with detailed feature guides, architecture diagrams, and tutorials.
 
@@ -17,8 +18,11 @@ A modern, high-performance desktop Digital Audio Workstation (DAW) and spatial s
 
 ## 🌟 What the Project Does
 
-**3D Soundscape Studio** empowers sound designers, composers, tabletop RPG masters, game developers, and relaxation audio creators to craft immersive, living virtual audio environments in 3D space:
+**3D Soundscape Studio** and the **3D Ambient Player** empower sound designers, composers, tabletop RPG masters, game developers, and relaxation listeners to craft and enjoy living virtual audio environments in 3D space:
 
+- **🎧 Dedicated Standalone 3D Ambient Player (`3D-Ambient-Player`):** A lightweight, meditative player for Windows, Linux, macOS, Android, and iOS. Features an expandable Atmosphere Stem Mixer drawer, breathing vinyl visualizer halo, sleep timer with 15-second gentle audio fade-out, 1-click `.3dscape` package import, and theme customization without DAW overhead.
+- **💡 Native Philips Hue & Home Assistant Smart Lighting:** Synchronize your physical room lights with your soundscape. Features local Hue Bridge auto-discovery, 30-second push-link pairing, wide-gamut CIE 1931 xy color math, instant lightning strobe flashes ($0\text{ms}$ transition), fireplace hearth flicker, and listener proximity dimming.
+- **⚡ 1-Click Dependency Downloader:** Automated cross-platform downloader and installer for `audio.cpp`, FFmpeg, and recommended AudioGen GGUF diffusion models on Windows, Linux, and macOS.
 - **📦 Portable Soundscape Project Packaging (`.3dscape` / `.zip`):** Export and import self-contained soundscape archives containing track coordinates, listener movement paths, trigger schedules, metadata, cover artwork, and all referenced audio stem files with zero missing-file errors.
 - **🎯 Interactive 3D Spatial Radar:** Visually position audio sources relative to a central listener with real-time azimuth, elevation, and distance attenuation (up to 30m soundspaces) with live drag & drop.
 - **🌐 Native Ambient-Mixer Downloader & Importer:** Download soundscapes directly from [ambient-mixer.com](https://www.ambient-mixer.com/) with stem extraction, automatic URL subdomain categorization, metadata parsing, and cover art preservation.
@@ -130,6 +134,22 @@ A modern, high-performance desktop Digital Audio Workstation (DAW) and spatial s
 - Shows release notes, version differences (`v2.0.0` ➔ `v2.1.0`), and downloads update binaries directly.
 - On Windows and Linux, auto-applies the downloaded update package and restarts seamlessly.
 - Configurable in **Preferences > Display & Language** (`[x] Check for updates automatically on startup`).
+
+### 7. Using the Dedicated 3D Ambient Player
+
+For users who want pure ambient soundscape playback, relaxation, meditation, or sleep assistance without loading the full DAW:
+
+- **Launch Directly:** Run `3D-Ambient-Player.exe` (or `3D-Ambient-Player.x86_64` / `.app`), or pass `--player` (or `-p`) on the command line.
+- **Atmosphere Stem Mixer:** Click the bottom drawer to expand real-time volume sliders and icons for each sound element (rain, wind, campfire, birds).
+- **Smart Sleep Timer:** Click the crescent moon icon in the header to select 15m, 30m, 45m, 1h, or 2h with a gentle 15-second volume fade-out.
+- **Library & Packages:** Click the Library button to switch soundscapes or import `.3dscape` package files.
+
+### 8. Philips Hue & Smart Ambient Lighting
+
+- Open **Tools > Visual Ambient Lighting (Hue & HA)...** (`F7`).
+- Click **🔍 Auto-Discover Bridge** or enter your Bridge IP manually.
+- Press the physical push-link button on your Hue Bridge and click **Pair with Bridge**.
+- Fetch and map lights to thunder lightning strobes, fireplace flickers, and walking proximity dimming.
 
 ---
 

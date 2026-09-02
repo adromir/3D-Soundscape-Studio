@@ -15,8 +15,22 @@ static func get_ffmpeg_binary_path() -> String:
 	var base_dir: String = OS.get_executable_path().get_base_dir()
 	var bin_name: String = "ffmpeg.exe" if OS.get_name() == "Windows" else "ffmpeg"
 
-	# 1. Check next to Godot executable / project root / bin folder
+	var custom_path: String = ""
+	var settings_file: String = AppPaths.get_settings_file()
+	if FileAccess.file_exists(settings_file):
+		var f: FileAccess = FileAccess.open(settings_file, FileAccess.READ)
+		if f:
+			var json: JSON = JSON.new()
+			if json.parse(f.get_as_text()) == OK and json.data is Dictionary:
+				custom_path = json.data.get("ffmpeg_path", "")
+			f.close()
+
+	if not custom_path.is_empty() and FileAccess.file_exists(custom_path):
+		return custom_path
+
+	# 1. Check data dir / next to Godot executable / project root / bin folder
 	var paths_to_check: PackedStringArray = [
+		AppPaths.get_data_dir().path_join("bin/ffmpeg").path_join(bin_name),
 		base_dir.path_join(bin_name),
 		ProjectSettings.globalize_path("res://").path_join(bin_name),
 		ProjectSettings.globalize_path("res://bin/").path_join(bin_name),

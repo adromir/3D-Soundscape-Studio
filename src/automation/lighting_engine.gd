@@ -7,6 +7,7 @@ extends Node
 
 
 var ha_client: HomeAssistantClient = null
+var hue_client: PhilipsHueClient = null
 var project_lighting: SoundscapeData.LightingProjectConfig = null
 var is_active: bool = false
 
@@ -22,12 +23,17 @@ func _ready() -> void:
 	ha_client.name = "HAClient"
 	add_child(ha_client)
 
+	hue_client = PhilipsHueClient.new()
+	hue_client.name = "HueClient"
+	add_child(hue_client)
+
 func set_project_lighting(cfg: SoundscapeData.LightingProjectConfig) -> void:
 	project_lighting = cfg
 	_last_sent_brightness.clear()
 	_last_sent_time.clear()
 	if project_lighting:
 		ha_client.configure(project_lighting.ha_endpoint, project_lighting.ha_token)
+		hue_client.configure(project_lighting.hue_bridge_ip, project_lighting.hue_username)
 
 func start_playback() -> void:
 	if project_lighting == null or not project_lighting.enabled:
@@ -44,28 +50,40 @@ func stop_playback() -> void:
 	_last_sent_brightness.clear()
 	_last_sent_time.clear()
 	if project_lighting and project_lighting.enabled:
+		var is_hue: bool = (project_lighting.backend == SoundscapeData.LightingProjectConfig.BackendType.PHILIPS_HUE)
 		for l in project_lighting.lights:
 			if l.enabled and not l.entity_id.is_empty():
-				ha_client.turn_off_light(l.entity_id, 1.0)
+				if is_hue:
+					hue_client.turn_off_light(l.entity_id, 1.0)
+				else:
+					ha_client.turn_off_light(l.entity_id, 1.0)
 
 func apply_baseline_lighting() -> void:
 	if project_lighting == null or not project_lighting.enabled:
 		return
 
+	var is_hue: bool = (project_lighting.backend == SoundscapeData.LightingProjectConfig.BackendType.PHILIPS_HUE)
 	for l in project_lighting.lights:
 		if l.enabled and not l.entity_id.is_empty():
 			_last_sent_brightness[l.entity_id] = l.brightness_pct
 			_last_sent_time[l.entity_id] = Time.get_ticks_msec() / 1000.0
-			ha_client.turn_on_light(l.entity_id, l.base_rgb, l.brightness_pct, 1.0)
+			if is_hue:
+				hue_client.turn_on_light(l.entity_id, l.base_rgb, l.brightness_pct, 1.0)
+			else:
+				ha_client.turn_on_light(l.entity_id, l.base_rgb, l.brightness_pct, 1.0)
 
 func on_sound_triggered(track_id: String) -> void:
 	if not is_active or project_lighting == null or not project_lighting.enabled:
 		return
 
+	var is_hue: bool = (project_lighting.backend == SoundscapeData.LightingProjectConfig.BackendType.PHILIPS_HUE)
 	for l in project_lighting.lights:
 		if l.enabled and not l.entity_id.is_empty():
 			if l.trigger_track_id == track_id or l.effect_mode == SoundscapeData.LightEffectMode.LIGHTNING_TRIGGER_FLASH:
-				ha_client.trigger_lightning_flash(l.entity_id, l.flash_color, l.base_rgb, l.brightness_pct, l.flash_duration_ms)
+				if is_hue:
+					hue_client.trigger_lightning_flash(l.entity_id, l.flash_color, l.base_rgb, l.brightness_pct, l.flash_duration_ms)
+				else:
+					ha_client.trigger_lightning_flash(l.entity_id, l.flash_color, l.base_rgb, l.brightness_pct, l.flash_duration_ms)
 
 func update_frame(delta: float, listener_pos: Vector3) -> void:
 	if not is_active or project_lighting == null or not project_lighting.enabled:
@@ -83,13 +101,11 @@ func update_frame(delta: float, listener_pos: Vector3) -> void:
 
 		match l.effect_mode:
 			SoundscapeData.LightEffectMode.CANDLE_HEARTH_FLICKER:
-				# Subtle warm flicker (+/- 15% brightness oscillation)
 				var flicker: float = sin(_flicker_time * 7.5) * 0.08 + sin(_flicker_time * 19.3) * 0.05
 				var flicker_pct: int = clamp(int(l.brightness_pct * (1.0 + flicker)), 1, 100)
 				_send_throttled_light_update(l.entity_id, l.base_rgb, flicker_pct, 0.25)
 
 			SoundscapeData.LightEffectMode.PROXIMITY_WALK:
-				# Adjust brightness based on listener distance to virtual light
 				var dist: float = listener_pos.distance_to(l.position_3d)
 				var atten: float = clampf(1.0 - (dist / 8.0), 0.15, 1.0)
 				var prox_pct: int = clamp(int(l.brightness_pct * atten), 5, 100)
@@ -106,4 +122,8 @@ func _send_throttled_light_update(entity_id: String, rgb: Color, brightness_pct:
 
 	_last_sent_brightness[entity_id] = brightness_pct
 	_last_sent_time[entity_id] = now
-	ha_client.turn_on_light(entity_id, rgb, brightness_pct, transition)
+
+	if project_lighting and project_lighting.backend == SoundscapeData.LightingProjectConfig.BackendType.PHILIPS_HUE:
+		hue_client.turn_on_light(entity_id, rgb, brightness_pct, transition)
+	else:
+		ha_client.turn_on_light(entity_id, rgb, brightness_pct, transition)

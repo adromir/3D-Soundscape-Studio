@@ -94,9 +94,9 @@ func _create_track_item(track: SoundscapeData.TrackConfig) -> PanelContainer:
 	indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hbox.add_child(indicator)
 
-	# Sound Icon (theme-aware, vibrant high contrast)
+	# Sound Icon (theme-aware, enlarged high contrast)
 	var icon_rect: TextureRect = TextureRect.new()
-	icon_rect.custom_minimum_size = Vector2(18, 18)
+	icon_rect.custom_minimum_size = Vector2(24, 24)
 	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon_rect.texture = ThemeManager.get_sound_icon(track.icon_name)

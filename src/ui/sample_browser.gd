@@ -914,8 +914,8 @@ func _create_ai_item_card(item: Dictionary, pal: Dictionary) -> PanelContainer:
 	)
 	hbox.add_child(btn_add_track)
 
-	# Delete Button (Only for user:// samples)
-	if p_path.begins_with("user://"):
+	# Delete Button (for any user/local/AI samples, not builtin res://)
+	if not p_path.begins_with("res://"):
 		var btn_del: Button = Button.new()
 		btn_del.icon = load("res://assets/icons/trash.svg")
 		btn_del.custom_minimum_size = Vector2(26, 26)

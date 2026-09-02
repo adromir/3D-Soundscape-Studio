@@ -37,8 +37,20 @@ func _detect_local_environment() -> void:
 			f.close()
 
 	if audio_cpp_binary_path.is_empty():
+		var bin_dir: String = AppPaths.get_data_dir().path_join("bin/audio.cpp")
 		var possible_bins: Array[String] = [
-			"audio.cpp",
+			bin_dir.path_join("audiocpp_cli.exe"),
+			bin_dir.path_join("audiocpp_cli"),
+			bin_dir.path_join("audio.exe"),
+			bin_dir.path_join("audio"),
+			bin_dir.path_join("audiocpp_server.exe"),
+			bin_dir.path_join("audiocpp_server"),
+			bin_dir.path_join("audio.cpp.exe"),
+			bin_dir.path_join("audio.cpp"),
+			"audiocpp_cli.exe",
+			"audiocpp_cli",
+			"audio.exe",
+			"audio",
 			"bin/audio.cpp.exe",
 			"bin/audio.cpp",
 			"tools/audio.cpp.exe"
@@ -47,6 +59,14 @@ func _detect_local_environment() -> void:
 			if FileAccess.file_exists(p):
 				audio_cpp_binary_path = p
 				break
+
+	if model_path.is_empty():
+		var default_model: String = AppPaths.get_data_dir().path_join("models/audiogen-medium.q8_0.gguf")
+		if FileAccess.file_exists(default_model):
+			model_path = default_model
+
+	if not audio_cpp_binary_path.is_empty() and OS.get_name() != "Windows":
+		OS.execute("chmod", ["+x", audio_cpp_binary_path])
 
 func generate_audio(prompt: String, duration_sec: float = 5.0, steps: int = 25, seed_val: int = -1) -> void:
 	if is_generating:
